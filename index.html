@@ -690,6 +690,7 @@ main{flex:1;overflow:hidden;position:relative}
   font-weight:500;
   text-transform:uppercase;
   text-align:center;
+  min-height:2.5em;
 }
 
 /* aktivna kartica (npr. dok teče sehur) */
@@ -1087,6 +1088,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) .danas-extra-card-v9{
   min-height:134px;
 }
+.danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) #dcard-izlazak::after{
+  content:'';display:block;height:31px;
+}
 
 @media(max-width:390px){
   .danas-local-source-badge{font-size:0.68rem;margin-top:-1px}
@@ -1293,6 +1297,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) .danas-extra-card-v9{
   min-height:124px!important;
 }
+.danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) #dcard-izlazak::after{
+  content:'';display:block;height:28px!important;
+}
 
 @media(max-width:390px){
   .header-logo{height:60px}
@@ -1310,6 +1317,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) .danas-extra-card,
   .danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) .danas-extra-card-v9{
     min-height:116px!important;
+  }
+  .danas-extra-row-v9:has(#dcard-sehurKraj.sehur-counting) #dcard-izlazak::after{
+    content:'';display:block;height:24px!important;
   }
 }
 
