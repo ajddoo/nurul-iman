@@ -57,6 +57,7 @@
 <!-- Ajdin v2.26.31: bug fix — 3-minutna "nula faza" sehura sada koristi zoraBA (vaktija.ba) za BiH/Sandžak ako API radi (prije: uvijek UK sehurKraj, što je aktiviralo nula fazu prerano u BiH). -->
 <!-- Ajdin v2.26.32: CSP cleanup — skinute "frame-ancestors" i tile.openstreetmap.org direktive (frame-ancestors mora preko HTTP headera, ne meta — GitHub Pages već postavlja X-Frame-Options; tile.osm nije u upotrebi). -->
 <!-- Ajdin v2.26.33: offline indikator — vidljiv banner u panel-danas kad navigator.onLine=false; CSS body.is-offline; auto-refresh kad se vrati online; spriječava da korisnik pomisli da gleda online vrijednost dok je offline. -->
+<!-- Ajdin v2.26.34: dead code cleanup — uklonjen "localStorage.removeItem('ni_last_location')" (key se nikad nije postavljao); simplificiran sabahMainTime (fajrUK uvjetni izraz nije se koristio jer Hejaz/BiH grane imaju vlastiti render). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3117,7 +3118,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2293';
+  var V='2294';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4373,7 +4374,9 @@ function renderDanasVaktu(times,opts={}){
   };
   const list=document.getElementById('danasNamazList');
 
-  const sabahMainTime=isHejaz?times.fajrUK:times.sabah;
+  // Sabah za "ostatak svijeta" granu (nije BiH/Sandžak, nije Hejaz).
+  // Hejaz i BiH/Sandžak imaju svoje grane ispod i koriste times.sabah/sabahISNA direktno.
+  const sabahMainTime=times.sabah;
   let html='';
 
   if(isBiHSandzak){
@@ -4702,10 +4705,6 @@ function autoLoadDanas(){
     requestAndLoadDanasLocation();
     return;
   }
-
-  try{
-    localStorage.removeItem('ni_last_location');
-  }catch(e){}
 
   requestAndLoadDanasLocation();
 }
