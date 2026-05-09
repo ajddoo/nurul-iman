@@ -2793,6 +2793,10 @@ body.live-focus-mode .live-focus-overlay{
   background:linear-gradient(to right,transparent,var(--border-mid) 22%,var(--border-mid) 78%,transparent);
 }
 .live-expand-overlay.le-dual .live-expand-half{padding:16px 32px}
+/* Gornja polovica — sadržaj privučen prema separatoru (dole) */
+.live-expand-overlay.le-dual #leTopHalf{justify-content:flex-end}
+/* Donja polovica — sadržaj privučen prema separatoru (gore) */
+.live-expand-overlay.le-dual #leBotHalf{justify-content:flex-start}
 .live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(2.4rem,10vw,4rem)}
 .live-expand-kicker{font-family:var(--font-sans);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px}
 .live-expand-name{font-family:var(--font-display);font-size:1.05rem;font-weight:400;color:var(--text-primary);text-align:center;margin-bottom:8px;line-height:1.35}
@@ -3032,7 +3036,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2269';
+  var V='2270';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
