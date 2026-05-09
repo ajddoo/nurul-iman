@@ -60,6 +60,7 @@
 <!-- Ajdin v2.26.34: dead code cleanup — uklonjen "localStorage.removeItem('ni_last_location')" (key se nikad nije postavljao); simplificiran sabahMainTime (fajrUK uvjetni izraz nije se koristio jer Hejaz/BiH grane imaju vlastiti render). -->
 <!-- Ajdin v2.26.35: sigurnost+funkc — GPS enableHighAccuracy:true (5-10m tačnost za regiju detekciju); strict regex parser za vaktija.ba "HH:MM" format (vraća null umjesto NaN); strict regex za URL ?time= parametar (samo "HH:MM" ili ISO format). -->
 <!-- Ajdin v2.26.36: globalni error boundary (window.onerror i unhandledrejection) za vidljivost JS grešaka u konzoli; polarni warning u source-note kad sabah/jacija/sehurKraj=null (visoke geografske širine — Skandinavija ljeti, Antarktik). -->
+<!-- Ajdin v2.26.37: localStorage cache za grad/drzava/temp (ključ "mn-loc-cache"); pri offline ili Nominatim/Open-Meteo fail koristi keš + jasno označava "zadnji online prije Xh"; offline banner pokazuje keš info dinamično; bez kolizije sa budućim manualnim unosom (different localStorage key). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3130,9 +3131,46 @@ function escapeHTML(s){
     .replace(/'/g,'&#39;');
 }
 
+// ── Cache zadnje uspješne lokacije i prognoze ────────────────────────────────
+// Snima u localStorage rezultat Nominatim reverse-geo i Open-Meteo weather poziva.
+// Pri offline ili API failure, UI koristi keš + jasno pokazuje "zadnji online prije Xh".
+// Vakuti se i dalje računaju iz svježeg GPS-a (lokalno, ne treba mreža) — keš je SAMO za UI.
+//
+// Hijerarhija (bez kolizije sa kasnijim manualnim unosom u Sprint 3):
+//   1. URL ?lat=&lng= (test linkovi)
+//   2. localStorage 'mn-manual-loc' (manualni unos — Sprint 3, override)
+//   3. GPS (live)
+//   4. localStorage 'mn-loc-cache' — koristi se SAMO ako geo/weather API fail
+const LOC_CACHE_KEY='mn-loc-cache';
+function saveLocCache(partial){
+  try{
+    const cur=loadLocCache()||{};
+    const next={...cur,...partial,timestamp:Date.now()};
+    localStorage.setItem(LOC_CACHE_KEY,JSON.stringify(next));
+  }catch(e){}
+}
+function loadLocCache(){
+  try{
+    const raw=localStorage.getItem(LOC_CACHE_KEY);
+    if(!raw)return null;
+    const c=JSON.parse(raw);
+    return (c&&typeof c==='object')?c:null;
+  }catch(e){return null;}
+}
+function relTimeBs(ts){
+  if(!ts)return '';
+  const min=Math.floor((Date.now()-ts)/60000);
+  if(min<1)return 'upravo';
+  if(min<60)return `prije ${min} min`;
+  const h=Math.floor(min/60);
+  if(h<24)return `prije ${h} h`;
+  const d=Math.floor(h/24);
+  return `prije ${d} ${d===1?'dan':'dana'}`;
+}
+
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2296';
+  var V='2297';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4602,6 +4640,8 @@ async function loadDanas(lat,lng){
 
   let reverseGeoName=null;
   let reverseGeoCountry=null;
+  let usedCacheForGeo=false;
+  let usedCacheForWeather=false;
   try{
     if(TEST_MODE.location.enabled&&TEST_MODE.location.label){
       document.getElementById('danasGrad').textContent=TEST_MODE.location.label;
@@ -4619,10 +4659,23 @@ async function loadDanas(lat,lng){
       document.getElementById('danasGradSub').textContent=formatBosnianCountry(drzava);
       locationLabel=`${grad}${drzava?' · '+formatBosnianCountry(drzava):''}`;
       reverseGeoName=grad;
+      // Snimi u keš za offline pokrivanje (isključujući test mode)
+      saveLocCache({grad,drzava});
     }
   }catch(e){
-    document.getElementById('danasGrad').textContent='Nepoznata lokacija';
-    document.getElementById('danasGradSub').textContent=locationLabel;
+    // Nominatim fail (offline ili API down) → koristi keš ako postoji
+    const cache=loadLocCache();
+    if(cache&&cache.grad){
+      document.getElementById('danasGrad').textContent=cache.grad;
+      const country=formatBosnianCountry(cache.drzava||'');
+      document.getElementById('danasGradSub').textContent=(country?country+' · ':'')+'zadnji online '+relTimeBs(cache.timestamp);
+      reverseGeoName=cache.grad;
+      reverseGeoCountry=cache.drzava||null;
+      usedCacheForGeo=true;
+    }else{
+      document.getElementById('danasGrad').textContent='Nepoznata lokacija';
+      document.getElementById('danasGradSub').textContent=locationLabel;
+    }
   }
 
   try{
@@ -4634,10 +4687,22 @@ async function loadDanas(lat,lng){
     document.getElementById('danasIcon').textContent=WEATHER_ICONS[code]||'🌡';
     document.getElementById('danasTemp').textContent=temp+'°';
     document.getElementById('danasCond').textContent=(WEATHER_CODES[code]||'').replace(/[^\w\sčšžćđČŠŽĆĐ]/gu,'').trim();
+    // Snimi u keš
+    saveLocCache({temp,code});
   }catch(e){
-    document.getElementById('danasIcon').textContent='🌡';
-    document.getElementById('danasTemp').textContent='–';
-    document.getElementById('danasCond').textContent='Prognoza trenutno nije dostupna';
+    // Open-Meteo fail → koristi keš ako postoji
+    const cache=loadLocCache();
+    if(cache&&typeof cache.temp==='number'){
+      document.getElementById('danasIcon').textContent=WEATHER_ICONS[cache.code]||'🌡';
+      document.getElementById('danasTemp').textContent=cache.temp+'°';
+      const cond=(WEATHER_CODES[cache.code]||'').replace(/[^\w\sčšžćđČŠŽĆĐ]/gu,'').trim();
+      document.getElementById('danasCond').textContent=cond+' · '+relTimeBs(cache.timestamp);
+      usedCacheForWeather=true;
+    }else{
+      document.getElementById('danasIcon').textContent='🌡';
+      document.getElementById('danasTemp').textContent='–';
+      document.getElementById('danasCond').textContent='Prognoza trenutno nije dostupna';
+    }
   }
 
   const rawTimes=calcPrayerTimes(lat,lng,appNow());
@@ -6026,11 +6091,22 @@ updateWakeLockUI();
 
 // ── Offline status detection ────────────────────────────────────────────────
 // Korisniku mora biti vidljivo kad nije online — vakuti se i dalje računaju
-// za zadnju GPS poziciju, ali grad i weather ne mogu se osvježiti. Bez ovoga
-// bi korisnik mogao biti u drugom gradu i misliti da gleda "online" vrijednost.
+// za zadnju GPS poziciju, ali grad i weather mogu biti iz keša. Bez ovoga
+// bi korisnik mogao biti u drugom gradu i misliti da gleda "svježi" podatak.
 function updateOnlineStatus(){
   const online=navigator.onLine;
   document.body.classList.toggle('is-offline',!online);
+  // Ažuriraj poruku banner-a sa keš info ako je offline
+  const banner=document.getElementById('danasOfflineBanner');
+  if(banner&&!online){
+    const cache=loadLocCache();
+    if(cache&&cache.grad&&cache.timestamp){
+      const country=formatBosnianCountry(cache.drzava||'');
+      banner.textContent=`⚠ Offline · zadnji online: ${cache.grad}${country?', '+country:''} · ${relTimeBs(cache.timestamp)}`;
+    }else{
+      banner.textContent='⚠ Offline · vakuti se računaju lokalno · grad i prognoza nisu dostupni';
+    }
+  }
   // Kad se vrati online — auto-osvježi vakate i weather
   if(online&&lastDanasCoords){
     try{loadDanas(lastDanasCoords.lat,lastDanasCoords.lng);}catch(e){}
@@ -6040,6 +6116,8 @@ window.addEventListener('online',updateOnlineStatus);
 window.addEventListener('offline',updateOnlineStatus);
 // Postavi inicijalno stanje pri load-u
 updateOnlineStatus();
+// Ažuriraj relativni timestamp u banner-u svake minute (dok je offline)
+setInterval(()=>{if(!navigator.onLine)updateOnlineStatus();},60000);
 
 // INIT
 renderDanasDatum();autoLoadDanas();
