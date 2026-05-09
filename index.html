@@ -66,6 +66,7 @@
 <!-- Ajdin v2.26.40: a11y + touch targets — :focus-visible outline za keyboard korisnike (svi gumbovi); header info dugme 26→32px, wake/sehur lock min 30×30 (Apple HIG ≥44 sa padding zonom). -->
 <!-- Ajdin v2.26.41: polish animacije — tab fade-in (0.28s) + suptilan timer-pulse u zadnjoj minuti (gold glow); haptic vibration na tab klik (navigator.vibrate, samo mobilni); guard za tab koji je već aktivan. -->
 <!-- Ajdin v2.26.42: stanja komponenti — :hover stanja (desktop, @media hover:hover guard), :disabled state (uniformno opacity 0.5 + cursor:not-allowed) za sve gumbe; cursor:pointer na klikabilnim elementima. -->
+<!-- Ajdin v2.26.43: loading skeleton (shimmer animacija na danas-next-name, danas-timer, danas-temp, danas-cond, danas-city, danas-cal-day) tokom GPS i API učitavanja; postavlja se body.app-loading u autoLoadDanas, skida u renderDanasVaktu i u GPS error handler-u; CSS za empty state (priprema za feature kasnije). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2873,6 +2874,85 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.43 — LOADING SKELETON & EMPTY STATE
+   Dok GPS i API-ji učitavaju (do 15 sec sa high accuracy), umjesto "–"
+   placeholdera prikazujemo shimmer animaciju. Korisnik vidi da app radi.
+   ============================================================================ */
+@keyframes skeletonShimmer{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+.skeleton-line{
+  background:linear-gradient(90deg,
+    rgba(245,237,214,0.04) 0%,
+    rgba(245,237,214,0.14) 50%,
+    rgba(245,237,214,0.04) 100%);
+  background-size:200% 100%;
+  animation:skeletonShimmer 1.5s linear infinite;
+  border-radius:6px;
+  display:inline-block;
+  color:transparent;
+  user-select:none;
+}
+/* Tokom učitavanja, glavni placeholderi dobijaju shimmer. */
+body.app-loading .danas-next-name,
+body.app-loading .danas-timer{
+  background:linear-gradient(90deg,
+    rgba(245,237,214,0.04) 0%,
+    rgba(245,237,214,0.14) 50%,
+    rgba(245,237,214,0.04) 100%);
+  background-size:200% 100%;
+  animation:skeletonShimmer 1.5s linear infinite;
+  border-radius:6px;
+  color:transparent;
+}
+body.app-loading .danas-temp,
+body.app-loading .danas-cond,
+body.app-loading .danas-city,
+body.app-loading .danas-cal-day{
+  background:linear-gradient(90deg,
+    rgba(245,237,214,0.04) 0%,
+    rgba(245,237,214,0.14) 50%,
+    rgba(245,237,214,0.04) 100%);
+  background-size:200% 100%;
+  animation:skeletonShimmer 1.5s linear infinite;
+  border-radius:5px;
+  color:transparent;
+  min-width:60%;
+}
+
+/* Empty state — kad app nema lokaciju ni keš (prvi load + offline + GPS odbijen) */
+.danas-empty-state{
+  display:none;
+  text-align:center;
+  padding:24px 16px;
+  margin:8px 0;
+  background:var(--bg-surface);
+  border:1px dashed var(--border-mid);
+  border-radius:var(--r-lg);
+}
+.danas-empty-state.visible{display:block}
+.danas-empty-state .danas-empty-icon{
+  font-size:2.4rem;
+  margin-bottom:10px;
+  opacity:0.7;
+}
+.danas-empty-state .danas-empty-title{
+  font-family:var(--font-display);
+  font-size:1.05rem;
+  color:var(--accent);
+  margin-bottom:6px;
+  font-weight:500;
+}
+.danas-empty-state .danas-empty-msg{
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  color:var(--warm-gray);
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+/* ============================================================================
    v2.26.42 — HOVER & DISABLED STATES
    Mobile-first nema hover, ali na desktopu (mouse) korisnik treba vizuelni
    feedback prije klika. Plus jasan disabled stil na svim dugmadima.
@@ -3329,7 +3409,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2302';
+  var V='2303';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4788,6 +4868,8 @@ function renderDanasVaktu(times,opts={}){
   if(danasInterval)clearInterval(danasInterval);
   updateDanasCountdown();
   danasInterval=setInterval(updateDanasCountdown,1000);
+  // App je spreman — skidamo skeleton shimmer
+  document.body.classList.remove('app-loading');
 }
 
 
@@ -4808,6 +4890,7 @@ function getUrlCoords(){
 }
 
 async function loadDanas(lat,lng){
+  document.body.classList.add('app-loading');
   const btn=document.getElementById('btnDanas');
   const acc=document.getElementById('danasAccuracy');
   let locationLabel=`${lat.toFixed(3)}°N, ${lng.toFixed(3)}°E`;
@@ -4973,11 +5056,14 @@ function requestAndLoadDanasLocation(){
       document.getElementById('danasGrad').textContent='Lokacija nije potvrđena';
       document.getElementById('danasGradSub').textContent='Pokušaj ponovo za današnju vaktiju';
       setDanasLocationStatus('warn',msgs[err.code]||'Greška pri dohvatanju lokacije.');
+      // Skini skeleton — GPS faila, korisnik vidi error state
+      document.body.classList.remove('app-loading');
     }
   );
 }
 
 function autoLoadDanas(){
+  document.body.classList.add('app-loading');
   activateTab('danas');
 
   const urlCoords=getUrlCoords();
