@@ -88,11 +88,11 @@
 
 ### Komponente & Stanja
 - [x] [O] 7.1 `:focus-visible` stilovi za sve dugmiće — v2.26.40
-- [ ] [S] 7.2 `:hover` desktop stanja
-- [ ] [S] 7.3 `:disabled` state stilovi
-- [ ] [O] 7.4 Loading skeleton — countdown
-- [ ] [O] 7.5 Loading skeleton — vakat lista
-- [ ] [O] 7.6 Empty state ekrani
+- [x] [O] 7.2 `:hover` desktop stanja — v2.26.42
+- [x] [O] 7.3 `:disabled` state stilovi — v2.26.42
+- [x] [O] 7.4 Loading skeleton — countdown shimmer — v2.26.43
+- [x] [O] 7.5 Loading skeleton — kartice shimmer — v2.26.43
+- [O] [O] 7.6 Empty state CSS pripremljen, HTML dodaje se po potrebi — v2.26.43
 - [ ] [O] 7.7 Error toast/snackbar
 
 ### Micro-interactions
@@ -184,3 +184,5 @@
 | 2026-05-09 | v2.26.39 | 5.1, 5.2, 5.4 | Desktop "phone frame" iznad 768px | ✓ |
 | 2026-05-09 | v2.26.40 | 5.6, 5.7, 7.1 | A11y :focus-visible + touch targets | ✓ |
 | 2026-05-09 | v2.26.41 | 8.1, 8.4, 8.6 | Tab fade + timer pulse + haptic feedback | ✓ |
+| 2026-05-09 | v2.26.42 | 7.2, 7.3 | Hover + disabled states | ✓ |
+| 2026-05-09 | v2.26.43 | 7.4, 7.5 | Loading skeleton shimmer | ✓ |
