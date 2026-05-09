@@ -40,6 +40,7 @@
 <!-- Ajdin v2.26.18: BiH/Sandžak — polaNoci i zadnjaTrecina preračunate od akšama do zoraBA (lokalna zora); highlight traje do zoraBA; fallback na ISNA ako zoraBA nije dostupan. -->
 <!-- Ajdin v2.26.19: polaNoci i zadnjaTrecina globalno — kraj noći je UK sabah (-18.5°) za sve non-Hejaz (bio ISNA -15°); Hejaz ostaje UK; BiH s API-om ostaje zoraBA; highlight nightEnd takodje prebačen na sehurKraj. -->
 <!-- Ajdin v2.26.20: donje 4 kartice — grid-template-rows:1fr auto 1fr; label align-self:end, sub align-self:start; vrijeme uvijek fizički centrirano u kartici; uklonjeni fiksirani height overridei po breakpointima. -->
+<!-- Ajdin v2.26.21: kartica "Posljednja trećina noći" preimenovana u "Posljednja ⅓ noći" — jedan red, nema prelamanja. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -3051,7 +3052,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2280';
+  var V='2281';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4463,7 +4464,7 @@ function renderDanasVaktu(times,opts={}){
       <div class="danas-extra-sub two-line">kraj jacijskog<br>vremena</div>
     </div>
     <div class="danas-extra-card danas-extra-card-v9" id="dcard-zadnjaTrecina">
-      <div class="danas-extra-label two-line-title">Posljednja&nbsp;trećina<br>noći</div>
+      <div class="danas-extra-label one-line">Posljednja ⅓ noći</div>
       <div class="danas-extra-time">${fmtTime(times.zadnjaTrecina)}</div>
       <div class="danas-extra-sub"></div>
     </div>
