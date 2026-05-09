@@ -72,6 +72,7 @@
 <!-- Ajdin v2.26.46: Location modal — UI za ručni unos (search + akordeon po državama), localStorage 'mn-manual-loc' persistencija, hijerarhija učitavanja (URL → manual → GPS → keš), klik na grad u weather kartici otvara modal, X dugme za vraćanje na GPS, ESC za zatvaranje. -->
 <!-- Ajdin v2.26.47: Sprint 3 fixovi — (1) Sandžak detection: dodano "sandzak"/"sandžak" u knownBiHSandzakCountries (ranije se nije asociralo na vaktija.ba), (2) online/offline race fix: ukloninjen initial updateOnlineStatus poziv, banner se aktivira samo na stvarni offline event ili API fail, plus skida se klasa pri uspješnom Open-Meteo, (3) vizuelni "›" arrow hint na danas-place-wrap (klikabilan grad), (4) "Ručno" chip u sub tekstu (uvek vidljiv, ne gubi se kad je naziv države dug). -->
 <!-- Ajdin v2.26.48: KRITIČNI FIX — sehur countdown za BiH/Sandžak sada koristi zoraBA (vaktija.ba) umjesto Ummul-kura u fazi 1 i 2; ranije se uvijek prikazivalo "do kraja sehura · Ummul-kura" čak i kad je vaktija.ba dostupna (u BiH/Sandžaku to je pogrešno, lokalna vaktija ima prednost). Plus pull-to-refresh provjerava manual loc prije GPS-a (ranije: refresh sa GPS koordinatama iako je manual aktivan). Plus UI cleanup: skinuta strelica, dashed border-bottom kao klik hint, skraćeni country (Bosna i Hercegovina → BiH), redizajn "Ručno" oznake (gold pill chip + flag + skraćeni naziv + X). -->
+<!-- Ajdin v2.26.49: sehur sub tekst "vaktija.ba" → "lokalno" (kraći i intuitivniji za korisnika; izvor već piše u source-note ispod liste vakata). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3717,7 +3718,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2308';
+  var V='2309';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4777,7 +4778,7 @@ function getCountdownPhase(t,nowH){
   // Pravilo po šejhu UG Divan.
   const isBaWithLocal=t.isBiHSandzak&&has(t.zoraBA);
   const sehurEnd=isBaWithLocal?t.zoraBA:t.sehurKraj;
-  const sehurSub=isBaWithLocal?'vaktija.ba':'Ummul-kura';
+  const sehurSub=isBaWithLocal?'lokalno':'Ummul-kura';
 
   // ── Faza 1: polovina noći → kraj sehura ─────────────────────────────
   // Van Hejaza: standardni dual countdown (do sehura + do sabaha ISNA).
