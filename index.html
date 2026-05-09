@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -77,6 +77,7 @@
 <!-- Ajdin v2.26.51: location modal redizajn — top-aligned (umjesto centriranog) da ne bježi sa input-a kad tastatura iskoči, sticky search bar, list-style umjesto "kartica u kartici" (subtilni separator linije, indentirani gradovi sa lijevim border accent), max-height = 100vh - top inset za stabilan layout sa virtuelnom tastaturom. -->
 <!-- Ajdin v2.26.52: SVG weather ikone — 9 minimalnih stroke ikona (sun, sunCloud, cloudSun, cloud, fog, rain, drizzle, snow, thunder) + thermo fallback; sve u brand gold (currentColor sa --accent na .danas-weather-icon); WEATHER_CODES tekst očišćen od emoji (sad samo "Vedro", "Oblačno" itd.); konzistentan vizualni jezik sa bottom nav i expand SVG ikonama. -->
 <!-- Ajdin v2.26.53: GPS fail fallback — kad GPS odbijen ili nedostupan, pored "Pokušaj ponovo" pokazuje se i "Odaberi grad ručno" dugme (dashed border, gold-light). Sub tekst "Pokušaj ponovo ili odaberi grad ručno" daje jasan put. Ovo je naročito važno za korisnike na uređajima gdje je GPS dozvola odbijena ili nije dostupna. -->
+<!-- Ajdin v2.26.54: zoom blokada — viewport "maximum-scale=1.0, user-scalable=no" + search input font-size 16px (sprječava iOS auto-zoom na fokus); aplikacija se vise ne zumira pri unosu u search ili kad se otvori location modal. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3096,7 +3097,9 @@ body.live-focus-mode .live-focus-overlay{
   border-radius:var(--r-md);
   color:var(--text-primary);
   font-family:var(--font-sans);
-  font-size:0.92rem;letter-spacing:0.02em;
+  /* font-size:16px je MINIMUM da iOS Safari ne aktivira auto-zoom pri fokusu.
+     Manji font-size na input elementu trigger-uje zoom — sigurnosna garancija. */
+  font-size:16px;letter-spacing:0.02em;
   padding:11px 36px 11px 14px;
   outline:none;
 }
@@ -3807,7 +3810,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2313';
+  var V='2314';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
