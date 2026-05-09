@@ -37,6 +37,7 @@
 <!-- Ajdin v2.26.15: Hejaz — kartica "Kraj sehura" zamijenjena sa "Sabah po ISNI" (#dcard-sabahISNA); prikazuje times.sabahISNA, countdown krece od jacije; CSS sehur-counting prosiren na novi ID. -->
 <!-- Ajdin v2.26.16: BiH/Sandžak — kartica "Kraj sehura" prikazuje zoraBA (vakat[0] iz vaktija.ba) s labelom "Lokalno"; fallback na sehurKraj+Ummul-kura ako API nije dostupan; countdown takodje koristi zoraBA kad postoji. -->
 <!-- Ajdin v2.26.17: bug fix — #dcard-sabahISNA dobio position:relative; sehur-countdown-line (position:absolute) više ne ispliva izvan kartice u Hejaz modu. -->
+<!-- Ajdin v2.26.18: BiH/Sandžak — polaNoci i zadnjaTrecina preračunate od akšama do zoraBA (lokalna zora); highlight traje do zoraBA; fallback na ISNA ako zoraBA nije dostupan. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -3047,7 +3048,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2277';
+  var V='2278';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4261,9 +4262,13 @@ function updateDanasCountdown(){
   }
 
   // Polovina noći i posljednja trećina – highlight u donjim karticama
+  // Za BiH/Sandžak s lokalnom zorom highlight traje do zoraBA, inače do sabaha (ISNA ili UK)
+  const nightEnd=(prayerTimesDanas.isBiHSandzak&&prayerTimesDanas.zoraBA!==null)
+    ?prayerTimesDanas.zoraBA
+    :prayerTimesDanas.sabah;
   const polaCard=document.getElementById('dcard-polaNoci');
-  if(polaCard&&prayerTimesDanas.polaNoci!==null&&prayerTimesDanas.sabah!==null){
-    if(isTimeInRange(nowH,prayerTimesDanas.polaNoci,prayerTimesDanas.sabah)){
+  if(polaCard&&prayerTimesDanas.polaNoci!==null&&nightEnd!==null){
+    if(isTimeInRange(nowH,prayerTimesDanas.polaNoci,nightEnd)){
       polaCard.classList.add('active-extra-time');
     } else {
       polaCard.classList.remove('active-extra-time');
@@ -4271,8 +4276,8 @@ function updateDanasCountdown(){
   }
 
   const zadnjaCard=document.getElementById('dcard-zadnjaTrecina');
-  if(zadnjaCard&&prayerTimesDanas.zadnjaTrecina!==null&&prayerTimesDanas.sabah!==null){
-    if(isTimeInRange(nowH,prayerTimesDanas.zadnjaTrecina,prayerTimesDanas.sabah)){
+  if(zadnjaCard&&prayerTimesDanas.zadnjaTrecina!==null&&nightEnd!==null){
+    if(isTimeInRange(nowH,prayerTimesDanas.zadnjaTrecina,nightEnd)){
       zadnjaCard.classList.add('active-extra-time');
     } else {
       zadnjaCard.classList.remove('active-extra-time');
@@ -4319,6 +4324,12 @@ function renderDanasVaktu(times,opts={}){
     isHejaz: !!isHejaz,
     isBiHSandzak: !!isBiHSandzak
   };
+  // BiH/Sandžak: polaNoci i zadnjaTrecina računaju se od akšama do lokalne zore (zoraBA)
+  if(isBiHSandzak&&zoraBA!=null&&times.aksam!==null){
+    const sabahNextBA=zoraBA<times.aksam?zoraBA+24:zoraBA;
+    prayerTimesDanas.polaNoci=((times.aksam+sabahNextBA)/2)%24;
+    prayerTimesDanas.zadnjaTrecina=(times.aksam+(sabahNextBA-times.aksam)*2/3)%24;
+  }
   const list=document.getElementById('danasNamazList');
 
   const sabahMainTime=isHejaz?times.fajrUK:times.sabah;
