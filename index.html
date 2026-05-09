@@ -76,6 +76,7 @@
 <!-- Ajdin v2.26.50: MAX_LOCAL_VAKTIJA_DISTANCE_KM 35 → 50 (širi domet vaktija.ba — manji gradovi koji nisu u listi dobijaju vaktiju iz najbližeg pokrivenog grada do 50km). -->
 <!-- Ajdin v2.26.51: location modal redizajn — top-aligned (umjesto centriranog) da ne bježi sa input-a kad tastatura iskoči, sticky search bar, list-style umjesto "kartica u kartici" (subtilni separator linije, indentirani gradovi sa lijevim border accent), max-height = 100vh - top inset za stabilan layout sa virtuelnom tastaturom. -->
 <!-- Ajdin v2.26.52: SVG weather ikone — 9 minimalnih stroke ikona (sun, sunCloud, cloudSun, cloud, fog, rain, drizzle, snow, thunder) + thermo fallback; sve u brand gold (currentColor sa --accent na .danas-weather-icon); WEATHER_CODES tekst očišćen od emoji (sad samo "Vedro", "Oblačno" itd.); konzistentan vizualni jezik sa bottom nav i expand SVG ikonama. -->
+<!-- Ajdin v2.26.53: GPS fail fallback — kad GPS odbijen ili nedostupan, pored "Pokušaj ponovo" pokazuje se i "Odaberi grad ručno" dugme (dashed border, gold-light). Sub tekst "Pokušaj ponovo ili odaberi grad ručno" daje jasan put. Ovo je naročito važno za korisnike na uređajima gdje je GPS dozvola odbijena ili nije dostupna. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2971,6 +2972,30 @@ body.live-focus-mode .live-focus-overlay{
 }
 
 /* ============================================================================
+   v2.26.53 — GPS FAIL FALLBACK: dva dugmeta (Osvježi + Ručno)
+   Kad GPS odbijen ili nedostupan, korisnik ima jasan put ka manualnom unosu.
+   ============================================================================ */
+.danas-loc-btn-row{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+}
+.danas-loc-btn-row[hidden]{display:none}
+.danas-loc-btn-secondary{
+  background:transparent;
+  border:1px dashed var(--border-mid);
+  color:var(--accent-light);
+}
+.danas-loc-btn-secondary:hover,
+.danas-loc-btn-secondary:active{
+  border-color:var(--accent-light);
+  border-style:solid;
+  background:rgba(201,168,76,0.06);
+}
+.danas-loc-btn-secondary::before{display:none}
+
+/* ============================================================================
    v2.26.52 — SVG WEATHER IKONE
    Jedinstveni stroke stil u brand gold-u, konzistentan sa ostalim ikonama
    u app-u (bottom nav, expand). Zamjenjuju emoji koje su djelovale neujednačeno.
@@ -3584,7 +3609,10 @@ body.is-offline .danas-status-dot{
       <div class="cd-status hidden" id="cdStatus"></div>
     </div>
     <div class="danas-namaz-list" id="danasNamazList"></div>
-    <button class="danas-loc-btn" id="btnDanas" hidden>Osvježi lokaciju</button>
+    <div class="danas-loc-btn-row" id="danasLocBtnRow" hidden>
+      <button class="danas-loc-btn" id="btnDanas" type="button">Osvježi lokaciju</button>
+      <button class="danas-loc-btn danas-loc-btn-secondary" id="btnDanasManual" type="button">Odaberi grad ručno</button>
+    </div>
     <div class="danas-accuracy" id="danasAccuracy"></div>
   </div>
 
@@ -3779,7 +3807,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2312';
+  var V='2313';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5646,7 +5674,9 @@ async function loadDanas(lat,lng){
   }else{
     setDanasConnectionStatus('ok',`Online · vaktija za ${locationLabel}`);
   }
-  btn.hidden=true;
+  // Vakuti uspješno učitani — sakrij dugmad za GPS retry/manual
+  const btnRow=document.getElementById('danasLocBtnRow');
+  if(btnRow)btnRow.hidden=true;
   btn.textContent='Osvježi lokaciju';
   btn.disabled=false;
 }
@@ -5674,7 +5704,8 @@ function setDanasLocationStatus(type,message){
 
 function requestAndLoadDanasLocation(){
   const btn=document.getElementById('btnDanas');
-  btn.hidden=true;
+  const btnRow=document.getElementById('danasLocBtnRow');
+  if(btnRow)btnRow.hidden=true;
   btn.textContent=TEST_MODE.location.enabled?'Učitavam test...':'Tražim lokaciju...';
   btn.disabled=true;
   document.getElementById('danasGrad').textContent=TEST_MODE.location.enabled?'Test lokacija':'Tražim lokaciju...';
@@ -5696,11 +5727,12 @@ function requestAndLoadDanasLocation(){
     },
     err=>{
       const msgs={1:'Pristup lokaciji odbijen – dozvoli u Postavkama.',2:'Lokacija nije dostupna.',3:'Predugo traje – pokušaj ponovo.',0:'Geolokacija nije podržana.'};
-      btn.hidden=false;
+      // Pokaži oba dugmeta — Pokušaj ponovo + Odaberi ručno
+      if(btnRow)btnRow.hidden=false;
       btn.textContent='Pokušaj ponovo';
       btn.disabled=false;
       document.getElementById('danasGrad').textContent='Lokacija nije potvrđena';
-      document.getElementById('danasGradSub').textContent='Pokušaj ponovo za današnju vaktiju';
+      document.getElementById('danasGradSub').textContent='Pokušaj ponovo ili odaberi grad ručno';
       setDanasLocationStatus('warn',msgs[err.code]||'Greška pri dohvatanju lokacije.');
       // Skini skeleton — GPS faila, korisnik vidi error state
       document.body.classList.remove('app-loading');
@@ -5742,6 +5774,8 @@ function autoLoadDanas(){
 }
 
 document.getElementById('btnDanas').addEventListener('click',requestAndLoadDanasLocation);
+const btnDanasManual=document.getElementById('btnDanasManual');
+if(btnDanasManual)btnDanasManual.addEventListener('click',openLocationModal);
 
 // Datum na Danas ekranu
 function renderDanasDatum(){
