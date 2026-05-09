@@ -29,8 +29,8 @@
 - [-] [-] 1.3 Sanitizirati Nominatim odgovor — **provjereno: ide u textContent, sigurno**
 - [-] [-] 1.4 Sanitizirati URL `?city=` parametar — **provjereno: ide u textContent, sigurno**
 - [x] [O] 1.5 CSP meta tag — v2.26.29
-- [ ] [S] 1.6 Validirati `vakat[]` array format (svaki `HH:MM`)
-- [ ] [S] 1.7 Sigurniji parsing `?time=` URL parametra
+- [x] [O] 1.6 Strict parser za vaktija.ba HH:MM format — v2.26.35
+- [x] [O] 1.7 Strict regex za URL `?time=` parametar — v2.26.35
 
 ### PWA
 - [x] [O] 2.1 Update `manifest.json` — "Moj namaz by Divan" — v2.26.26
@@ -45,15 +45,16 @@
 - [x] [O] 2.10 `theme-color` sinhronizovan sa manifest-om — v2.26.27
 
 ### Funkcionalnost
-- [ ] [O] 3.0b Polarni edge case fallback (Skandinavija ljeti)
-- [ ] [O] 3.1 Refaktorisanje 11 monkey-patched funkcija
-- [ ] [O] 3.2 Konsolidacija 5 setInterval timera u jedan master tick
+- [x] [O] 3.0b Polarni warning u source-note kad sabah/jacija/sehurKraj=null — v2.26.36
+- [ ] [O] 3.1 Refaktorisanje 11 monkey-patched funkcija — **odgođeno za zaseban commit**
+- [ ] [O] 3.2 Konsolidacija 5 setInterval timera u jedan master tick — **odgođeno**
 - [x] [O] 3.3 Sehur countdown koristi zoraBA za BiH (3-min nula faza) — v2.26.31
 - [ ] [S] 3.4 Pull-to-refresh na svim panelima
-- [ ] [S] 3.5 GPS `enableHighAccuracy:true` na prvom loadu
-- [ ] [O] 3.6 Globalni error boundary (`window.onerror`, `unhandledrejection`)
-- [ ] [S] 3.7 Provjera VAKTIJA_GRADOVI (Mitrovica, Preševo, Bujanovac)
-- [ ] [S] 3.8 Brisanje dead code (`ni_last_location`, duplikat `fajrUK`/`sehurKraj`)
+- [x] [O] 3.5 GPS `enableHighAccuracy:true` na prvom loadu — v2.26.35
+- [x] [O] 3.6 Globalni error boundary (`window.onerror`, `unhandledrejection`) — v2.26.36
+- [ ] [-] 3.7 Provjera VAKTIJA_GRADOVI — **preskočeno** (vaktija.ba ne pokriva Kosovo, glavni gradovi BiH/Sandžaka jesu u listi)
+- [x] [O] 3.8 Brisanje dead code (`ni_last_location`, sabahMainTime fajrUK uvjet) — v2.26.34
+- [x] [O] 3.9 Offline indikator (banner + auto-refresh) — v2.26.33
 
 ---
 
@@ -173,3 +174,8 @@
 | 2026-05-09 | v2.26.29 | 1.5 | Content-Security-Policy meta tag | ✓ |
 | 2026-05-09 | v2.26.30 | 2.3, 2.4 | Service Worker — offline support | ✓ |
 | 2026-05-09 | v2.26.31 | 3.3 | Bug fix — 3-min nula faza sehura koristi zoraBA za BiH | ✓ |
+| 2026-05-09 | v2.26.32 | -- | CSP cleanup (frame-ancestors warning fix) | ✓ |
+| 2026-05-09 | v2.26.33 | 3.9 | Offline indikator — banner + auto-refresh | ✓ |
+| 2026-05-09 | v2.26.34 | 3.8 | Dead code cleanup (ni_last_location, sabahMainTime) | ✓ |
+| 2026-05-09 | v2.26.35 | 3.5, 1.6, 1.7 | GPS high accuracy + strict parsers | ✓ |
+| 2026-05-09 | v2.26.36 | 3.6, 3.0b | Error boundary + polarni warning | ✓ |
