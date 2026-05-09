@@ -65,6 +65,7 @@
 <!-- Ajdin v2.26.39: desktop & tablet layout — iznad 768px aplikacija se centrira u "phone frame" (max-width 440px, zaobljeni uglovi, sjenka, navy gradient pozadina); iznad 1024px frame veci 460px. Mobile-first dizajn potpuno netaknut. -->
 <!-- Ajdin v2.26.40: a11y + touch targets — :focus-visible outline za keyboard korisnike (svi gumbovi); header info dugme 26→32px, wake/sehur lock min 30×30 (Apple HIG ≥44 sa padding zonom). -->
 <!-- Ajdin v2.26.41: polish animacije — tab fade-in (0.28s) + suptilan timer-pulse u zadnjoj minuti (gold glow); haptic vibration na tab klik (navigator.vibrate, samo mobilni); guard za tab koji je već aktivan. -->
+<!-- Ajdin v2.26.42: stanja komponenti — :hover stanja (desktop, @media hover:hover guard), :disabled state (uniformno opacity 0.5 + cursor:not-allowed) za sve gumbe; cursor:pointer na klikabilnim elementima. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2872,6 +2873,54 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.42 — HOVER & DISABLED STATES
+   Mobile-first nema hover, ali na desktopu (mouse) korisnik treba vizuelni
+   feedback prije klika. Plus jasan disabled stil na svim dugmadima.
+   ============================================================================ */
+@media(hover:hover){
+  .danas-loc-btn:hover,
+  .btn-kibla:hover{
+    border-color:var(--accent);
+    background:rgba(201,168,76,0.08);
+    cursor:pointer;
+  }
+  .bnav-btn:hover:not(.active){
+    color:var(--accent-light);
+    cursor:pointer;
+  }
+  .header-info-btn:hover{
+    color:var(--accent);
+    border-color:rgba(201,168,76,0.42);
+    background:rgba(201,168,76,0.08);
+    cursor:pointer;
+  }
+  .danas-cal-card:hover{
+    border-color:var(--border-mid);
+    cursor:pointer;
+  }
+  .modal-close-btn:hover,
+  .takvim-nav-btn:hover,
+  .takvim-today-btn:hover{
+    cursor:pointer;
+  }
+  .takvim-day:not(.empty):hover{
+    background:rgba(201,168,76,0.08);
+    cursor:pointer;
+  }
+  .pred-ev-card:hover{
+    cursor:default;  /* nije klikabilan, ali vizuelno ne mami klik */
+  }
+}
+
+/* Disabled state — uniformno za sve gumbe (signalizira korisniku da je nedostupno) */
+button:disabled,
+button[aria-disabled="true"]{
+  opacity:0.50;
+  cursor:not-allowed!important;
+  pointer-events:none;
+}
+
+/* ============================================================================
    v2.26.41 — POLISH ANIMACIJE
    Tab transition (fade-in), pulse na zadnjoj sekundi timera.
    Suptilno, nenaprezavajuće — fokus ostaje na sadržaju.
@@ -3280,7 +3329,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2301';
+  var V='2302';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
