@@ -69,6 +69,7 @@
 <!-- Ajdin v2.26.43: loading skeleton (shimmer animacija na danas-next-name, danas-timer, danas-temp, danas-cond, danas-city, danas-cal-day) tokom GPS i API učitavanja; postavlja se body.app-loading u autoLoadDanas, skida u renderDanasVaktu i u GPS error handler-u; CSS za empty state (priprema za feature kasnije). -->
 <!-- Ajdin v2.26.44: desktop fix — #app frame dobio warm-white pozadinu (ranije providan, navy gradient body-ja se vidio kroz njega što je činilo lokacijski badge i druge tamne elemente nečitljivim). -->
 <!-- Ajdin v2.26.45: SPRINT 3 START — globalna LOKACIJE database (~280 gradova u 22 države) za ručni unos; BiH/Sandžak referenciraju VAKTIJA_GRADOVI po vaktijaId, ostale države su hardcoded koordinate. UI modal dolazi sledeci commit. -->
+<!-- Ajdin v2.26.46: Location modal — UI za ručni unos (search + akordeon po državama), localStorage 'mn-manual-loc' persistencija, hijerarhija učitavanja (URL → manual → GPS → keš), klik na grad u weather kartici otvara modal, X dugme za vraćanje na GPS, ESC za zatvaranje. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2876,6 +2877,202 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.46 — LOCATION MODAL (RUČNI UNOS)
+   Korisnik može ručno odabrati grad iz liste ~280 gradova u 22 države.
+   Hijerarhija: URL → manual (localStorage) → GPS → keš.
+   ============================================================================ */
+.location-current{
+  background:var(--bg-elevated);
+  border:1px solid var(--border-soft);
+  border-radius:var(--r-md);
+  padding:14px 16px;
+  margin-bottom:14px;
+  text-align:center;
+}
+.location-current-label{
+  font-family:var(--font-sans);
+  font-size:0.56rem;letter-spacing:0.20em;text-transform:uppercase;
+  color:var(--warm-gray);
+}
+.location-current-name{
+  font-family:var(--font-display);
+  font-size:1.4rem;color:var(--accent);
+  margin:4px 0 2px;
+}
+.location-current-source{
+  font-family:var(--font-sans);
+  font-size:0.66rem;letter-spacing:0.08em;
+  color:var(--text-primary);opacity:0.78;
+}
+.location-current-source.manual{color:var(--accent-light)}
+.location-gps-btn{
+  width:100%;
+  background:transparent;
+  border:1px solid var(--border-mid);
+  border-radius:var(--r-md);
+  color:var(--accent);
+  font-family:var(--font-display);
+  font-size:0.92rem;letter-spacing:0.04em;
+  padding:11px;cursor:pointer;
+  margin-bottom:14px;
+  transition:border-color 0.2s,background 0.2s;
+}
+.location-gps-btn:hover,
+.location-gps-btn:active{
+  border-color:var(--accent);
+  background:rgba(201,168,76,0.08);
+}
+.location-gps-btn.hidden{display:none}
+.location-search-wrap{
+  position:relative;
+  margin-bottom:10px;
+}
+.location-search{
+  width:100%;
+  background:var(--bg-elevated);
+  border:1px solid var(--border-soft);
+  border-radius:var(--r-md);
+  color:var(--text-primary);
+  font-family:var(--font-sans);
+  font-size:0.92rem;letter-spacing:0.02em;
+  padding:11px 36px 11px 14px;
+  outline:none;
+}
+.location-search:focus{
+  border-color:var(--accent-dim);
+}
+.location-search::placeholder{color:var(--warm-gray);opacity:0.7}
+.location-search-wrap::before{
+  content:'🔍';
+  position:absolute;
+  right:13px;top:50%;
+  transform:translateY(-50%);
+  font-size:0.85rem;opacity:0.45;
+  pointer-events:none;
+}
+.location-results{
+  max-height:48vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  margin:0 -4px;padding:0 4px;
+}
+.location-country-group{
+  margin-bottom:6px;
+  border:1px solid var(--border-soft);
+  border-radius:var(--r-md);
+  overflow:hidden;
+}
+.location-country-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  background:var(--bg-elevated);
+  font-family:var(--font-sans);
+  font-size:0.84rem;letter-spacing:0.04em;
+  color:var(--text-primary);
+  transition:background 0.15s;
+}
+.location-country-header:hover,
+.location-country-header:active{
+  background:rgba(201,168,76,0.06);
+}
+.location-country-flag{font-size:1.2rem;line-height:1}
+.location-country-name{flex:1}
+.location-country-count{
+  font-size:0.62rem;letter-spacing:0.08em;
+  color:var(--warm-gray);
+}
+.location-country-arrow{
+  font-size:0.7rem;color:var(--warm-gray);
+  transition:transform 0.2s;
+}
+.location-country-group.open .location-country-arrow{
+  transform:rotate(90deg);
+}
+.location-cities{
+  display:none;
+  background:var(--bg-surface);
+  padding:4px 0;
+  border-top:1px solid var(--border-soft);
+}
+.location-country-group.open .location-cities{display:block}
+.location-city{
+  padding:8px 18px 8px 38px;
+  cursor:pointer;
+  font-family:var(--font-display);
+  font-size:0.92rem;
+  color:var(--text-primary);
+  transition:background 0.15s;
+}
+.location-city:hover,
+.location-city:active{
+  background:rgba(201,168,76,0.08);
+  color:var(--accent);
+}
+.location-city.active{
+  background:rgba(201,168,76,0.12);
+  color:var(--accent);
+  font-weight:500;
+}
+/* Search rezultati — flat lista bez akordeona */
+.location-search-result{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  border:1px solid var(--border-soft);
+  border-radius:var(--r-md);
+  margin-bottom:5px;
+  cursor:pointer;
+  background:var(--bg-elevated);
+  transition:border-color 0.15s,background 0.15s;
+}
+.location-search-result:hover,
+.location-search-result:active{
+  border-color:var(--accent-dim);
+  background:rgba(201,168,76,0.06);
+}
+.location-search-result-flag{font-size:1.2rem}
+.location-search-result-info{flex:1;min-width:0}
+.location-search-result-city{
+  font-family:var(--font-display);
+  font-size:0.96rem;
+  color:var(--text-primary);
+}
+.location-search-result-country{
+  font-family:var(--font-sans);
+  font-size:0.66rem;letter-spacing:0.06em;
+  color:var(--warm-gray);
+  margin-top:2px;
+}
+.location-no-results{
+  text-align:center;
+  padding:20px;
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  color:var(--warm-gray);
+}
+/* Manual location indikator u weather kartici */
+.danas-loc-source{
+  display:flex;align-items:center;gap:5px;
+  margin-top:1px;
+  font-family:var(--font-sans);
+  font-size:0.58rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--warm-gray);
+}
+.danas-loc-source.manual{color:var(--accent-dim)}
+.danas-loc-source-reset{
+  cursor:pointer;
+  margin-left:3px;
+  padding:0 3px;
+  border-radius:3px;
+  font-size:0.85rem;line-height:1;
+  color:var(--accent-dim);
+}
+.danas-loc-source-reset:hover{
+  background:rgba(201,168,76,0.12);
+}
+
+/* ============================================================================
    v2.26.43 — LOADING SKELETON & EMPTY STATE
    Dok GPS i API-ji učitavaju (do 15 sec sa high accuracy), umjesto "–"
    placeholdera prikazujemo shimmer animaciju. Korisnik vidi da app radi.
@@ -3300,6 +3497,24 @@ body.is-offline .danas-status-dot{
 </div>
 
 
+<!-- LOCATION MODAL (Sprint 3) -->
+<div class="info-modal-backdrop center-modal" id="locationModal">
+  <div class="info-modal-sheet location-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
+    <button class="modal-close-btn" type="button" id="closeLocationModalBtn" aria-label="Zatvori">×</button>
+    <div class="info-modal-title" id="locationModalTitle">Lokacija</div>
+    <div class="location-current">
+      <div class="location-current-label">Trenutno</div>
+      <div class="location-current-name" id="locationCurrentName">–</div>
+      <div class="location-current-source" id="locationCurrentSource">–</div>
+    </div>
+    <button class="location-gps-btn hidden" type="button" id="locationGpsBtn">🛰 Vrati na automatsku (GPS)</button>
+    <div class="location-search-wrap">
+      <input type="search" class="location-search" id="locationSearch" placeholder="Pretraži grad ili državu..." autocomplete="off" aria-label="Pretraži lokaciju">
+    </div>
+    <div class="location-results" id="locationResults"></div>
+  </div>
+</div>
+
 <!-- INFO MODAL -->
 <div class="info-modal-backdrop center-modal" id="appInfoModal">
   <div class="info-modal-sheet app-info-sheet" role="dialog" aria-modal="true" aria-labelledby="appInfoTitle">
@@ -3412,7 +3627,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2305';
+  var V='2306';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5118,12 +5333,23 @@ async function loadDanas(lat,lng){
   let reverseGeoCountry=null;
   let usedCacheForGeo=false;
   let usedCacheForWeather=false;
+  const manual=loadManualLoc();
+  // Ako je manualno postavljena lokacija — koristimo njeno ime, ne zovemo Nominatim
+  if(manual&&!TEST_MODE.location.enabled){
+    document.getElementById('danasGrad').textContent=manual.name;
+    document.getElementById('danasGradSub').innerHTML=`<span class="danas-loc-source manual">${manual.flag||'📍'} ${escapeHTML(manual.country||'')} · ručno <span class="danas-loc-source-reset" title="Vrati GPS" role="button" aria-label="Vrati GPS">×</span></span>`;
+    reverseGeoName=manual.name;
+    reverseGeoCountry=manual.country||null;
+    locationLabel=manual.name+(manual.country?' · '+manual.country:'');
+  }
   try{
     if(TEST_MODE.location.enabled&&TEST_MODE.location.label){
       document.getElementById('danasGrad').textContent=TEST_MODE.location.label;
       document.getElementById('danasGradSub').textContent='Test lokacija';
       reverseGeoName=TEST_MODE.location.label;
       reverseGeoCountry=null;
+    }else if(manual){
+      // Manual loc — već postavljen iznad, ne zovemo Nominatim
     }else{
       const geo=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
       if(!geo.ok)throw new Error('Lokacija nije dostupna');
@@ -5284,10 +5510,24 @@ function autoLoadDanas(){
   document.body.classList.add('app-loading');
   activateTab('danas');
 
+  // Hijerarhija učitavanja:
+  //   1. URL parametar ?lat=&lng= (test linkovi, najviši prioritet)
+  //   2. localStorage 'mn-manual-loc' (ručno postavljena lokacija — Sprint 3)
+  //   3. GPS (live)
+  //   4. Keš + offline indikator (Sprint 1 v2.26.37)
+
   const urlCoords=getUrlCoords();
   if(urlCoords){
     setDanasLocationStatus('ok',`Učitavam lokaciju iz URL-a · ${urlCoords.lat.toFixed(4)}, ${urlCoords.lng.toFixed(4)}`);
     loadDanas(urlCoords.lat,urlCoords.lng);
+    return;
+  }
+
+  // Manualno postavljena lokacija ima prednost ispred GPS-a
+  const manual=loadManualLoc();
+  if(manual&&!TEST_MODE.location.enabled){
+    setDanasLocationStatus('ok',`Ručno postavljeno: ${manual.name||''}`);
+    loadDanas(manual.lat,manual.lng);
     return;
   }
 
@@ -5578,6 +5818,179 @@ function openAppInfoModal(){
 function closeAppInfoModal(){
   const modal=document.getElementById('appInfoModal');
   if(modal)modal.classList.remove('open');
+}
+
+// ── Location modal (Sprint 3 — ručni unos lokacije) ─────────────────────────
+const MANUAL_LOC_KEY='mn-manual-loc';
+function loadManualLoc(){
+  try{
+    const raw=localStorage.getItem(MANUAL_LOC_KEY);
+    if(!raw)return null;
+    const m=JSON.parse(raw);
+    return (m&&typeof m==='object'&&isFinite(m.lat)&&isFinite(m.lng))?m:null;
+  }catch(e){return null;}
+}
+function saveManualLoc(loc){
+  try{localStorage.setItem(MANUAL_LOC_KEY,JSON.stringify(loc));}catch(e){}
+}
+function clearManualLoc(){
+  try{localStorage.removeItem(MANUAL_LOC_KEY);}catch(e){}
+}
+
+function openLocationModal(){
+  updateLocationModalCurrent();
+  renderLocationCountries();
+  const modal=document.getElementById('locationModal');
+  if(modal)modal.classList.add('open');
+  // Reset search input pri svakom otvaranju
+  const search=document.getElementById('locationSearch');
+  if(search)search.value='';
+  hapticTap(8);
+}
+function closeLocationModal(){
+  const modal=document.getElementById('locationModal');
+  if(modal)modal.classList.remove('open');
+}
+function updateLocationModalCurrent(){
+  const nameEl=document.getElementById('locationCurrentName');
+  const sourceEl=document.getElementById('locationCurrentSource');
+  const gpsBtn=document.getElementById('locationGpsBtn');
+  const manual=loadManualLoc();
+  const gradEl=document.getElementById('danasGrad');
+  const currentName=manual?manual.name:(gradEl?gradEl.textContent:'–');
+  if(nameEl)nameEl.textContent=currentName||'–';
+  if(sourceEl){
+    if(manual){
+      sourceEl.textContent='Ručno postavljeno · '+(manual.country||'');
+      sourceEl.classList.add('manual');
+    }else{
+      sourceEl.textContent='Automatski (GPS)';
+      sourceEl.classList.remove('manual');
+    }
+  }
+  if(gpsBtn) gpsBtn.classList.toggle('hidden',!manual);
+}
+function renderLocationCountries(){
+  const container=document.getElementById('locationResults');
+  if(!container)return;
+  const manual=loadManualLoc();
+  const activeCity=manual?manual.name:null;
+  let html='';
+  LOKACIJE.forEach(country=>{
+    const isActiveCountry=activeCity&&country.cities.some(c=>c.n===activeCity);
+    html+=`<div class="location-country-group${isActiveCountry?' open':''}" data-code="${escapeHTML(country.code)}">
+      <div class="location-country-header" role="button" tabindex="0">
+        <span class="location-country-flag" aria-hidden="true">${country.flag}</span>
+        <span class="location-country-name">${escapeHTML(country.name)}</span>
+        <span class="location-country-count">${country.cities.length}</span>
+        <span class="location-country-arrow">›</span>
+      </div>
+      <div class="location-cities">
+        ${country.cities.map(c=>`<div class="location-city${activeCity===c.n?' active':''}" data-city="${escapeHTML(c.n)}" data-country="${escapeHTML(country.name)}" data-flag="${country.flag}" data-lat="${c.lat}" data-lng="${c.lng}">${escapeHTML(c.n)}</div>`).join('')}
+      </div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+function renderLocationSearch(query){
+  const container=document.getElementById('locationResults');
+  if(!container)return;
+  const q=normCity(query);
+  const results=[];
+  LOKACIJE.forEach(country=>{
+    country.cities.forEach(c=>{
+      if(normCity(c.n).includes(q)||normCity(country.name).includes(q)){
+        results.push({city:c,country});
+      }
+    });
+  });
+  if(results.length===0){
+    container.innerHTML=`<div class="location-no-results">Nema rezultata za "${escapeHTML(query)}".<br>Probaj drugu pretragu ili zatvori i koristi GPS.</div>`;
+    return;
+  }
+  // Limit na 30 rezultata da modal bude lagan
+  const shown=results.slice(0,30);
+  container.innerHTML=shown.map(({city,country})=>
+    `<div class="location-search-result" data-city="${escapeHTML(city.n)}" data-country="${escapeHTML(country.name)}" data-flag="${country.flag}" data-lat="${city.lat}" data-lng="${city.lng}">
+      <span class="location-search-result-flag" aria-hidden="true">${country.flag}</span>
+      <div class="location-search-result-info">
+        <div class="location-search-result-city">${escapeHTML(city.n)}</div>
+        <div class="location-search-result-country">${escapeHTML(country.name)}</div>
+      </div>
+    </div>`).join('');
+}
+function selectLocationCity(el){
+  const lat=parseFloat(el.dataset.lat);
+  const lng=parseFloat(el.dataset.lng);
+  const name=el.dataset.city;
+  const country=el.dataset.country;
+  const flag=el.dataset.flag||'';
+  if(!isFinite(lat)||!isFinite(lng))return;
+  saveManualLoc({lat,lng,name,country,flag,timestamp:Date.now()});
+  closeLocationModal();
+  hapticTap(15);
+  // Učitaj nove vakte odmah
+  loadDanas(lat,lng);
+}
+function useGPSAgain(){
+  clearManualLoc();
+  closeLocationModal();
+  hapticTap(15);
+  // Pokreni novi GPS lookup
+  requestAndLoadDanasLocation();
+}
+// Event delegation za sve klikove unutar modala
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(!t)return;
+  const cityEl=t.closest&&t.closest('.location-city,.location-search-result');
+  if(cityEl&&document.getElementById('locationModal').classList.contains('open')){
+    selectLocationCity(cityEl);
+    return;
+  }
+  const countryHeader=t.closest&&t.closest('.location-country-header');
+  if(countryHeader&&document.getElementById('locationModal').classList.contains('open')){
+    countryHeader.parentElement.classList.toggle('open');
+  }
+});
+// Search input handler
+const locSearchEl=document.getElementById('locationSearch');
+if(locSearchEl){
+  let searchTimer=null;
+  locSearchEl.addEventListener('input',e=>{
+    clearTimeout(searchTimer);
+    searchTimer=setTimeout(()=>{
+      const q=e.target.value.trim();
+      if(q.length===0){
+        renderLocationCountries();
+      }else if(q.length>=1){
+        renderLocationSearch(q);
+      }
+    },200);
+  });
+}
+// Modal triggers
+const closeLocBtn=document.getElementById('closeLocationModalBtn');
+if(closeLocBtn)closeLocBtn.addEventListener('click',closeLocationModal);
+const locModal=document.getElementById('locationModal');
+if(locModal)locModal.addEventListener('click',e=>{if(e.target===locModal)closeLocationModal();});
+const locGpsBtn=document.getElementById('locationGpsBtn');
+if(locGpsBtn)locGpsBtn.addEventListener('click',useGPSAgain);
+// Klik na grad u weather kartici otvara modal (osim ako je klik na X reset dugme)
+const placeWrap=document.querySelector('.danas-place-wrap');
+if(placeWrap){
+  placeWrap.style.cursor='pointer';
+  placeWrap.setAttribute('role','button');
+  placeWrap.setAttribute('aria-label','Klikni za promjenu lokacije');
+  placeWrap.addEventListener('click',e=>{
+    // Ako je klik na X reset dugme — vrati GPS umjesto otvaranja modala
+    if(e.target&&e.target.closest&&e.target.closest('.danas-loc-source-reset')){
+      e.stopPropagation();
+      useGPSAgain();
+      return;
+    }
+    openLocationModal();
+  });
 }
 
 // Sehur modal
@@ -6249,7 +6662,7 @@ const takvimNextMonth=document.getElementById('takvimNextMonth');
 if(takvimNextMonth)takvimNextMonth.addEventListener('click',()=>shiftTakvimMonth(1));
 const takvimTodayBtn=document.getElementById('takvimTodayBtn');
 if(takvimTodayBtn)takvimTodayBtn.addEventListener('click',()=>{takvimSelectedDate=dateAtLocalNoon(appNow());renderTakvimCalendar(appNow());});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeTakvimModal();closeAppInfoModal();closeSehurModal();exitLiveFocusMode();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeTakvimModal();closeAppInfoModal();closeSehurModal();closeLocationModal();exitLiveFocusMode();}});
 
 
 // ═══════════════ v2.15 SITNE KOREKCIJE ═══════════════
