@@ -2,7 +2,7 @@
 <html lang="bs" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.vaktija.ba https://api.allorigins.win https://api.open-meteo.com https://nominatim.openstreetmap.org https://*.tile.openstreetmap.org; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.vaktija.ba https://api.allorigins.win https://api.open-meteo.com https://nominatim.openstreetmap.org; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none';"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
@@ -55,6 +55,7 @@
 <!-- Ajdin v2.26.29: Content-Security-Policy meta tag — dozvoljava self, fonts.google, vaktija.ba, allorigins.win, open-meteo, nominatim; blokira sve nepoznate izvore; defense-in-depth uz escapeHTML. -->
 <!-- Ajdin v2.26.30: Service Worker (sw.js) — network-first za app shell (HTML, manifest, ikone), cache-first za statiku (fonts), network-only za API (vakuti uvijek svježi); aplikacija sada radi offline ako je već učitana barem jednom. -->
 <!-- Ajdin v2.26.31: bug fix — 3-minutna "nula faza" sehura sada koristi zoraBA (vaktija.ba) za BiH/Sandžak ako API radi (prije: uvijek UK sehurKraj, što je aktiviralo nula fazu prerano u BiH). -->
+<!-- Ajdin v2.26.32: CSP cleanup — skinute "frame-ancestors" i tile.openstreetmap.org direktive (frame-ancestors mora preko HTTP headera, ne meta — GitHub Pages već postavlja X-Frame-Options; tile.osm nije u upotrebi). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3083,7 +3084,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2291';
+  var V='2292';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
