@@ -70,6 +70,7 @@
 <!-- Ajdin v2.26.44: desktop fix — #app frame dobio warm-white pozadinu (ranije providan, navy gradient body-ja se vidio kroz njega što je činilo lokacijski badge i druge tamne elemente nečitljivim). -->
 <!-- Ajdin v2.26.45: SPRINT 3 START — globalna LOKACIJE database (~280 gradova u 22 države) za ručni unos; BiH/Sandžak referenciraju VAKTIJA_GRADOVI po vaktijaId, ostale države su hardcoded koordinate. UI modal dolazi sledeci commit. -->
 <!-- Ajdin v2.26.46: Location modal — UI za ručni unos (search + akordeon po državama), localStorage 'mn-manual-loc' persistencija, hijerarhija učitavanja (URL → manual → GPS → keš), klik na grad u weather kartici otvara modal, X dugme za vraćanje na GPS, ESC za zatvaranje. -->
+<!-- Ajdin v2.26.47: Sprint 3 fixovi — (1) Sandžak detection: dodano "sandzak"/"sandžak" u knownBiHSandzakCountries (ranije se nije asociralo na vaktija.ba), (2) online/offline race fix: ukloninjen initial updateOnlineStatus poziv, banner se aktivira samo na stvarni offline event ili API fail, plus skida se klasa pri uspješnom Open-Meteo, (3) vizuelni "›" arrow hint na danas-place-wrap (klikabilan grad), (4) "Ručno" chip u sub tekstu (uvek vidljiv, ne gubi se kad je naziv države dug). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2877,6 +2878,97 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.47 — VIZUELNI HINT NA GRAD + RUČNO CHIP
+   Korisnik mora znati da je grad klikabilan. Plus, "Ručno" indikator mora
+   biti jasno vidljiv i kad je naziv države dug.
+   ============================================================================ */
+.danas-place-wrap{
+  position:relative;
+  cursor:pointer;
+  border-radius:6px;
+  padding:0 22px 0 0;
+  margin-right:-22px;
+  transition:background 0.15s;
+}
+.danas-place-wrap::after{
+  content:'›';
+  position:absolute;
+  right:5px;top:50%;
+  transform:translateY(-50%);
+  font-size:1rem;
+  color:rgba(245,237,214,0.45);
+  font-weight:300;
+  pointer-events:none;
+  transition:color 0.15s,transform 0.15s;
+}
+.danas-place-wrap:active::after{
+  color:var(--accent);
+  transform:translateY(-50%) translateX(2px);
+}
+@media(hover:hover){
+  .danas-place-wrap:hover{
+    background:rgba(245,237,214,0.04);
+  }
+  .danas-place-wrap:hover::after{
+    color:var(--accent-light);
+  }
+}
+
+/* "Ručno" chip — uvijek vidljiv, ne gubi se kada je naziv države dug */
+.danas-loc-source{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:nowrap;
+  font-family:var(--font-sans);
+  font-size:0.58rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--warm-gray);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.danas-loc-source.manual{
+  color:var(--accent-dim);
+}
+.danas-loc-source.manual::before{
+  content:'Ručno';
+  display:inline-block;
+  background:var(--accent-dim);
+  color:var(--warm-ivory);
+  padding:2px 6px;
+  border-radius:3px;
+  font-size:0.50rem;
+  letter-spacing:0.10em;
+  font-weight:600;
+  margin-right:4px;
+  flex-shrink:0;
+}
+.danas-loc-source-text{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  flex:1;
+  min-width:0;
+}
+.danas-loc-source-reset{
+  cursor:pointer;
+  margin-left:auto;
+  padding:2px 6px;
+  border-radius:50%;
+  font-size:0.85rem;line-height:1;
+  color:var(--accent-dim);
+  flex-shrink:0;
+  transition:background 0.15s;
+}
+.danas-loc-source-reset:hover,
+.danas-loc-source-reset:active{
+  background:rgba(201,168,76,0.15);
+}
+
+/* ============================================================================
    v2.26.46 — LOCATION MODAL (RUČNI UNOS)
    Korisnik može ručno odabrati grad iz liste ~280 gradova u 22 države.
    Hijerarhija: URL → manual (localStorage) → GPS → keš.
@@ -3627,7 +3719,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2306';
+  var V='2307';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4077,7 +4169,7 @@ function inBiHSandzak(lat,lng,countryName=''){
   // Ako reverse geo kaže da je očito druga država, gruba bbox provjera ne smije
   // lažno aktivirati BiH/Sandžak režim (npr. Korčula 42.95N, 17.13E je u BiH bbox-u, ali je Hrvatska).
   const country=String(countryName||'').toLowerCase();
-  const knownBiHSandzakCountries=['bosna','bosnia','hercegovina','herzegovina','srbija','serbia','crna gora','montenegro'];
+  const knownBiHSandzakCountries=['bosna','bosnia','hercegovina','herzegovina','srbija','serbia','crna gora','montenegro','sandzak','sandžak'];
   const knownOtherCountries=['hrvatska','croatia','austrija','austria','mađarska','hungary','rumunija','romania','italija','italy','albanija','albania','sjeverna makedonija','north macedonia','makedonija','macedonia','slovenija','slovenia','grčka','greece'];
   if(country){
     if(knownBiHSandzakCountries.some(c=>country.includes(c)))return true;
@@ -5337,7 +5429,7 @@ async function loadDanas(lat,lng){
   // Ako je manualno postavljena lokacija — koristimo njeno ime, ne zovemo Nominatim
   if(manual&&!TEST_MODE.location.enabled){
     document.getElementById('danasGrad').textContent=manual.name;
-    document.getElementById('danasGradSub').innerHTML=`<span class="danas-loc-source manual">${manual.flag||'📍'} ${escapeHTML(manual.country||'')} · ručno <span class="danas-loc-source-reset" title="Vrati GPS" role="button" aria-label="Vrati GPS">×</span></span>`;
+    document.getElementById('danasGradSub').innerHTML=`<span class="danas-loc-source manual"><span class="danas-loc-source-text">${manual.flag||'📍'} ${escapeHTML(manual.country||'')}</span><span class="danas-loc-source-reset" title="Vrati GPS" role="button" aria-label="Vrati GPS">×</span></span>`;
     reverseGeoName=manual.name;
     reverseGeoCountry=manual.country||null;
     locationLabel=manual.name+(manual.country?' · '+manual.country:'');
@@ -5391,6 +5483,8 @@ async function loadDanas(lat,lng){
     document.getElementById('danasCond').textContent=(WEATHER_CODES[code]||'').replace(/[^\w\sčšžćđČŠŽĆĐ]/gu,'').trim();
     // Snimi u keš
     saveLocCache({temp,code});
+    // Uspješan API poziv → garantujemo da nismo offline (override navigator.onLine race)
+    document.body.classList.remove('is-offline');
   }catch(e){
     // Open-Meteo fail → koristi keš ako postoji
     const cache=loadLocCache();
@@ -5979,9 +6073,9 @@ if(locGpsBtn)locGpsBtn.addEventListener('click',useGPSAgain);
 // Klik na grad u weather kartici otvara modal (osim ako je klik na X reset dugme)
 const placeWrap=document.querySelector('.danas-place-wrap');
 if(placeWrap){
-  placeWrap.style.cursor='pointer';
   placeWrap.setAttribute('role','button');
-  placeWrap.setAttribute('aria-label','Klikni za promjenu lokacije');
+  placeWrap.setAttribute('aria-label','Promijeni lokaciju');
+  placeWrap.setAttribute('title','Promijeni lokaciju');
   placeWrap.addEventListener('click',e=>{
     // Ako je klik na X reset dugme — vrati GPS umjesto otvaranja modala
     if(e.target&&e.target.closest&&e.target.closest('.danas-loc-source-reset')){
@@ -6985,31 +7079,45 @@ updateWakeLockUI();
 // Korisniku mora biti vidljivo kad nije online — vakti se i dalje računaju
 // za zadnju GPS poziciju, ali grad i weather mogu biti iz keša. Bez ovoga
 // bi korisnik mogao biti u drugom gradu i misliti da gleda "svježi" podatak.
-function updateOnlineStatus(){
-  const online=navigator.onLine;
-  document.body.classList.toggle('is-offline',!online);
-  // Ažuriraj poruku banner-a sa keš info ako je offline
+//
+// VAŽNO: navigator.onLine je ponekad nepouzdan pri inicijalnom load-u
+// (browser ga može postaviti na false dok se WiFi reconnect-uje). Zato:
+//   - Default: pretpostavi online (ne pokazuj banner pri startu)
+//   - Aktiviraj banner samo na 'offline' event ili stvarni API failure
+//   - Skida se na 'online' event ili uspješan API poziv
+function updateOnlineStatusBanner(){
+  // Ažuriraj poruku banner-a sa keš info kad je offline
   const banner=document.getElementById('danasOfflineBanner');
-  if(banner&&!online){
-    const cache=loadLocCache();
-    if(cache&&cache.grad&&cache.timestamp){
-      const country=formatBosnianCountry(cache.drzava||'');
-      banner.textContent=`⚠ Offline · zadnji online: ${cache.grad}${country?', '+country:''} · ${relTimeBs(cache.timestamp)}`;
-    }else{
-      banner.textContent='⚠ Offline · namaski vakti se računaju lokalno · grad i prognoza nisu dostupni';
-    }
-  }
-  // Kad se vrati online — auto-osvježi vakate i weather
-  if(online&&lastDanasCoords){
-    try{loadDanas(lastDanasCoords.lat,lastDanasCoords.lng);}catch(e){}
+  if(!banner)return;
+  const cache=loadLocCache();
+  if(cache&&cache.grad&&cache.timestamp){
+    const country=formatBosnianCountry(cache.drzava||'');
+    banner.textContent=`⚠ Offline · zadnji online: ${cache.grad}${country?', '+country:''} · ${relTimeBs(cache.timestamp)}`;
+  }else{
+    banner.textContent='⚠ Offline · namaski vakti se računaju lokalno · grad i prognoza nisu dostupni';
   }
 }
-window.addEventListener('online',updateOnlineStatus);
-window.addEventListener('offline',updateOnlineStatus);
-// Postavi inicijalno stanje pri load-u
-updateOnlineStatus();
+window.addEventListener('online',()=>{
+  document.body.classList.remove('is-offline');
+  // Auto-osvježi vakate i weather
+  if(lastDanasCoords){
+    try{loadDanas(lastDanasCoords.lat,lastDanasCoords.lng);}catch(e){}
+  }
+});
+window.addEventListener('offline',()=>{
+  document.body.classList.add('is-offline');
+  updateOnlineStatusBanner();
+});
+// Pri inicijalnom load-u: NE aktiviramo banner. Pretpostavljamo online.
+// Ako navigator.onLine je već false, postavi banner.
+if(!navigator.onLine){
+  document.body.classList.add('is-offline');
+  updateOnlineStatusBanner();
+}
 // Ažuriraj relativni timestamp u banner-u svake minute (dok je offline)
-setInterval(()=>{if(!navigator.onLine)updateOnlineStatus();},60000);
+setInterval(()=>{
+  if(document.body.classList.contains('is-offline'))updateOnlineStatusBanner();
+},60000);
 
 // INIT
 renderDanasDatum();autoLoadDanas();
