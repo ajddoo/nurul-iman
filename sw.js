@@ -8,7 +8,7 @@
 //   - Statički asseti (fonts, ikone): cache-first
 //     → brže učitavanje, manje mreže
 //   - API pozivi (vaktija.ba, allorigins, open-meteo, nominatim): network-only
-//     → uvijek svježi podaci, nikada keš (vakuti se mijenjaju svaki dan)
+//     → uvijek svježi podaci, nikada keš (vakti se mijenjaju svaki dan)
 //
 // Verzija keša se mijenja sa svakom novom verzijom app-a. Stari keš se briše.
 // ════════════════════════════════════════════════════════════════════════════
