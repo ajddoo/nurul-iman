@@ -2712,6 +2712,16 @@ body.live-focus-mode .live-focus-overlay{
   text-align:center;
   padding-top:3px;
 }
+.pred-ev-days:has(.pred-ev-unit)::before{
+  content:'za';
+  display:block;
+  font-family:var(--font-sans);
+  font-size:0.50rem;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--warm-gray);
+  margin-bottom:1px;
+}
 .pred-ev-num{
   font-family:var(--font-display);
   font-size:2.2rem;
@@ -3022,7 +3032,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2268';
+  var V='2269';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
