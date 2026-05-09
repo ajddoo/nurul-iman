@@ -79,6 +79,7 @@
 <!-- Ajdin v2.26.53: GPS fail fallback — kad GPS odbijen ili nedostupan, pored "Pokušaj ponovo" pokazuje se i "Odaberi grad ručno" dugme (dashed border, gold-light). Sub tekst "Pokušaj ponovo ili odaberi grad ručno" daje jasan put. Ovo je naročito važno za korisnike na uređajima gdje je GPS dozvola odbijena ili nije dostupna. -->
 <!-- Ajdin v2.26.54: zoom blokada — viewport "maximum-scale=1.0, user-scalable=no" + search input font-size 16px (sprječava iOS auto-zoom na fokus); aplikacija se vise ne zumira pri unosu u search ili kad se otvori location modal. -->
 <!-- Ajdin v2.26.55: emoji → SVG za UI ikone — UI_SVG konstanta sa gps, search, pin, warning ikonama u stroke 1.8 stilu; zamijenjen 🛰 (GPS dugme), 🔍 (search ikona), 📍 (loc-pin u vaktija badge); sve currentColor (boja se nasljeđuje od parent stila); zastave država (🇧🇦 itd.) ostaju Unicode jer su funkcionalan dio teksta. -->
+<!-- Ajdin v2.26.56: ime grada veci font — 0.85rem → 1.05rem (čitljivije, prominentnije), letter-spacing 0.03→0.02em (kompaktnije za duže gradove), line-height 1.3→1.2. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -405,8 +406,9 @@ main{flex:1;overflow:hidden;position:relative}
   min-height:110px;
 }
 .danas-city{
-  font-size:0.85rem;color:var(--text-primary);
-  letter-spacing:0.03em;line-height:1.3;
+  font-size:1.05rem;color:var(--text-primary);
+  letter-spacing:0.02em;line-height:1.2;
+  font-weight:400;
 }
 .danas-city-sub{font-size:0.68rem;color:var(--warm-gray);margin-top:1px}
 .danas-weather-icon{font-size:1.8rem;line-height:1;margin-top:auto}
@@ -3826,7 +3828,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2315';
+  var V='2316';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
