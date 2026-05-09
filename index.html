@@ -33,6 +33,7 @@
 <!-- Ajdin v2.26.11: live popup razmak dual padding 16px→24px; countdown timer +35%: single clamp(3.8rem,16vw,6.5rem), dual clamp(3.2rem,13vw,5.2rem); ≤390px single clamp(3.2rem,13vw,5.2rem), dual clamp(2.7rem,11.5vw,4.5rem). -->
 <!-- Ajdin v2.26.12: sehur fullscreen timer izjednačen s live popup single: clamp(3.8rem,16vw,6.5rem) / ≤390px clamp(3.2rem,13vw,5.2rem). -->
 <!-- Ajdin v2.26.13: bug fix — "Ummul-kura" sub labela na kartici "Kraj sehura" bila skrivena (visibility:hidden) u aktivnom stanju; uklonjena zabrana, boja --warm-charcoal na --warm-ivory ostaje čitljiva. -->
+<!-- Ajdin v2.26.14: revert v2.26.13 — sub labela "Ummul-kura" opet skrivena (visibility:hidden) u aktivnom sehur stanju; --warm-charcoal color rule uklonjen iz grupe. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -724,8 +725,7 @@ main{flex:1;overflow:hidden;position:relative}
   color:var(--accent-dim);
 }
 .danas-extra-card.active-extra-time .danas-extra-sub,
-.danas-extra-card-v9.active-extra-time .danas-extra-sub,
-#dcard-sehurKraj.sehur-counting .danas-extra-sub{
+.danas-extra-card-v9.active-extra-time .danas-extra-sub{
   color:var(--warm-charcoal);
 }
 
@@ -750,7 +750,7 @@ main{flex:1;overflow:hidden;position:relative}
   white-space:nowrap;
   overflow:visible;
 }
-/* Sub label "Ummul-kura" ostaje vidljiv i u aktivnom stanju kartice */
+#dcard-sehurKraj.sehur-counting .danas-extra-sub{ visibility:hidden; }
 
 /* sehur split layout (jelo / countdown) — fallback */
 .sehur-normal.hidden,.sehur-split.hidden{display:none}
@@ -3039,7 +3039,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2273';
+  var V='2274';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
