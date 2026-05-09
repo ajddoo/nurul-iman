@@ -81,6 +81,7 @@
 <!-- Ajdin v2.26.55: emoji → SVG za UI ikone — UI_SVG konstanta sa gps, search, pin, warning ikonama u stroke 1.8 stilu; zamijenjen 🛰 (GPS dugme), 🔍 (search ikona), 📍 (loc-pin u vaktija badge); sve currentColor (boja se nasljeđuje od parent stila); zastave država (🇧🇦 itd.) ostaju Unicode jer su funkcionalan dio teksta. -->
 <!-- Ajdin v2.26.56: ime grada veci font — 0.85rem → 1.05rem (čitljivije, prominentnije), letter-spacing 0.03→0.02em (kompaktnije za duže gradove), line-height 1.3→1.2. -->
 <!-- Ajdin v2.26.57: GPS error sub tekst — "Pokušaj ponovo ili odaberi grad ručno" → "Pokušaj ponovo ili ručno" (kraće da stane); plus .danas-city-sub white-space:normal (dozvoljava wrap u 2 reda umjesto ellipsis). -->
+<!-- Ajdin v2.26.58: CSS cleanup — border-radius tokeni: dodano --r-xs:6px, --r-pill:999px, --r-circle:50%; sve hardcoded 999px (6 mjesta) i 50% (10 mjesta) zamijenjene sa CSS varijablama. Vizuelno isto, kod čistiji za buduće globalne promjene. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -146,11 +147,14 @@
   --status-warn:#E07A5F;
   --status-ok:#7AAE7E;
 
-  /* Layout */
+  /* Layout — border-radius skala */
+  --r-xs:6px;
   --r-sm:10px;
   --r-md:14px;
   --r-lg:18px;
   --r-xl:22px;
+  --r-pill:999px;     /* kapsula / round button */
+  --r-circle:50%;     /* puni krug (semantičan, ne mijenjati) */
   --nav-h:62px;
 
   --font-display:'Cormorant Garamond',Georgia,serif;
@@ -232,7 +236,7 @@ main{flex:1;overflow:hidden;position:relative}
 
 /* ── RIPPLE ───────────────────────────────────────────────────────────────── */
 .ripple{
-  position:fixed;border-radius:50%;
+  position:fixed;border-radius:var(--r-circle);
   background:rgba(13,27,62,0.10);
   transform:scale(0);
   animation:rippleAnim 0.55s linear;
@@ -271,7 +275,7 @@ main{flex:1;overflow:hidden;position:relative}
 .pred-soon{
   margin-top:6px;
   border:1px solid var(--border-mid);
-  border-radius:999px;
+  border-radius:var(--r-pill);
   padding:6px 15px;
   font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;
   color:var(--warm-gray);
@@ -291,7 +295,7 @@ main{flex:1;overflow:hidden;position:relative}
   width:220px;height:220px;
   min-width:220px;min-height:220px;max-width:220px;max-height:220px;
   aspect-ratio:1/1;
-  border-radius:50%;
+  border-radius:var(--r-circle);
   border:2px solid var(--border-soft);
   background:var(--bg-surface);
   display:flex;align-items:center;justify-content:center;
@@ -326,13 +330,13 @@ main{flex:1;overflow:hidden;position:relative}
   border-bottom:8px solid var(--accent);
 }
 .compass-center{
-  width:12px;height:12px;border-radius:50%;
+  width:12px;height:12px;border-radius:var(--r-circle);
   background:var(--accent);
   position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%);
 }
 .kaaba-dot{
-  position:absolute;width:12px;height:12px;border-radius:50%;
+  position:absolute;width:12px;height:12px;border-radius:var(--r-circle);
   background:var(--accent);
   opacity:0;transition:opacity 0.4s,width 0.2s,height 0.2s;
   box-shadow:0 0 8px rgba(201,168,76,0.9);
@@ -863,7 +867,7 @@ main{flex:1;overflow:hidden;position:relative}
   display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
 }
 .danas-status-dot{
-  width:8px;height:8px;border-radius:50%;
+  width:8px;height:8px;border-radius:var(--r-circle);
   background:var(--warm-gray);
   flex:0 0 auto;margin-top:4px;opacity:0.65;
 }
@@ -885,7 +889,7 @@ main{flex:1;overflow:hidden;position:relative}
 .danas-countdown{position:relative}
 .wake-lock-btn{
   position:absolute;top:7px;right:8px;z-index:2;
-  width:26px;height:26px;border-radius:999px;
+  width:26px;height:26px;border-radius:var(--r-pill);
   border:1px solid rgba(201,168,76,0.24);
   background:rgba(7,15,34,0.34);
   color:var(--warm-gray);
@@ -1442,7 +1446,7 @@ header{position:relative}
   transform:translateY(-50%);
   width:26px;
   height:26px;
-  border-radius:50%;
+  border-radius:var(--r-circle);
   border:1px solid rgba(245,237,214,0.22);
   background:rgba(245,237,214,0.035);
   color:rgba(245,237,214,0.62);
@@ -1555,7 +1559,7 @@ header{position:relative}
   right:12px;
   width:28px;
   height:28px;
-  border-radius:50%;
+  border-radius:var(--r-circle);
   border:1px solid rgba(201,168,76,0.18);
   background:rgba(7,15,34,0.22);
   color:rgba(245,237,214,0.72);
@@ -1611,7 +1615,7 @@ header{position:relative}
   top:7px;
   right:8px;
   width:26px;height:26px;
-  border-radius:999px;
+  border-radius:var(--r-pill);
   border:1px solid rgba(138,109,36,0.28);
   background:rgba(138,109,36,0.08);
   color:var(--accent-dim);
@@ -1625,7 +1629,7 @@ header{position:relative}
   right:48px;
   width:28px;
   height:28px;
-  border-radius:50%;
+  border-radius:var(--r-circle);
   border:1px solid rgba(201,168,76,0.24);
   background:rgba(7,15,34,0.28);
   color:rgba(245,237,214,0.72);
@@ -1725,7 +1729,7 @@ body.live-focus-mode #danasCountdownLive{
   width:8px;
   height:8px;
   margin-left:8px;
-  border-radius:50%;
+  border-radius:var(--r-circle);
   border:1px solid rgba(201,168,76,0.35);
   border-top-color:var(--accent);
   animation:refreshSpin 0.7s linear infinite;
@@ -2262,7 +2266,7 @@ body.live-focus-mode .live-focus-overlay{
 .takvim-nav-btn{
   width:42px;
   height:42px;
-  border-radius:999px;
+  border-radius:var(--r-pill);
   border:1px solid var(--border-mid);
   background:rgba(7,15,34,0.22);
   color:var(--accent);
@@ -2309,7 +2313,7 @@ body.live-focus-mode .live-focus-overlay{
 .takvim-today-btn{
   flex:0 0 auto;
   border:1px solid var(--border-mid);
-  border-radius:999px;
+  border-radius:var(--r-pill);
   background:rgba(201,168,76,0.06);
   color:var(--accent);
   font-family:var(--font-sans);
@@ -2550,7 +2554,7 @@ body.live-focus-mode .live-focus-overlay{
   letter-spacing:0.13em!important;
   text-transform:uppercase!important;
   border:none!important;
-  border-radius:999px!important;
+  border-radius:var(--r-pill)!important;
   padding:8px 16px!important;
   transition:opacity .16s ease, transform .13s ease!important;
 }
@@ -2969,7 +2973,7 @@ body.live-focus-mode .live-focus-overlay{
   margin-left:auto;
   width:22px;height:22px;
   display:flex;align-items:center;justify-content:center;
-  border-radius:50%;
+  border-radius:var(--r-circle);
   font-size:0.95rem;line-height:1;
   color:var(--accent-dim);
   flex-shrink:0;
@@ -3831,7 +3835,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2317';
+  var V='2318';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
