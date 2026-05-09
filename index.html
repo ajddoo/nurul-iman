@@ -2,6 +2,7 @@
 <html lang="bs" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.vaktija.ba https://api.allorigins.win https://api.open-meteo.com https://nominatim.openstreetmap.org https://*.tile.openstreetmap.org; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
@@ -51,6 +52,7 @@
 <!-- Ajdin v2.26.25: ime aplikacije promijenjeno iz "Nurul-iman by Divan" u "Moj namaz by Divan" — title, og:title, apple-mobile-web-app-title, alt, info modal, live expand logo. -->
 <!-- Ajdin v2.26.27: PWA meta tagovi — apple-touch-icon, mobile-web-app-capable, color-scheme:dark, format-detection:telephone=no; theme-color sinhronizovan sa manifest.json (#070F22); link rel="icon" za 192/512 fallback. -->
 <!-- Ajdin v2.26.28: sigurnost — escapeHTML helper + sanitizacija gradBA na liniji 4330 (XSS zaštita ako vaktija.ba/allorigins.win odgovor sadrži maliciozni HTML). -->
+<!-- Ajdin v2.26.29: Content-Security-Policy meta tag — dozvoljava self, fonts.google, vaktija.ba, allorigins.win, open-meteo, nominatim; blokira sve nepoznate izvore; defense-in-depth uz escapeHTML. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3079,7 +3081,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2288';
+  var V='2289';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
