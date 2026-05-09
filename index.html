@@ -53,6 +53,7 @@
 <!-- Ajdin v2.26.27: PWA meta tagovi — apple-touch-icon, mobile-web-app-capable, color-scheme:dark, format-detection:telephone=no; theme-color sinhronizovan sa manifest.json (#070F22); link rel="icon" za 192/512 fallback. -->
 <!-- Ajdin v2.26.28: sigurnost — escapeHTML helper + sanitizacija gradBA na liniji 4330 (XSS zaštita ako vaktija.ba/allorigins.win odgovor sadrži maliciozni HTML). -->
 <!-- Ajdin v2.26.29: Content-Security-Policy meta tag — dozvoljava self, fonts.google, vaktija.ba, allorigins.win, open-meteo, nominatim; blokira sve nepoznate izvore; defense-in-depth uz escapeHTML. -->
+<!-- Ajdin v2.26.30: Service Worker (sw.js) — network-first za app shell (HTML, manifest, ikone), cache-first za statiku (fonts), network-only za API (vakuti uvijek svježi); aplikacija sada radi offline ako je već učitana barem jednom. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3081,7 +3082,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2289';
+  var V='2290';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5940,6 +5941,20 @@ updateWakeLockUI();
 
 // INIT
 renderDanasDatum();autoLoadDanas();
+
+// ── Service Worker registracija ─────────────────────────────────────────────
+// Strategija u sw.js: network-first za app shell, cache-first za statiku,
+// network-only za API pozive (vakuti su uvijek svježi).
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      // Provjeravaj update svakih 60 minuta dok je app otvorena
+      setInterval(()=>reg.update().catch(()=>{}),60*60*1000);
+    }).catch(err=>{
+      console.warn('[SW] registracija nije uspjela:',err.message||err);
+    });
+  });
+}
 </script>
 </body>
 </html>
