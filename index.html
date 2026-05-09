@@ -59,6 +59,7 @@
 <!-- Ajdin v2.26.33: offline indikator — vidljiv banner u panel-danas kad navigator.onLine=false; CSS body.is-offline; auto-refresh kad se vrati online; spriječava da korisnik pomisli da gleda online vrijednost dok je offline. -->
 <!-- Ajdin v2.26.34: dead code cleanup — uklonjen "localStorage.removeItem('ni_last_location')" (key se nikad nije postavljao); simplificiran sabahMainTime (fajrUK uvjetni izraz nije se koristio jer Hejaz/BiH grane imaju vlastiti render). -->
 <!-- Ajdin v2.26.35: sigurnost+funkc — GPS enableHighAccuracy:true (5-10m tačnost za regiju detekciju); strict regex parser za vaktija.ba "HH:MM" format (vraća null umjesto NaN); strict regex za URL ?time= parametar (samo "HH:MM" ili ISO format). -->
+<!-- Ajdin v2.26.36: globalni error boundary (window.onerror i unhandledrejection) za vidljivost JS grešaka u konzoli; polarni warning u source-note kad sabah/jacija/sehurKraj=null (visoke geografske širine — Skandinavija ljeti, Antarktik). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3103,6 +3104,18 @@ body.is-offline .danas-status-dot{
 <div class="live-expand-overlay" id="sehurExpandOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Sehur odbrojavač"></div>
 
 <script>
+// ── Globalni error boundary ──────────────────────────────────────────────────
+// Ako bilo gdje u kodu pukne nešto neulovljeno, logujemo u konzolu sa kontekstom.
+// Sprječava da JS error obori cijelu app tiho — svaka greška je vidljiva.
+window.addEventListener('error',function(e){
+  if(e&&e.message){
+    console.error('[Global error]',e.message,'@',(e.filename||'?')+':'+(e.lineno||'?'));
+  }
+});
+window.addEventListener('unhandledrejection',function(e){
+  console.error('[Unhandled promise rejection]',e.reason);
+});
+
 // ── Sigurnosni HTML escape helper ────────────────────────────────────────────
 // Koristi se za sav user/API tekst koji ide u innerHTML ili template literal-e.
 // Sprječava XSS injekciju kroz potencijalno kompromitovane API odgovore (vaktija.ba,
@@ -3119,7 +3132,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2295';
+  var V='2296';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4521,6 +4534,15 @@ function renderDanasVaktu(times,opts={}){
     html+=`<div class="danas-source-note">Ummul-kura – Saudijska Arabija<br>Sabah dodatno prikazan po ISNA proračunu</div>`;
   }else{
     html+=`<div class="danas-source-note">ISNA – Islamic Society of North America · Kraj sehura po Ummul-kura</div>`;
+  }
+
+  // Upozorenje za polarne lokacije (Skandinavija ljeti, Antarktik) gdje
+  // sunce ne ide ispod -15° (sabah) ili -18.5° (sehur). Tipično >66° latitude.
+  // Vakuti su null → prikazuje se "--:--" za pogođene namaze. Korisnik mora znati
+  // da to nije bug nego astronomsko ograničenje.
+  const polarMissing=times.sabah===null||times.jacija===null||times.sehurKraj===null;
+  if(polarMissing){
+    html+=`<div class="danas-source-note danas-source-warn">⚠ Na ovoj geografskoj širini astronomska kalkulacija ne daje sve vakute (sunce ne ide dovoljno ispod horizonta). Konsultuj lokalnu islamsku zajednicu za sabah i jaciju.</div>`;
   }
 
   html+=`<div class="danas-extra-row danas-extra-row-v9" style="margin-top:6px">
