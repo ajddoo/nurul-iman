@@ -67,6 +67,7 @@
 <!-- Ajdin v2.26.41: polish animacije — tab fade-in (0.28s) + suptilan timer-pulse u zadnjoj minuti (gold glow); haptic vibration na tab klik (navigator.vibrate, samo mobilni); guard za tab koji je već aktivan. -->
 <!-- Ajdin v2.26.42: stanja komponenti — :hover stanja (desktop, @media hover:hover guard), :disabled state (uniformno opacity 0.5 + cursor:not-allowed) za sve gumbe; cursor:pointer na klikabilnim elementima. -->
 <!-- Ajdin v2.26.43: loading skeleton (shimmer animacija na danas-next-name, danas-timer, danas-temp, danas-cond, danas-city, danas-cal-day) tokom GPS i API učitavanja; postavlja se body.app-loading u autoLoadDanas, skida u renderDanasVaktu i u GPS error handler-u; CSS za empty state (priprema za feature kasnije). -->
+<!-- Ajdin v2.26.44: desktop fix — #app frame dobio warm-white pozadinu (ranije providan, navy gradient body-ja se vidio kroz njega što je činilo lokacijski badge i druge tamne elemente nečitljivim). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3082,6 +3083,7 @@ button:focus-visible,
     width:100%;
     height:min(880px,calc(100vh - 48px));
     max-height:880px;
+    background:var(--bg-app);  /* warm-white pozadina, ista kao mobile */
     border-radius:32px;
     overflow:hidden;
     box-shadow:0 30px 80px rgba(0,0,0,0.45),0 10px 30px rgba(0,0,0,0.30);
@@ -3409,7 +3411,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2303';
+  var V='2304';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
