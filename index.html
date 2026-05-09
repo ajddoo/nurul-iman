@@ -62,6 +62,7 @@
 <!-- Ajdin v2.26.36: globalni error boundary (window.onerror i unhandledrejection) za vidljivost JS grešaka u konzoli; polarni warning u source-note kad sabah/jacija/sehurKraj=null (visoke geografske širine — Skandinavija ljeti, Antarktik). -->
 <!-- Ajdin v2.26.37: localStorage cache za grad/drzava/temp (ključ "mn-loc-cache"); pri offline ili Nominatim/Open-Meteo fail koristi keš + jasno označava "zadnji online prije Xh"; offline banner pokazuje keš info dinamično; bez kolizije sa budućim manualnim unosom (different localStorage key). -->
 <!-- Ajdin v2.26.38: gramatička ispravka — "vakute"/"vakuti" → "vakte"/"vakti" (akuzativ/nominativ plural od "vakat"); UI tekstovi: offline banner, polarni warning. -->
+<!-- Ajdin v2.26.39: desktop & tablet layout — iznad 768px aplikacija se centrira u "phone frame" (max-width 440px, zaobljeni uglovi, sjenka, navy gradient pozadina); iznad 1024px frame veci 460px. Mobile-first dizajn potpuno netaknut. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2869,6 +2870,52 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.39 — DESKTOP & TABLET LAYOUT
+   Mobile-first design ostaje. Iznad 768px aplikacija se centrira u "phone frame"
+   da ne razvlači sadržaj preko cijelog ekrana. Daje premium izgled na laptopu.
+   ============================================================================ */
+@media(min-width:768px){
+  html,body{
+    background:linear-gradient(135deg,#070F22 0%,#0D1B3E 50%,#070F22 100%);
+    background-attachment:fixed;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:24px;
+  }
+  #app{
+    max-width:440px;
+    width:100%;
+    height:min(880px,calc(100vh - 48px));
+    max-height:880px;
+    border-radius:32px;
+    overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,0.45),0 10px 30px rgba(0,0,0,0.30);
+    border:1px solid rgba(201,168,76,0.20);
+  }
+  /* Live expand i sehur expand fullscreen overlayi ostaju preko cijelog ekrana
+     (ne ograničavamo ih unutar app frame-a — bolji fokus prilikom razvučenog timera). */
+  .live-expand-overlay,
+  #liveFocusOverlay{
+    border-radius:0;
+  }
+  /* Modali ostaju centrirani na cijelom ekranu, ne unutar app okvira. */
+  .info-modal-backdrop{
+    border-radius:0;
+  }
+}
+@media(min-width:1024px){
+  #app{
+    max-width:460px;
+    height:min(900px,calc(100vh - 64px));
+    max-height:900px;
+  }
+}
+
+/* ============================================================================
    v2.26.33 — OFFLINE BANNER
    Vidljiv samo kad nema interneta. Korisnik mora znati da je offline da ne
    pomisli da su prikazani vakti za neku drugu lokaciju nego što GPS daje.
@@ -3171,7 +3218,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2298';
+  var V='2299';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
