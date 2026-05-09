@@ -50,6 +50,7 @@
 <!-- Ajdin v2.26.24: kartica "Posljednja ⅓ noći" preimenovana u "Posljednja 1/3 noći" — bez Unicode simbola. -->
 <!-- Ajdin v2.26.25: ime aplikacije promijenjeno iz "Nurul-iman by Divan" u "Moj namaz by Divan" — title, og:title, apple-mobile-web-app-title, alt, info modal, live expand logo. -->
 <!-- Ajdin v2.26.27: PWA meta tagovi — apple-touch-icon, mobile-web-app-capable, color-scheme:dark, format-detection:telephone=no; theme-color sinhronizovan sa manifest.json (#070F22); link rel="icon" za 192/512 fallback. -->
+<!-- Ajdin v2.26.28: sigurnost — escapeHTML helper + sanitizacija gradBA na liniji 4330 (XSS zaštita ako vaktija.ba/allorigins.win odgovor sadrži maliciozni HTML). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3062,9 +3063,23 @@ body.live-focus-mode .live-focus-overlay{
 <div class="live-expand-overlay" id="sehurExpandOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Sehur odbrojavač"></div>
 
 <script>
+// ── Sigurnosni HTML escape helper ────────────────────────────────────────────
+// Koristi se za sav user/API tekst koji ide u innerHTML ili template literal-e.
+// Sprječava XSS injekciju kroz potencijalno kompromitovane API odgovore (vaktija.ba,
+// allorigins.win proxy, Nominatim) ili kroz URL parametre (?city=...).
+function escapeHTML(s){
+  if(s===null||s===undefined)return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2287';
+  var V='2288';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4327,7 +4342,7 @@ function renderDanasVaktu(times,opts={}){
     if(localUnavailable){
       html+=`<div class="danas-local-source-badge warn">Za ovu lokaciju nije pronađena lokalna vaktija.</div>`;
     }else if(gradBA){
-      html+=`<div class="danas-local-source-badge" aria-label="Lokalna vaktija: ${gradBA}"><span class="loc-pin" aria-hidden="true">📍</span><strong>${gradBA}</strong></div>`;
+      html+=`<div class="danas-local-source-badge" aria-label="Lokalna vaktija: ${escapeHTML(gradBA)}"><span class="loc-pin" aria-hidden="true">📍</span><strong>${escapeHTML(gradBA)}</strong></div>`;
     }
   }
 
