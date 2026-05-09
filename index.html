@@ -56,6 +56,7 @@
 <!-- Ajdin v2.26.30: Service Worker (sw.js) — network-first za app shell (HTML, manifest, ikone), cache-first za statiku (fonts), network-only za API (vakuti uvijek svježi); aplikacija sada radi offline ako je već učitana barem jednom. -->
 <!-- Ajdin v2.26.31: bug fix — 3-minutna "nula faza" sehura sada koristi zoraBA (vaktija.ba) za BiH/Sandžak ako API radi (prije: uvijek UK sehurKraj, što je aktiviralo nula fazu prerano u BiH). -->
 <!-- Ajdin v2.26.32: CSP cleanup — skinute "frame-ancestors" i tile.openstreetmap.org direktive (frame-ancestors mora preko HTTP headera, ne meta — GitHub Pages već postavlja X-Frame-Options; tile.osm nije u upotrebi). -->
+<!-- Ajdin v2.26.33: offline indikator — vidljiv banner u panel-danas kad navigator.onLine=false; CSS body.is-offline; auto-refresh kad se vrati online; spriječava da korisnik pomisli da gleda online vrijednost dok je offline. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2861,6 +2862,35 @@ body.live-focus-mode .live-focus-overlay{
   text-align:center;
 }
 .live-expand-status:empty{display:none}
+
+/* ============================================================================
+   v2.26.33 — OFFLINE BANNER
+   Vidljiv samo kad nema interneta. Korisnik mora znati da je offline da ne
+   pomisli da su prikazani vakuti za neku drugu lokaciju nego što GPS daje.
+   ============================================================================ */
+.danas-offline-banner{
+  display:none;
+  background:rgba(224,122,95,0.12);
+  border:1px solid rgba(224,122,95,0.42);
+  border-left:3px solid var(--status-warn);
+  border-radius:var(--r-md);
+  padding:9px 12px;
+  margin:0 0 4px;
+  text-align:center;
+  font-family:var(--font-sans);
+  font-size:0.72rem;
+  line-height:1.4;
+  letter-spacing:0.03em;
+  color:var(--status-warn);
+  font-weight:500;
+  flex-shrink:0;
+}
+body.is-offline #danasOfflineBanner{display:block}
+body.is-offline .danas-status-dot{
+  background:var(--status-warn);
+  opacity:1;
+  animation:none;
+}
 </style>
 </head>
 <body>
@@ -2915,6 +2945,9 @@ body.live-focus-mode .live-focus-overlay{
   <!-- DANAS -->
   <div id="panel-danas" class="tab-panel active">
     <div class="pull-refresh-indicator" id="pullRefreshIndicator">Povuci za osvježavanje</div>
+    <div class="danas-offline-banner" id="danasOfflineBanner" role="status" aria-live="polite">
+      ⚠ Offline · vakuti se računaju za zadnju GPS poziciju · grad i prognoza nisu osvježeni
+    </div>
     <div class="danas-cards-row">
       <!-- Lijevo: lokacija + prognoza -->
       <div class="danas-weather-card">
@@ -3084,7 +3117,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2292';
+  var V='2293';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5945,6 +5978,23 @@ document.addEventListener('keydown', function(e){
 
 // ─── Inicijalni UI ────────────────────────────────────────────────────────
 updateWakeLockUI();
+
+// ── Offline status detection ────────────────────────────────────────────────
+// Korisniku mora biti vidljivo kad nije online — vakuti se i dalje računaju
+// za zadnju GPS poziciju, ali grad i weather ne mogu se osvježiti. Bez ovoga
+// bi korisnik mogao biti u drugom gradu i misliti da gleda "online" vrijednost.
+function updateOnlineStatus(){
+  const online=navigator.onLine;
+  document.body.classList.toggle('is-offline',!online);
+  // Kad se vrati online — auto-osvježi vakate i weather
+  if(online&&lastDanasCoords){
+    try{loadDanas(lastDanasCoords.lat,lastDanasCoords.lng);}catch(e){}
+  }
+}
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);
+// Postavi inicijalno stanje pri load-u
+updateOnlineStatus();
 
 // INIT
 renderDanasDatum();autoLoadDanas();
