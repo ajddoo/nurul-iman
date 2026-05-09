@@ -41,6 +41,7 @@
 <!-- Ajdin v2.26.19: polaNoci i zadnjaTrecina globalno — kraj noći je UK sabah (-18.5°) za sve non-Hejaz (bio ISNA -15°); Hejaz ostaje UK; BiH s API-om ostaje zoraBA; highlight nightEnd takodje prebačen na sehurKraj. -->
 <!-- Ajdin v2.26.20: donje 4 kartice — grid-template-rows:1fr auto 1fr; label align-self:end, sub align-self:start; vrijeme uvijek fizički centrirano u kartici; uklonjeni fiksirani height overridei po breakpointima. -->
 <!-- Ajdin v2.26.21: kartica "Posljednja trećina noći" preimenovana u "Posljednja ⅓ noći" — jedan red, nema prelamanja. -->
+<!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -3052,7 +3053,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2281';
+  var V='2282';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4448,8 +4449,10 @@ function renderDanasVaktu(times,opts={}){
 
 
   if(isBiHSandzak){
-    if(!gradBA&&!localUnavailable){
+    if(localUnavailable){
       html+=`<div class="danas-source-note">ISNA – Islamic Society of North America · Kraj sehura po Ummul-kura</div>`;
+    }else{
+      html+=`<div class="danas-source-note">ISNA – Islamic Society of North America · Lokalno – vaktija.ba</div>`;
     }
   }else if(isHejaz){
     html+=`<div class="danas-source-note">Ummul-kura – Saudijska Arabija<br>Sabah dodatno prikazan po ISNA proračunu</div>`;
