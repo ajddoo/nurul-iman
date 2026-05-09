@@ -71,6 +71,7 @@
 <!-- Ajdin v2.26.45: SPRINT 3 START — globalna LOKACIJE database (~280 gradova u 22 države) za ručni unos; BiH/Sandžak referenciraju VAKTIJA_GRADOVI po vaktijaId, ostale države su hardcoded koordinate. UI modal dolazi sledeci commit. -->
 <!-- Ajdin v2.26.46: Location modal — UI za ručni unos (search + akordeon po državama), localStorage 'mn-manual-loc' persistencija, hijerarhija učitavanja (URL → manual → GPS → keš), klik na grad u weather kartici otvara modal, X dugme za vraćanje na GPS, ESC za zatvaranje. -->
 <!-- Ajdin v2.26.47: Sprint 3 fixovi — (1) Sandžak detection: dodano "sandzak"/"sandžak" u knownBiHSandzakCountries (ranije se nije asociralo na vaktija.ba), (2) online/offline race fix: ukloninjen initial updateOnlineStatus poziv, banner se aktivira samo na stvarni offline event ili API fail, plus skida se klasa pri uspješnom Open-Meteo, (3) vizuelni "›" arrow hint na danas-place-wrap (klikabilan grad), (4) "Ručno" chip u sub tekstu (uvek vidljiv, ne gubi se kad je naziv države dug). -->
+<!-- Ajdin v2.26.48: KRITIČNI FIX — sehur countdown za BiH/Sandžak sada koristi zoraBA (vaktija.ba) umjesto Ummul-kura u fazi 1 i 2; ranije se uvijek prikazivalo "do kraja sehura · Ummul-kura" čak i kad je vaktija.ba dostupna (u BiH/Sandžaku to je pogrešno, lokalna vaktija ima prednost). Plus pull-to-refresh provjerava manual loc prije GPS-a (ranije: refresh sa GPS koordinatama iako je manual aktivan). Plus UI cleanup: skinuta strelica, dashed border-bottom kao klik hint, skraćeni country (Bosna i Hercegovina → BiH), redizajn "Ručno" oznake (gold pill chip + flag + skraćeni naziv + X). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2886,86 +2887,83 @@ body.live-focus-mode .live-focus-overlay{
   position:relative;
   cursor:pointer;
   border-radius:6px;
-  padding:0 22px 0 0;
-  margin-right:-22px;
+  padding:2px 4px;
+  margin:-2px -4px;
   transition:background 0.15s;
 }
-.danas-place-wrap::after{
-  content:'›';
-  position:absolute;
-  right:5px;top:50%;
-  transform:translateY(-50%);
-  font-size:1rem;
-  color:rgba(245,237,214,0.45);
-  font-weight:300;
-  pointer-events:none;
-  transition:color 0.15s,transform 0.15s;
+/* Subtilna ivica ispod imena grada — vizuelni hint da je klikabilan (kao link).
+   Bez emoji ikone i bez dodatne strelice, čišći izgled. */
+.danas-place-wrap .danas-city{
+  border-bottom:1px dashed rgba(245,237,214,0.25);
+  padding-bottom:1px;
+  display:inline-block;
+  max-width:100%;
 }
-.danas-place-wrap:active::after{
-  color:var(--accent);
-  transform:translateY(-50%) translateX(2px);
+.danas-place-wrap:active{
+  background:rgba(201,168,76,0.08);
+}
+.danas-place-wrap:active .danas-city{
+  border-bottom-color:var(--accent);
 }
 @media(hover:hover){
   .danas-place-wrap:hover{
     background:rgba(245,237,214,0.04);
   }
-  .danas-place-wrap:hover::after{
-    color:var(--accent-light);
+  .danas-place-wrap:hover .danas-city{
+    border-bottom-color:var(--accent-light);
   }
 }
 
-/* "Ručno" chip — uvijek vidljiv, ne gubi se kada je naziv države dug */
+/* Sub tekst u weather kartici — pokazuje državu (auto/manual).
+   Manual mod dodaje "ručno" oznaku i X reset, sve u jedan red, bez ellipsis-a. */
 .danas-loc-source{
-  display:inline-flex;
+  display:flex;
   align-items:center;
-  gap:4px;
-  flex-wrap:nowrap;
+  gap:5px;
   font-family:var(--font-sans);
-  font-size:0.58rem;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
+  font-size:0.62rem;
+  letter-spacing:0.05em;
   color:var(--warm-gray);
   white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  max-width:100%;
+  flex-wrap:nowrap;
 }
 .danas-loc-source.manual{
-  color:var(--accent-dim);
+  color:var(--accent-light);
 }
-.danas-loc-source.manual::before{
-  content:'Ručno';
-  display:inline-block;
-  background:var(--accent-dim);
-  color:var(--warm-ivory);
-  padding:2px 6px;
-  border-radius:3px;
-  font-size:0.50rem;
-  letter-spacing:0.10em;
-  font-weight:600;
-  margin-right:4px;
-  flex-shrink:0;
+.danas-loc-source-flag{
+  font-size:0.85rem;line-height:1;flex-shrink:0;
 }
 .danas-loc-source-text{
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap;
-  flex:1;
+  flex:0 1 auto;
   min-width:0;
+}
+.danas-loc-source-tag{
+  font-size:0.50rem;letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--accent-dim);
+  background:rgba(201,168,76,0.12);
+  padding:2px 6px;
+  border-radius:3px;
+  flex-shrink:0;
+  font-weight:500;
 }
 .danas-loc-source-reset{
   cursor:pointer;
   margin-left:auto;
-  padding:2px 6px;
+  width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
   border-radius:50%;
-  font-size:0.85rem;line-height:1;
+  font-size:0.95rem;line-height:1;
   color:var(--accent-dim);
   flex-shrink:0;
-  transition:background 0.15s;
+  transition:background 0.15s,color 0.15s;
 }
 .danas-loc-source-reset:hover,
 .danas-loc-source-reset:active{
-  background:rgba(201,168,76,0.15);
+  background:rgba(201,168,76,0.18);
+  color:var(--accent);
 }
 
 /* ============================================================================
@@ -3719,7 +3717,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2307';
+  var V='2308';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4772,22 +4770,32 @@ function getCountdownPhase(t,nowH){
     };
   }
 
-  // ── Faza 1: polovina noći → kraj sehura (Umm al-Qura) ───────────────
+  // ── Sehur target po regiji (BiH/Sandžak fix v2.26.48) ─────────────────
+  // BiH/Sandžak + vaktija.ba radi → koristi zoraBA (LOKALNO)
+  // BiH/Sandžak + API pao → fallback na UK sehurKraj
+  // Saudija + ostali → uvijek UK sehurKraj
+  // Pravilo po šejhu UG Divan.
+  const isBaWithLocal=t.isBiHSandzak&&has(t.zoraBA);
+  const sehurEnd=isBaWithLocal?t.zoraBA:t.sehurKraj;
+  const sehurSub=isBaWithLocal?'vaktija.ba':'Ummul-kura';
+
+  // ── Faza 1: polovina noći → kraj sehura ─────────────────────────────
   // Van Hejaza: standardni dual countdown (do sehura + do sabaha ISNA).
-  if(has(t.polaNoci)&&has(t.sehurKraj)&&has(t.sabah)
-     &&isTimeInRange(nowH,t.polaNoci,t.sehurKraj)){
+  if(has(t.polaNoci)&&has(sehurEnd)&&has(t.sabah)
+     &&isTimeInRange(nowH,t.polaNoci,sehurEnd)){
     return {
-      left: {label:'do kraja sehura', sub:'Ummul-kura', diff:safeDiff(t.sehurKraj)},
-      right:{label:'do sabaha',        sub:'ISNA',         diff:safeDiff(t.sabah)},
+      left: {label:'do kraja sehura', sub:sehurSub,    diff:safeDiff(sehurEnd)},
+      right:{label:'do sabaha',        sub:'ISNA',     diff:safeDiff(t.sabah)},
       layout:'horizontal'
     };
   }
 
-  // ── Faza 2: kraj sehura (UQ) → sabah ────────────────────────────────
-  // Saudija preskače ovu fazu jer joj je sehur kraj = UK sabah (faza 1 prelazi direktno na 2b).
-  // Van Hejaza: countdown do sabaha ISNA, centrirano.
-  if(!isHejaz&&has(t.sehurKraj)&&has(t.sabah)
-     &&isTimeInRange(nowH,t.sehurKraj,t.sabah)){
+  // ── Faza 2: kraj sehura → sabah ─────────────────────────────────────
+  // Saudija preskače (sehur kraj = UK sabah, faza 1 prelazi na 2b).
+  // BiH/Sandžak sa lokalnom: kraj zoraBA → sabah ISNA
+  // Ostali non-Hejaz: kraj sehurKraj → sabah ISNA
+  if(!isHejaz&&has(sehurEnd)&&has(t.sabah)
+     &&isTimeInRange(nowH,sehurEnd,t.sabah)){
     return {
       left: {label:'do sabaha', sub:'ISNA', diff:safeDiff(t.sabah)},
       right:null,
@@ -5429,7 +5437,14 @@ async function loadDanas(lat,lng){
   // Ako je manualno postavljena lokacija — koristimo njeno ime, ne zovemo Nominatim
   if(manual&&!TEST_MODE.location.enabled){
     document.getElementById('danasGrad').textContent=manual.name;
-    document.getElementById('danasGradSub').innerHTML=`<span class="danas-loc-source manual"><span class="danas-loc-source-text">${manual.flag||'📍'} ${escapeHTML(manual.country||'')}</span><span class="danas-loc-source-reset" title="Vrati GPS" role="button" aria-label="Vrati GPS">×</span></span>`;
+    const shortName=shortCountryName(manual.country||'');
+    document.getElementById('danasGradSub').innerHTML=
+      `<span class="danas-loc-source manual">`+
+        `<span class="danas-loc-source-flag" aria-hidden="true">${manual.flag||'📍'}</span>`+
+        `<span class="danas-loc-source-text">${escapeHTML(shortName)}</span>`+
+        `<span class="danas-loc-source-tag">Ručno</span>`+
+        `<span class="danas-loc-source-reset" title="Vrati GPS" role="button" aria-label="Vrati GPS">×</span>`+
+      `</span>`;
     reverseGeoName=manual.name;
     reverseGeoCountry=manual.country||null;
     locationLabel=manual.name+(manual.country?' · '+manual.country:'');
@@ -5840,6 +5855,19 @@ let liveFocusTimer = null;
 let liveFocusPausedByTap = false;
 let pullRefreshRunning = false;
 
+// Skraćeni naziv države za uske UI prostore (sub tekst u weather kartici).
+// Vraća punu vrijednost ako je već dovoljno kratka.
+function shortCountryName(name){
+  if(!name)return '';
+  const map={
+    'Bosna i Hercegovina':'BiH',
+    'Saudijska Arabija':'KSA',
+    'Sjedinjene Američke Države':'SAD',
+    'Ujedinjeno Kraljevstvo':'UK',
+  };
+  return map[name]||name;
+}
+
 function formatBosnianCountry(country){
   const key=String(country||'').trim().toLowerCase();
   const map={
@@ -6234,8 +6262,14 @@ async function refreshDanasFromPull(){
   try{
     renderDanasDatum();
     const urlCoords=getUrlCoords();
+    // Hijerarhija mora biti ista kao autoLoadDanas: URL → manual → GPS
+    // Pull-to-refresh sa manualnom lokacijom mora koristiti manualne koordinate,
+    // ne GPS — inače vakat se računa za fizičku lokaciju a ime grada ostaje manualno!
+    const manual=loadManualLoc();
     if(urlCoords){
       await loadDanas(urlCoords.lat,urlCoords.lng);
+    }else if(manual&&!TEST_MODE.location.enabled){
+      await loadDanas(manual.lat,manual.lng);
     }else if(TEST_MODE.location.enabled){
       await new Promise(resolve=>{
         getAppLocation(
