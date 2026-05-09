@@ -82,6 +82,7 @@
 <!-- Ajdin v2.26.56: ime grada veci font — 0.85rem → 1.05rem (čitljivije, prominentnije), letter-spacing 0.03→0.02em (kompaktnije za duže gradove), line-height 1.3→1.2. -->
 <!-- Ajdin v2.26.57: GPS error sub tekst — "Pokušaj ponovo ili odaberi grad ručno" → "Pokušaj ponovo ili ručno" (kraće da stane); plus .danas-city-sub white-space:normal (dozvoljava wrap u 2 reda umjesto ellipsis). -->
 <!-- Ajdin v2.26.58: CSS cleanup — border-radius tokeni: dodano --r-xs:6px, --r-pill:999px, --r-circle:50%; sve hardcoded 999px (6 mjesta) i 50% (10 mjesta) zamijenjene sa CSS varijablama. Vizuelno isto, kod čistiji za buduće globalne promjene. -->
+<!-- Ajdin v2.26.59: CSS cleanup — RGB tripleti tokeni za rgba alpha varijante (--accent-rgb, --warm-ivory-rgb, --bg-surface-rgb, --bg-deep-rgb, --status-warn-rgb, --status-ok-rgb, --accent-dim-rgb, --warm-gray-rgb). Zamijenjeno ~95 hardcoded rgba(R,G,B,...) sa rgba(var(--xx-rgb),...). Crna/bijela/highlights ostaju (standardne za sjenke). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -140,9 +141,9 @@
   --accent-dim:var(--gold-700);
   --accent-light:var(--gold-300);
 
-  --border-soft:rgba(201,168,76,0.16);
-  --border-mid:rgba(201,168,76,0.30);
-  --border-strong:rgba(201,168,76,0.55);
+  --border-soft:rgba(var(--accent-rgb),0.16);
+  --border-mid:rgba(var(--accent-rgb),0.30);
+  --border-strong:rgba(var(--accent-rgb),0.55);
 
   --status-warn:#E07A5F;
   --status-ok:#7AAE7E;
@@ -155,6 +156,18 @@
   --r-xl:22px;
   --r-pill:999px;     /* kapsula / round button */
   --r-circle:50%;     /* puni krug (semantičan, ne mijenjati) */
+
+  /* RGB tripleti za alpha varijante — koriste se kao rgba(var(--xx-rgb), 0.X)
+     Razlog: glavne boje se često koriste sa različitim alpha-ima (hover bg,
+     border, glow). Triplet token omogućava promjenu boje na jednom mjestu. */
+  --accent-rgb:201,168,76;       /* gold (#C9A84C) */
+  --warm-ivory-rgb:245,237,214;  /* ivory (#F5EDD6) */
+  --bg-surface-rgb:13,27,62;     /* navy-600 (#0D1B3E) */
+  --bg-deep-rgb:7,15,34;         /* navy-900 (#070F22) */
+  --status-warn-rgb:224,122,95;  /* terra cotta (#E07A5F) */
+  --status-ok-rgb:122,174,126;   /* sage (#7AAE7E) */
+  --accent-dim-rgb:138,109,36;   /* gold-700 (#8A6D24) */
+  --warm-gray-rgb:154,149,144;   /* warm gray (#9A9590) */
   --nav-h:62px;
 
   --font-display:'Cormorant Garamond',Georgia,serif;
@@ -237,7 +250,7 @@ main{flex:1;overflow:hidden;position:relative}
 /* ── RIPPLE ───────────────────────────────────────────────────────────────── */
 .ripple{
   position:fixed;border-radius:var(--r-circle);
-  background:rgba(13,27,62,0.10);
+  background:rgba(var(--bg-surface-rgb),0.10);
   transform:scale(0);
   animation:rippleAnim 0.55s linear;
   pointer-events:none;z-index:50;
@@ -339,14 +352,14 @@ main{flex:1;overflow:hidden;position:relative}
   position:absolute;width:12px;height:12px;border-radius:var(--r-circle);
   background:var(--accent);
   opacity:0;transition:opacity 0.4s,width 0.2s,height 0.2s;
-  box-shadow:0 0 8px rgba(201,168,76,0.9);
+  box-shadow:0 0 8px rgba(var(--accent-rgb),0.9);
   top:50%;left:50%;transform-origin:0 0;
   pointer-events:none;
 }
 @keyframes kaabaPulse{
-  0%{box-shadow:0 0 0 0 rgba(201,168,76,0.7);transform:translate(calc(-50% + var(--kx)),calc(-50% + var(--ky))) scale(1)}
-  70%{box-shadow:0 0 0 10px rgba(201,168,76,0);transform:translate(calc(-50% + var(--kx)),calc(-50% + var(--ky))) scale(1.4)}
-  100%{box-shadow:0 0 0 0 rgba(201,168,76,0);transform:translate(calc(-50% + var(--kx)),calc(-50% + var(--ky))) scale(1)}
+  0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0.7);transform:translate(calc(-50% + var(--kx)),calc(-50% + var(--ky))) scale(1)}
+  70%{box-shadow:0 0 0 10px rgba(var(--accent-rgb),0);transform:translate(calc(-50% + var(--kx)),calc(-50% + var(--ky))) scale(1.4)}
+  100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0);transform:translate(calc(-50% + var(--kx)),calc(-50% + var(--ky))) scale(1)}
 }
 .kaaba-dot.pulsing{animation:kaabaPulse 1s ease-out infinite}
 
@@ -388,7 +401,7 @@ main{flex:1;overflow:hidden;position:relative}
   padding:11px 28px;cursor:pointer;
   transition:border-color 0.2s,background 0.2s;
 }
-.btn-kibla:active{border-color:var(--accent);background:rgba(201,168,76,0.08)}
+.btn-kibla:active{border-color:var(--accent);background:rgba(var(--accent-rgb),0.08)}
 
 /* ============================================================================
    DANAS — glavni ekran
@@ -498,7 +511,7 @@ main{flex:1;overflow:hidden;position:relative}
   color:var(--status-warn);
   padding:8px 4px 2px;
   margin-top:6px;
-  border-top:1px solid rgba(224,122,95,0.30);
+  border-top:1px solid rgba(var(--status-warn-rgb),0.30);
 }
 .cd-status.hidden{display:none}
 .danas-countdown{flex-wrap:wrap}
@@ -506,17 +519,17 @@ main{flex:1;overflow:hidden;position:relative}
 /* Zabranjeno vrijeme za namaz – topla narandžasta nijansa.
    Aktivira se u fazama 4 (između izlaska i duhe) i 6 (sunce u zenitu). */
 .danas-countdown.cd-warning{
-  border-color:rgba(224,122,95,0.55);
+  border-color:rgba(var(--status-warn-rgb),0.55);
   border-left-color:var(--status-warn);
-  background:rgba(224,122,95,0.06);
+  background:rgba(var(--status-warn-rgb),0.06);
 }
 .danas-countdown.cd-warning .cd-single+.cd-single{
-  border-left-color:rgba(224,122,95,0.22);
+  border-left-color:rgba(var(--status-warn-rgb),0.22);
 }
 .danas-countdown.cd-warning .danas-timer{color:var(--status-warn)}
 .danas-countdown.cd-warning .danas-next-name{color:var(--status-warn)}
 .danas-countdown.cd-warning .danas-next-name small{color:var(--status-warn);opacity:0.80}
-.danas-countdown.cd-warning .danas-next-label{color:rgba(224,122,95,0.55)}
+.danas-countdown.cd-warning .danas-next-label{color:rgba(var(--status-warn-rgb),0.55)}
 
 /* Iftar layout – veliko gore + malo ispod (samo za fazu 9, ikindija → akšam u BiH).
    Lijeva polovica zauzima cijelu širinu sa velikim countdown-om;
@@ -553,7 +566,7 @@ main{flex:1;overflow:hidden;position:relative}
 }
 .danas-row.active-namaz{
   border-color:var(--accent);
-  background:rgba(201,168,76,0.06);
+  background:rgba(var(--accent-rgb),0.06);
   box-shadow:inset 3px 0 0 var(--accent);
 }
 .danas-row-dim{opacity:0.7}
@@ -577,7 +590,7 @@ main{flex:1;overflow:hidden;position:relative}
 }
 .danas-duet-row:has(.active-namaz){
   border-color:var(--accent);
-  background:rgba(201,168,76,0.04);
+  background:rgba(var(--accent-rgb),0.04);
   box-shadow:inset 3px 0 0 var(--accent);
 }
 
@@ -673,12 +686,12 @@ main{flex:1;overflow:hidden;position:relative}
   padding:7px 12px;
   border-radius:10px;
   opacity:0.74;
-  background:rgba(13,27,62,0.72);
-  border-color:rgba(201,168,76,0.14);
+  background:rgba(var(--bg-surface-rgb),0.72);
+  border-color:rgba(var(--accent-rgb),0.14);
 }
 .danas-midnight-row.active-namaz{
-  border-color:rgba(201,168,76,0.24);
-  background:rgba(13,27,62,0.78);
+  border-color:rgba(var(--accent-rgb),0.24);
+  background:rgba(var(--bg-surface-rgb),0.78);
 }
 .danas-midnight-row .danas-row-name{
   font-size:0.78rem;
@@ -843,7 +856,7 @@ main{flex:1;overflow:hidden;position:relative}
   text-align:center;display:flex;
   align-items:center;justify-content:center;gap:8px;
 }
-.danas-loc-btn:active{border-color:var(--accent);background:rgba(201,168,76,0.08)}
+.danas-loc-btn:active{border-color:var(--accent);background:rgba(var(--accent-rgb),0.08)}
 .danas-loc-btn::before{
   content:'';
   width:14px;height:14px;
@@ -881,8 +894,8 @@ main{flex:1;overflow:hidden;position:relative}
   opacity:1;
 }
 @keyframes statusPulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(122,174,126,0.55)}
-  50%{box-shadow:0 0 0 5px rgba(122,174,126,0)}
+  0%,100%{box-shadow:0 0 0 0 rgba(var(--status-ok-rgb),0.55)}
+  50%{box-shadow:0 0 0 5px rgba(var(--status-ok-rgb),0)}
 }
 
 /* ── wake lock za live odbrojavanje ──────────────────────────────────────── */
@@ -890,8 +903,8 @@ main{flex:1;overflow:hidden;position:relative}
 .wake-lock-btn{
   position:absolute;top:7px;right:8px;z-index:2;
   width:26px;height:26px;border-radius:var(--r-pill);
-  border:1px solid rgba(201,168,76,0.24);
-  background:rgba(7,15,34,0.34);
+  border:1px solid rgba(var(--accent-rgb),0.24);
+  background:rgba(var(--bg-deep-rgb),0.34);
   color:var(--warm-gray);
   font-size:0.9rem;line-height:1;
   display:flex;align-items:center;justify-content:center;
@@ -900,7 +913,7 @@ main{flex:1;overflow:hidden;position:relative}
 .wake-lock-btn.active{
   color:var(--accent);
   border-color:var(--border-strong);
-  background:rgba(201,168,76,0.10);
+  background:rgba(var(--accent-rgb),0.10);
 }
 
 /* ── modal za pripremljeni takvim ────────────────────────────────────────── */
@@ -984,7 +997,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Safari/fallback bez oslanjanja samo na :has(). */
 .danas-duet-row.active-duet{
   border-color:var(--accent);
-  background:rgba(201,168,76,0.04);
+  background:rgba(var(--accent-rgb),0.04);
   box-shadow:inset 3px 0 0 var(--accent);
 }
 .danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-row-name,
@@ -1053,7 +1066,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* v2.1 — izvor lokalne vaktije prikazuje se samo jednom; redovi ostaju čisti. */
 .danas-source-note span{color:var(--warm-gray);font-size:0.62rem;letter-spacing:0.04em}
-.danas-source-note.danas-source-warn{color:var(--status-warn);border-top:1px solid rgba(224,122,95,0.22);padding-top:6px}
+.danas-source-note.danas-source-warn{color:var(--status-warn);border-top:1px solid rgba(var(--status-warn-rgb),0.22);padding-top:6px}
 .danas-row-name.danas-row-local{font-size:0.66rem;letter-spacing:0.06em;color:var(--accent-light);text-transform:none}
 .danas-local-time-wrap{align-items:flex-end;min-width:max-content}
 .danas-row-time{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -1073,7 +1086,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   display:flex;align-items:center;justify-content:flex-end;gap:5px;
   width:100%;margin:-1px 1px 1px 0;
   font-size:0.73rem;line-height:1;
-  color:rgba(245,237,214,0.86);
+  color:rgba(var(--warm-ivory-rgb),0.86);
   letter-spacing:0.04em;
   text-align:right;
 }
@@ -1085,7 +1098,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 }
 .danas-local-source-badge .loc-pin svg{width:100%;height:100%;display:block}
 .danas-local-source-badge strong{
-  font-weight:400;color:rgba(245,237,214,0.92);
+  font-weight:400;color:rgba(var(--warm-ivory-rgb),0.92);
 }
 .danas-local-source-badge.warn{
   justify-content:center;
@@ -1093,8 +1106,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   font-size:0.72rem;line-height:1.35;
   text-align:center;
   padding:5px 8px 3px;
-  border-top:1px solid rgba(224,122,95,0.18);
-  border-bottom:1px solid rgba(224,122,95,0.12);
+  border-top:1px solid rgba(var(--status-warn-rgb),0.18);
+  border-bottom:1px solid rgba(var(--status-warn-rgb),0.12);
 }
 
 /* Izvor lokalne vaktije se više ne ponavlja u dnu liste ako je sve uredu. */
@@ -1110,7 +1123,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   pointer-events:none;
 }
 .danas-duet-row:has(.active-namaz)::after,
-.danas-duet-row.active-duet::after{background:rgba(201,168,76,0.34)}
+.danas-duet-row.active-duet::after{background:rgba(var(--accent-rgb),0.34)}
 
 /* Mali ekrani (≤390px): column layout — border-image gradient separator s razmakom od ivica */
 @media(max-width:390px){
@@ -1122,7 +1135,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   .danas-duet-row:has(.active-namaz) .danas-duet-half+.danas-duet-half,
   .danas-duet-row.active-duet .danas-duet-half+.danas-duet-half{
-    border-image:linear-gradient(to right,transparent 12px,rgba(201,168,76,0.34) 12px,rgba(201,168,76,0.34) calc(100% - 12px),transparent calc(100% - 12px)) 1;
+    border-image:linear-gradient(to right,transparent 12px,rgba(var(--accent-rgb),0.34) 12px,rgba(var(--accent-rgb),0.34) calc(100% - 12px),transparent calc(100% - 12px)) 1;
     opacity:1;
   }
 }
@@ -1205,10 +1218,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* Lokalni grad je na svijetloj pozadini; zato ne smije koristiti svijetlu/zlatnu nijansu. */
 .danas-local-source-badge{
-  color:rgba(13,27,62,0.76)!important;
+  color:rgba(var(--bg-surface-rgb),0.76)!important;
 }
 .danas-local-source-badge strong{
-  color:rgba(13,27,62,0.84)!important;
+  color:rgba(var(--bg-surface-rgb),0.84)!important;
 }
 .danas-local-source-badge .loc-pin{
   opacity:1!important;
@@ -1250,9 +1263,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   margin:-1px 0 1px 50%!important;
   justify-content:center!important;
   text-align:center!important;
-  color:rgba(13,27,62,0.82)!important;
+  color:rgba(var(--bg-surface-rgb),0.82)!important;
 }
-.danas-local-source-badge:not(.warn) strong{color:rgba(13,27,62,0.88)!important}
+.danas-local-source-badge:not(.warn) strong{color:rgba(var(--bg-surface-rgb),0.88)!important}
 .danas-local-source-badge:not(.warn) .loc-pin{font-size:0.78rem;line-height:1;opacity:1!important}
 
 /* Tekstovi u lokalnoj koloni ostaju prateća informacija, ali moraju ostati čitljivi. */
@@ -1447,9 +1460,9 @@ header{position:relative}
   width:26px;
   height:26px;
   border-radius:var(--r-circle);
-  border:1px solid rgba(245,237,214,0.22);
-  background:rgba(245,237,214,0.035);
-  color:rgba(245,237,214,0.62);
+  border:1px solid rgba(var(--warm-ivory-rgb),0.22);
+  background:rgba(var(--warm-ivory-rgb),0.035);
+  color:rgba(var(--warm-ivory-rgb),0.62);
   font-family:Georgia,serif;
   font-size:0.88rem;
   line-height:1;
@@ -1461,8 +1474,8 @@ header{position:relative}
 }
 .header-info-btn:active{
   color:var(--accent);
-  border-color:rgba(201,168,76,0.42);
-  background:rgba(201,168,76,0.08);
+  border-color:rgba(var(--accent-rgb),0.42);
+  background:rgba(var(--accent-rgb),0.08);
 }
 
 /* Weather kartica u iPhone-widget maniru */
@@ -1508,7 +1521,7 @@ header{position:relative}
   margin-top:2px;
   font-size:0.78rem;
   line-height:1;
-  color:rgba(245,237,214,0.72);
+  color:rgba(var(--warm-ivory-rgb),0.72);
   letter-spacing:0.08em;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
@@ -1560,9 +1573,9 @@ header{position:relative}
   width:28px;
   height:28px;
   border-radius:var(--r-circle);
-  border:1px solid rgba(201,168,76,0.18);
-  background:rgba(7,15,34,0.22);
-  color:rgba(245,237,214,0.72);
+  border:1px solid rgba(var(--accent-rgb),0.18);
+  background:rgba(var(--bg-deep-rgb),0.22);
+  color:rgba(var(--warm-ivory-rgb),0.72);
   font-size:1.1rem;
   line-height:1;
   display:flex;
@@ -1584,7 +1597,7 @@ header{position:relative}
   display:flex;
   flex-direction:column;
   padding:10px 0;
-  border-bottom:1px solid rgba(201,168,76,0.15);
+  border-bottom:1px solid rgba(var(--accent-rgb),0.15);
   text-align:left;
 }
 .app-info-row:last-child{border-bottom:none}
@@ -1616,8 +1629,8 @@ header{position:relative}
   right:8px;
   width:26px;height:26px;
   border-radius:var(--r-pill);
-  border:1px solid rgba(138,109,36,0.28);
-  background:rgba(138,109,36,0.08);
+  border:1px solid rgba(var(--accent-dim-rgb),0.28);
+  background:rgba(var(--accent-dim-rgb),0.08);
   color:var(--accent-dim);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
@@ -1630,9 +1643,9 @@ header{position:relative}
   width:28px;
   height:28px;
   border-radius:var(--r-circle);
-  border:1px solid rgba(201,168,76,0.24);
-  background:rgba(7,15,34,0.28);
-  color:rgba(245,237,214,0.72);
+  border:1px solid rgba(var(--accent-rgb),0.24);
+  background:rgba(var(--bg-deep-rgb),0.28);
+  color:rgba(var(--warm-ivory-rgb),0.72);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1641,7 +1654,7 @@ header{position:relative}
 .sehur-lock-btn.active{
   color:var(--accent);
   border-color:var(--border-strong);
-  background:rgba(201,168,76,0.10);
+  background:rgba(var(--accent-rgb),0.10);
 }
 .sehur-modal-card{
   text-align:center;
@@ -1694,7 +1707,7 @@ body.live-focus-mode #danasCountdownLive{
   animation:focusLiftIn 0.35s cubic-bezier(.4,0,.2,1);
 }
 body.live-focus-mode #danasCountdownLive{
-  box-shadow:0 16px 60px rgba(0,0,0,0.48), 0 0 0 1px rgba(201,168,76,0.20);
+  box-shadow:0 16px 60px rgba(0,0,0,0.48), 0 0 0 1px rgba(var(--accent-rgb),0.20);
 }
 @keyframes focusLiftIn{
   from{transform:translateY(8px);opacity:0.86}
@@ -1730,7 +1743,7 @@ body.live-focus-mode #danasCountdownLive{
   height:8px;
   margin-left:8px;
   border-radius:var(--r-circle);
-  border:1px solid rgba(201,168,76,0.35);
+  border:1px solid rgba(var(--accent-rgb),0.35);
   border-top-color:var(--accent);
   animation:refreshSpin 0.7s linear infinite;
 }
@@ -1767,7 +1780,7 @@ body.live-focus-mode #danasCountdownLive{
   line-height:0.92!important;
   margin-top:0!important;
   padding-bottom:1px!important;
-  color:rgba(245,237,214,0.80)!important;
+  color:rgba(var(--warm-ivory-rgb),0.80)!important;
   letter-spacing:0.04em!important;
 }
 
@@ -1846,7 +1859,7 @@ body.live-focus-mode .live-focus-overlay{
 .live-focus-countdown > *{
   width:100%;
   pointer-events:none!important;
-  box-shadow:0 18px 70px rgba(0,0,0,0.50),0 0 0 1px rgba(201,168,76,0.22);
+  box-shadow:0 18px 70px rgba(0,0,0,0.50),0 0 0 1px rgba(var(--accent-rgb),0.22);
 }
 .live-focus-stack .wake-lock-btn,
 .live-focus-stack [id],
@@ -1951,9 +1964,9 @@ body.live-focus-mode .live-focus-overlay{
   margin:0 auto;
   padding:22px 14px 24px!important;
   border-radius:var(--r-lg);
-  border:1px solid rgba(201,168,76,0.62);
+  border:1px solid rgba(var(--accent-rgb),0.62);
   background:
-    radial-gradient(circle at 50% 0%, rgba(251,246,235,0.98), rgba(242,229,192,0.96) 42%, rgba(201,168,76,0.92) 100%);
+    radial-gradient(circle at 50% 0%, rgba(251,246,235,0.98), rgba(242,229,192,0.96) 42%, rgba(var(--accent-rgb),0.92) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.36),
     0 14px 48px rgba(0,0,0,0.30);
@@ -1978,7 +1991,7 @@ body.live-focus-mode .live-focus-overlay{
 /* Sehur katanac je poseban kontekst; vizuelno ne smije djelovati kao live katanac. */
 .sehur-lock-btn.active{
   color:var(--navy-900)!important;
-  border-color:rgba(7,15,34,0.38)!important;
+  border-color:rgba(var(--bg-deep-rgb),0.38)!important;
   background:rgba(251,246,235,0.86)!important;
 }
 
@@ -2005,14 +2018,14 @@ body.live-focus-mode .live-focus-overlay{
 .info-modal-backdrop,
 .info-modal-backdrop.center-modal,
 .modal-backdrop{
-  background:rgba(7,15,34,0.16)!important;
+  background:rgba(var(--bg-deep-rgb),0.16)!important;
   backdrop-filter:blur(7px)!important;
   -webkit-backdrop-filter:blur(7px)!important;
 }
 
 /* Live focus: bez zatamnjivanja; samo blur pozadine. */
 .live-focus-overlay{
-  background:rgba(7,15,34,0.08)!important;
+  background:rgba(var(--bg-deep-rgb),0.08)!important;
   backdrop-filter:blur(8px)!important;
   -webkit-backdrop-filter:blur(8px)!important;
 }
@@ -2026,25 +2039,25 @@ body.live-focus-mode .live-focus-overlay{
   pointer-events:none!important;
 }
 .live-focus-countdown .danas-countdown{
-  box-shadow:0 18px 70px rgba(0,0,0,0.34),0 0 0 1px rgba(201,168,76,0.26)!important;
+  box-shadow:0 18px 70px rgba(0,0,0,0.34),0 0 0 1px rgba(var(--accent-rgb),0.26)!important;
 }
 
 /* Sehur modal: blur pozadina + branding zlatna kartica, bez pogrešnog svijetlog stila. */
 #sehurModal{
-  background:rgba(7,15,34,0.12)!important;
+  background:rgba(var(--bg-deep-rgb),0.12)!important;
   backdrop-filter:blur(8px)!important;
   -webkit-backdrop-filter:blur(8px)!important;
 }
 .sehur-modal-sheet{
   background:var(--bg-surface)!important;
-  border-color:rgba(201,168,76,0.42)!important;
+  border-color:rgba(var(--accent-rgb),0.42)!important;
 }
 .sehur-modal-card{
   width:100%;
   margin:0 auto;
   padding:22px 16px 24px!important;
   border-radius:var(--r-lg);
-  border:1px solid rgba(201,168,76,0.72)!important;
+  border:1px solid rgba(var(--accent-rgb),0.72)!important;
   background:var(--accent)!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.20),
@@ -2065,7 +2078,7 @@ body.live-focus-mode .live-focus-overlay{
 }
 .sehur-modal-sub{
   display:block!important;
-  color:rgba(7,15,34,0.76)!important;
+  color:rgba(var(--bg-deep-rgb),0.76)!important;
   font-size:0.78rem!important;
   letter-spacing:0.08em!important;
   margin-top:8px!important;
@@ -2076,19 +2089,19 @@ body.live-focus-mode .live-focus-overlay{
 
 /* Katanac u zlatnom sehur prikazu ostaje čitljiv. */
 .sehur-lock-btn{
-  background:rgba(7,15,34,0.18)!important;
-  border-color:rgba(201,168,76,0.34)!important;
-  color:rgba(245,237,214,0.82)!important;
+  background:rgba(var(--bg-deep-rgb),0.18)!important;
+  border-color:rgba(var(--accent-rgb),0.34)!important;
+  color:rgba(var(--warm-ivory-rgb),0.82)!important;
 }
 .sehur-lock-btn.active{
   color:var(--navy-900)!important;
-  border-color:rgba(7,15,34,0.34)!important;
-  background:rgba(245,237,214,0.86)!important;
+  border-color:rgba(var(--bg-deep-rgb),0.34)!important;
+  background:rgba(var(--warm-ivory-rgb),0.86)!important;
 }
 
 /* Close dugmad na blur modalima ostaju vidljiva. */
 .modal-close-btn{
-  background:rgba(7,15,34,0.36)!important;
+  background:rgba(var(--bg-deep-rgb),0.36)!important;
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
 }
@@ -2107,7 +2120,7 @@ body.live-focus-mode .live-focus-overlay{
 
 /* Sehur modal više ne koristi zaseban zlatni dizajn; prati live countdown stil. */
 #sehurModal{
-  background:rgba(7,15,34,0.10)!important;
+  background:rgba(var(--bg-deep-rgb),0.10)!important;
   backdrop-filter:blur(8px)!important;
   -webkit-backdrop-filter:blur(8px)!important;
 }
@@ -2135,7 +2148,7 @@ body.live-focus-mode .live-focus-overlay{
   padding:24px 18px 26px!important;
   box-shadow:
     0 18px 70px rgba(0,0,0,0.34),
-    0 0 0 1px rgba(201,168,76,0.18)!important;
+    0 0 0 1px rgba(var(--accent-rgb),0.18)!important;
   text-align:center!important;
 }
 
@@ -2175,23 +2188,23 @@ body.live-focus-mode .live-focus-overlay{
 .modal-close-btn{
   top:6px!important;
   right:10px!important;
-  background:rgba(13,27,62,0.72)!important;
-  border-color:rgba(201,168,76,0.28)!important;
-  color:rgba(245,237,214,0.82)!important;
+  background:rgba(var(--bg-surface-rgb),0.72)!important;
+  border-color:rgba(var(--accent-rgb),0.28)!important;
+  color:rgba(var(--warm-ivory-rgb),0.82)!important;
 }
 
 .sehur-lock-btn{
   top:6px!important;
   right:46px!important;
-  background:rgba(13,27,62,0.72)!important;
-  border-color:rgba(201,168,76,0.28)!important;
-  color:rgba(245,237,214,0.82)!important;
+  background:rgba(var(--bg-surface-rgb),0.72)!important;
+  border-color:rgba(var(--accent-rgb),0.28)!important;
+  color:rgba(var(--warm-ivory-rgb),0.82)!important;
 }
 
 .sehur-lock-btn.active{
   color:var(--accent)!important;
   border-color:var(--border-strong)!important;
-  background:rgba(201,168,76,0.10)!important;
+  background:rgba(var(--accent-rgb),0.10)!important;
 }
 
 /* Na manjim ekranima ostaje uvećano, ali ne puca. */
@@ -2254,7 +2267,7 @@ body.live-focus-mode .live-focus-overlay{
   font-size:0.68rem;
   letter-spacing:0.14em;
   text-transform:uppercase;
-  color:rgba(245,237,214,0.76);
+  color:rgba(var(--warm-ivory-rgb),0.76);
 }
 .takvim-greg-range{
   margin-top:4px;
@@ -2268,7 +2281,7 @@ body.live-focus-mode .live-focus-overlay{
   height:42px;
   border-radius:var(--r-pill);
   border:1px solid var(--border-mid);
-  background:rgba(7,15,34,0.22);
+  background:rgba(var(--bg-deep-rgb),0.22);
   color:var(--accent);
   font-family:var(--font-display);
   font-size:1.8rem;
@@ -2281,7 +2294,7 @@ body.live-focus-mode .live-focus-overlay{
 .takvim-nav-btn:active,
 .takvim-today-btn:active{
   border-color:var(--accent);
-  background:rgba(201,168,76,0.10);
+  background:rgba(var(--accent-rgb),0.10);
 }
 .takvim-today-strip{
   display:flex;
@@ -2289,9 +2302,9 @@ body.live-focus-mode .live-focus-overlay{
   justify-content:space-between;
   gap:10px;
   padding:10px 11px;
-  border:1px solid rgba(201,168,76,0.18);
+  border:1px solid rgba(var(--accent-rgb),0.18);
   border-radius:var(--r-md);
-  background:rgba(7,15,34,0.22);
+  background:rgba(var(--bg-deep-rgb),0.22);
   margin-bottom:12px;
 }
 .takvim-strip-label{
@@ -2314,7 +2327,7 @@ body.live-focus-mode .live-focus-overlay{
   flex:0 0 auto;
   border:1px solid var(--border-mid);
   border-radius:var(--r-pill);
-  background:rgba(201,168,76,0.06);
+  background:rgba(var(--accent-rgb),0.06);
   color:var(--accent);
   font-family:var(--font-sans);
   font-size:0.66rem;
@@ -2336,7 +2349,7 @@ body.live-focus-mode .live-focus-overlay{
   font-size:0.58rem;
   letter-spacing:0.12em;
   text-transform:uppercase;
-  color:rgba(245,237,214,0.58);
+  color:rgba(var(--warm-ivory-rgb),0.58);
 }
 .takvim-grid{
   display:grid;
@@ -2345,9 +2358,9 @@ body.live-focus-mode .live-focus-overlay{
 }
 .takvim-day{
   min-height:50px;
-  border:1px solid rgba(201,168,76,0.14);
+  border:1px solid rgba(var(--accent-rgb),0.14);
   border-radius:12px;
-  background:rgba(13,27,62,0.58);
+  background:rgba(var(--bg-surface-rgb),0.58);
   color:var(--text-primary);
   display:flex;
   flex-direction:column;
@@ -2369,19 +2382,19 @@ body.live-focus-mode .live-focus-overlay{
 }
 .takvim-day.selected{
   border-color:var(--accent);
-  background:rgba(201,168,76,0.18);
-  box-shadow:0 0 0 1px rgba(201,168,76,0.18), inset 0 0 0 1px rgba(201,168,76,0.16);
+  background:rgba(var(--accent-rgb),0.18);
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),0.18), inset 0 0 0 1px rgba(var(--accent-rgb),0.16);
 }
 .takvim-day.empty{
   visibility:hidden;
 }
 .takvim-day.today{
   border-color:var(--accent);
-  background:rgba(201,168,76,0.12);
-  box-shadow:inset 0 0 0 1px rgba(201,168,76,0.18);
+  background:rgba(var(--accent-rgb),0.12);
+  box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),0.18);
 }
 .takvim-day.today.selected{
-  background:rgba(201,168,76,0.22);
+  background:rgba(var(--accent-rgb),0.22);
 }
 .takvim-hday{
   font-size:1.05rem;
@@ -2393,25 +2406,25 @@ body.live-focus-mode .live-focus-overlay{
   font-family:var(--font-sans);
   font-size:0.55rem;
   line-height:1.1;
-  color:rgba(245,237,214,0.68);
+  color:rgba(var(--warm-ivory-rgb),0.68);
   white-space:nowrap;
   font-variant-numeric:tabular-nums;
 }
 .takvim-day.today .takvim-gday{
-  color:rgba(245,237,214,0.88);
+  color:rgba(var(--warm-ivory-rgb),0.88);
 }
 .takvim-day.selected .takvim-hday{
   color:var(--gold-50);
 }
 .takvim-day.selected .takvim-gday{
-  color:rgba(245,237,214,0.96);
+  color:rgba(var(--warm-ivory-rgb),0.96);
 }
 .takvim-selected-card{
   margin-top:12px;
   padding:11px 12px;
-  border:1px solid rgba(201,168,76,0.22);
+  border:1px solid rgba(var(--accent-rgb),0.22);
   border-radius:var(--r-md);
-  background:rgba(7,15,34,0.26);
+  background:rgba(var(--bg-deep-rgb),0.26);
   text-align:center;
 }
 .takvim-selected-card strong{
@@ -2427,12 +2440,12 @@ body.live-focus-mode .live-focus-overlay{
   font-family:var(--font-sans);
   font-size:0.70rem;
   line-height:1.35;
-  color:rgba(245,237,214,0.72);
+  color:rgba(var(--warm-ivory-rgb),0.72);
 }
 .takvim-note{
   margin-top:11px;
   padding-top:10px;
-  border-top:1px solid rgba(201,168,76,0.14);
+  border-top:1px solid rgba(var(--accent-rgb),0.14);
   font-size:0.68rem;
   line-height:1.45;
   text-align:center;
@@ -2470,11 +2483,11 @@ body.live-focus-mode .live-focus-overlay{
   transition:background .16s ease, transform .12s ease!important;
 }
 .takvim-day:hover{
-  background:rgba(201,168,76,0.09)!important;
+  background:rgba(var(--accent-rgb),0.09)!important;
 }
 .takvim-day:active{
   transform:scale(0.93)!important;
-  background:rgba(201,168,76,0.13)!important;
+  background:rgba(var(--accent-rgb),0.13)!important;
 }
 .takvim-day:focus-visible{
   outline:2px solid var(--accent)!important;
@@ -2484,7 +2497,7 @@ body.live-focus-mode .live-focus-overlay{
 
 /* ── 2. Selected ćelija: suptilno, bez teške kartice ───────────────────── */
 .takvim-day.selected{
-  background:rgba(201,168,76,0.11)!important;
+  background:rgba(var(--accent-rgb),0.11)!important;
   border:none!important;
   box-shadow:none!important;
 }
@@ -2492,7 +2505,7 @@ body.live-focus-mode .live-focus-overlay{
   color:var(--accent-light)!important;
 }
 .takvim-day.selected .takvim-gday{
-  color:rgba(154,149,144,0.82)!important;
+  color:rgba(var(--warm-gray-rgb),0.82)!important;
 }
 
 /* ── 3. DANAS ćelija: solid gold fill, navy tekst — jedina istaknuta ──── */
@@ -2506,7 +2519,7 @@ body.live-focus-mode .live-focus-overlay{
   color:var(--navy-900)!important;
 }
 .takvim-day.today .takvim-gday{
-  color:rgba(7,15,34,0.60)!important;
+  color:rgba(var(--bg-deep-rgb),0.60)!important;
 }
 .takvim-day.today.selected{
   background:var(--accent)!important;
@@ -2515,7 +2528,7 @@ body.live-focus-mode .live-focus-overlay{
 
 /* ── 4. Gregrijanski datum: barely visible ──────────────────────────────── */
 .takvim-gday{
-  color:rgba(154,149,144,0.52)!important;
+  color:rgba(var(--warm-gray-rgb),0.52)!important;
   font-size:0.52rem!important;
 }
 
@@ -2647,7 +2660,7 @@ body.live-focus-mode .live-focus-overlay{
 /* App info redovi: čisti, bez interaktivnosti */
 .app-info-row{
   padding:10px 0 10px 14px!important;
-  border-bottom:1px solid rgba(201,168,76,0.12)!important;
+  border-bottom:1px solid rgba(var(--accent-rgb),0.12)!important;
   border-left:2px solid var(--border-soft)!important;
   cursor:default!important;
   user-select:text!important;
@@ -2675,7 +2688,7 @@ body.live-focus-mode .live-focus-overlay{
 .app-info-footer{
   margin-top:16px;
   padding-top:14px;
-  border-top:1px solid rgba(201,168,76,0.14);
+  border-top:1px solid rgba(var(--accent-rgb),0.14);
   text-align:center;
 }
 .app-info-footer-org{
@@ -2760,12 +2773,12 @@ body.live-focus-mode .live-focus-overlay{
   cursor:default;
 }
 .pred-ev-card.pred-soon{
-  border-color:rgba(201,168,76,0.42);
+  border-color:rgba(var(--accent-rgb),0.42);
   border-left-width:3px;
   border-left-color:var(--accent);
 }
 .pred-ev-card.pred-very-soon{
-  background:rgba(201,168,76,0.07);
+  background:rgba(var(--accent-rgb),0.07);
   border-color:var(--accent);
   border-left-width:3px;
   border-left-color:var(--accent);
@@ -2828,10 +2841,10 @@ body.live-focus-mode .live-focus-overlay{
 }
 .pred-ev-desc{
   font-size:0.78rem;
-  color:rgba(245,237,214,0.60);
+  color:rgba(var(--warm-ivory-rgb),0.60);
   margin-top:7px;
   line-height:1.52;
-  border-top:1px solid rgba(201,168,76,0.10);
+  border-top:1px solid rgba(var(--accent-rgb),0.10);
   padding-top:7px;
 }
 @media(max-width:390px){
@@ -2886,8 +2899,8 @@ body.live-focus-mode .live-focus-overlay{
 
 /* Zabranjeno vrijeme — warning stanje u live expand overlayu */
 .live-expand-overlay.le-warning .live-expand-timer{color:var(--status-warn)}
-.live-expand-overlay.le-warning .live-expand-name{color:rgba(224,122,95,0.82)}
-.live-expand-overlay.le-warning .live-expand-kicker{color:rgba(224,122,95,0.55)}
+.live-expand-overlay.le-warning .live-expand-name{color:rgba(var(--status-warn-rgb),0.82)}
+.live-expand-overlay.le-warning .live-expand-kicker{color:rgba(var(--status-warn-rgb),0.55)}
 .live-expand-status{
   font-family:var(--font-sans);
   font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;
@@ -2913,20 +2926,20 @@ body.live-focus-mode .live-focus-overlay{
 /* Subtilna ivica ispod imena grada — vizuelni hint da je klikabilan (kao link).
    Bez emoji ikone i bez dodatne strelice, čišći izgled. */
 .danas-place-wrap .danas-city{
-  border-bottom:1px dashed rgba(245,237,214,0.25);
+  border-bottom:1px dashed rgba(var(--warm-ivory-rgb),0.25);
   padding-bottom:1px;
   display:inline-block;
   max-width:100%;
 }
 .danas-place-wrap:active{
-  background:rgba(201,168,76,0.08);
+  background:rgba(var(--accent-rgb),0.08);
 }
 .danas-place-wrap:active .danas-city{
   border-bottom-color:var(--accent);
 }
 @media(hover:hover){
   .danas-place-wrap:hover{
-    background:rgba(245,237,214,0.04);
+    background:rgba(var(--warm-ivory-rgb),0.04);
   }
   .danas-place-wrap:hover .danas-city{
     border-bottom-color:var(--accent-light);
@@ -2962,7 +2975,7 @@ body.live-focus-mode .live-focus-overlay{
   font-size:0.50rem;letter-spacing:0.18em;
   text-transform:uppercase;
   color:var(--accent-dim);
-  background:rgba(201,168,76,0.12);
+  background:rgba(var(--accent-rgb),0.12);
   padding:2px 6px;
   border-radius:3px;
   flex-shrink:0;
@@ -2981,7 +2994,7 @@ body.live-focus-mode .live-focus-overlay{
 }
 .danas-loc-source-reset:hover,
 .danas-loc-source-reset:active{
-  background:rgba(201,168,76,0.18);
+  background:rgba(var(--accent-rgb),0.18);
   color:var(--accent);
 }
 
@@ -3005,7 +3018,7 @@ body.live-focus-mode .live-focus-overlay{
 .danas-loc-btn-secondary:active{
   border-color:var(--accent-light);
   border-style:solid;
-  background:rgba(201,168,76,0.06);
+  background:rgba(var(--accent-rgb),0.06);
 }
 .danas-loc-btn-secondary::before{display:none}
 
@@ -3098,7 +3111,7 @@ body.live-focus-mode .live-focus-overlay{
 .location-gps-btn:hover,
 .location-gps-btn:active{
   border-color:var(--accent);
-  background:rgba(201,168,76,0.08);
+  background:rgba(var(--accent-rgb),0.08);
 }
 .location-gps-btn.hidden{display:none}
 
@@ -3194,7 +3207,7 @@ body.live-focus-mode .live-focus-overlay{
 }
 .location-city:hover,
 .location-city:active{
-  background:rgba(201,168,76,0.06);
+  background:rgba(var(--accent-rgb),0.06);
   border-left-color:var(--accent-dim);
   color:var(--accent);
 }
@@ -3215,7 +3228,7 @@ body.live-focus-mode .live-focus-overlay{
 .location-search-result:first-child{border-top:none}
 .location-search-result:hover,
 .location-search-result:active{
-  background:rgba(201,168,76,0.06);
+  background:rgba(var(--accent-rgb),0.06);
   color:var(--accent);
 }
 .location-search-result-flag{font-size:1.3rem;flex-shrink:0}
@@ -3273,7 +3286,7 @@ body.live-focus-mode .live-focus-overlay{
   color:var(--accent-dim);
 }
 .danas-loc-source-reset:hover{
-  background:rgba(201,168,76,0.12);
+  background:rgba(var(--accent-rgb),0.12);
 }
 
 /* ============================================================================
@@ -3287,9 +3300,9 @@ body.live-focus-mode .live-focus-overlay{
 }
 .skeleton-line{
   background:linear-gradient(90deg,
-    rgba(245,237,214,0.04) 0%,
-    rgba(245,237,214,0.14) 50%,
-    rgba(245,237,214,0.04) 100%);
+    rgba(var(--warm-ivory-rgb),0.04) 0%,
+    rgba(var(--warm-ivory-rgb),0.14) 50%,
+    rgba(var(--warm-ivory-rgb),0.04) 100%);
   background-size:200% 100%;
   animation:skeletonShimmer 1.5s linear infinite;
   border-radius:6px;
@@ -3301,9 +3314,9 @@ body.live-focus-mode .live-focus-overlay{
 body.app-loading .danas-next-name,
 body.app-loading .danas-timer{
   background:linear-gradient(90deg,
-    rgba(245,237,214,0.04) 0%,
-    rgba(245,237,214,0.14) 50%,
-    rgba(245,237,214,0.04) 100%);
+    rgba(var(--warm-ivory-rgb),0.04) 0%,
+    rgba(var(--warm-ivory-rgb),0.14) 50%,
+    rgba(var(--warm-ivory-rgb),0.04) 100%);
   background-size:200% 100%;
   animation:skeletonShimmer 1.5s linear infinite;
   border-radius:6px;
@@ -3314,9 +3327,9 @@ body.app-loading .danas-cond,
 body.app-loading .danas-city,
 body.app-loading .danas-cal-day{
   background:linear-gradient(90deg,
-    rgba(245,237,214,0.04) 0%,
-    rgba(245,237,214,0.14) 50%,
-    rgba(245,237,214,0.04) 100%);
+    rgba(var(--warm-ivory-rgb),0.04) 0%,
+    rgba(var(--warm-ivory-rgb),0.14) 50%,
+    rgba(var(--warm-ivory-rgb),0.04) 100%);
   background-size:200% 100%;
   animation:skeletonShimmer 1.5s linear infinite;
   border-radius:5px;
@@ -3364,7 +3377,7 @@ body.app-loading .danas-cal-day{
   .danas-loc-btn:hover,
   .btn-kibla:hover{
     border-color:var(--accent);
-    background:rgba(201,168,76,0.08);
+    background:rgba(var(--accent-rgb),0.08);
     cursor:pointer;
   }
   .bnav-btn:hover:not(.active){
@@ -3373,8 +3386,8 @@ body.app-loading .danas-cal-day{
   }
   .header-info-btn:hover{
     color:var(--accent);
-    border-color:rgba(201,168,76,0.42);
-    background:rgba(201,168,76,0.08);
+    border-color:rgba(var(--accent-rgb),0.42);
+    background:rgba(var(--accent-rgb),0.08);
     cursor:pointer;
   }
   .danas-cal-card:hover{
@@ -3387,7 +3400,7 @@ body.app-loading .danas-cal-day{
     cursor:pointer;
   }
   .takvim-day:not(.empty):hover{
-    background:rgba(201,168,76,0.08);
+    background:rgba(var(--accent-rgb),0.08);
     cursor:pointer;
   }
   .pred-ev-card:hover{
@@ -3422,8 +3435,8 @@ button[aria-disabled="true"]{
   animation:timerPulse 1s ease-in-out infinite;
 }
 @keyframes timerPulse{
-  0%,100%{transform:scale(1);text-shadow:0 0 0 rgba(201,168,76,0)}
-  50%{transform:scale(1.05);text-shadow:0 0 12px rgba(201,168,76,0.45)}
+  0%,100%{transform:scale(1);text-shadow:0 0 0 rgba(var(--accent-rgb),0)}
+  50%{transform:scale(1.05);text-shadow:0 0 12px rgba(var(--accent-rgb),0.45)}
 }
 
 /* ============================================================================
@@ -3489,7 +3502,7 @@ button:focus-visible,
     border-radius:32px;
     overflow:hidden;
     box-shadow:0 30px 80px rgba(0,0,0,0.45),0 10px 30px rgba(0,0,0,0.30);
-    border:1px solid rgba(201,168,76,0.20);
+    border:1px solid rgba(var(--accent-rgb),0.20);
   }
   /* Live expand i sehur expand fullscreen overlayi ostaju preko cijelog ekrana
      (ne ograničavamo ih unutar app frame-a — bolji fokus prilikom razvučenog timera). */
@@ -3517,8 +3530,8 @@ button:focus-visible,
    ============================================================================ */
 .danas-offline-banner{
   display:none;
-  background:rgba(224,122,95,0.12);
-  border:1px solid rgba(224,122,95,0.42);
+  background:rgba(var(--status-warn-rgb),0.12);
+  border:1px solid rgba(var(--status-warn-rgb),0.42);
   border-left:3px solid var(--status-warn);
   border-radius:var(--r-md);
   padding:9px 12px;
@@ -3835,7 +3848,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2318';
+  var V='2319';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
