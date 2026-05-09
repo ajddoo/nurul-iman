@@ -38,6 +38,7 @@
 <!-- Ajdin v2.26.16: BiH/Sandžak — kartica "Kraj sehura" prikazuje zoraBA (vakat[0] iz vaktija.ba) s labelom "Lokalno"; fallback na sehurKraj+Ummul-kura ako API nije dostupan; countdown takodje koristi zoraBA kad postoji. -->
 <!-- Ajdin v2.26.17: bug fix — #dcard-sabahISNA dobio position:relative; sehur-countdown-line (position:absolute) više ne ispliva izvan kartice u Hejaz modu. -->
 <!-- Ajdin v2.26.18: BiH/Sandžak — polaNoci i zadnjaTrecina preračunate od akšama do zoraBA (lokalna zora); highlight traje do zoraBA; fallback na ISNA ako zoraBA nije dostupan. -->
+<!-- Ajdin v2.26.19: polaNoci i zadnjaTrecina globalno — kraj noći je UK sabah (-18.5°) za sve non-Hejaz (bio ISNA -15°); Hejaz ostaje UK; BiH s API-om ostaje zoraBA; highlight nightEnd takodje prebačen na sehurKraj. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -3048,7 +3049,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2278';
+  var V='2279';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4262,10 +4263,10 @@ function updateDanasCountdown(){
   }
 
   // Polovina noći i posljednja trećina – highlight u donjim karticama
-  // Za BiH/Sandžak s lokalnom zorom highlight traje do zoraBA, inače do sabaha (ISNA ili UK)
+  // Za BiH/Sandžak s zoraBA highlight traje do zoraBA, za sve ostale do UK sabaha (sehurKraj = -18.5°)
   const nightEnd=(prayerTimesDanas.isBiHSandzak&&prayerTimesDanas.zoraBA!==null)
     ?prayerTimesDanas.zoraBA
-    :prayerTimesDanas.sabah;
+    :prayerTimesDanas.sehurKraj;
   const polaCard=document.getElementById('dcard-polaNoci');
   if(polaCard&&prayerTimesDanas.polaNoci!==null&&nightEnd!==null){
     if(isTimeInRange(nowH,prayerTimesDanas.polaNoci,nightEnd)){
@@ -4768,11 +4769,11 @@ function calcPrayerTimes(lat,lng,date){
   const duha     = izlazak===null?null:(izlazak+15/60)%24;
   const krajDuhe = podne===null?null:(podne-15/60+24)%24;
 
-  // Pola noći – sredina između akšama i sabaha sutradan
-  const sabahNext= sabah!==null&&aksam!==null&&sabah<aksam?sabah+24:sabah;
-  const polaNoci = aksam!==null&&sabahNext!==null?((aksam+sabahNext)/2)%24:null;
-  // Posljednja trećina noći
-  const zadnjaTrecina= aksam!==null&&sabahNext!==null?(aksam+(sabahNext-aksam)*2/3)%24:null;
+  // Pola noći i posljednja trećina — kraj noći je UK sabah (-18.5°) = sehurKraj
+  // (za BiH s API-om se naknadno preračuna koristeći zoraBA u renderDanasVaktu)
+  const ukSabahNext= sehurKraj!==null&&aksam!==null&&sehurKraj<aksam?sehurKraj+24:sehurKraj;
+  const polaNoci = aksam!==null&&ukSabahNext!==null?((aksam+ukSabahNext)/2)%24:null;
+  const zadnjaTrecina= aksam!==null&&ukSabahNext!==null?(aksam+(ukSabahNext-aksam)*2/3)%24:null;
 
   // Ummul-kura: fajr -18.5°, isha fiksno 90 min nakon akšama
   const fajrUK  = t(hourAngle(-18.5));
