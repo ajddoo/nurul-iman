@@ -24,25 +24,25 @@
 ## SPRINT 1 — TEMELJI (sigurnost + PWA + funkcionalnost)
 
 ### Sigurnost
-- [ ] [O] 1.1 Kreirati `escapeHTML(s)` helper
-- [ ] [S] 1.2 Sanitizirati `gradBA` (linija 4317)
-- [ ] [S] 1.3 Sanitizirati Nominatim odgovor (`grad`, `drzava` u liniji 4505)
-- [ ] [S] 1.4 Sanitizirati URL `?city=` parametar (linija 3116)
-- [ ] [O] 1.5 CSP meta tag
+- [x] [O] 1.1 Kreirati `escapeHTML(s)` helper — v2.26.28
+- [x] [O] 1.2 Sanitizirati `gradBA` (linija 4330) — v2.26.28
+- [-] [-] 1.3 Sanitizirati Nominatim odgovor — **provjereno: ide u textContent, sigurno**
+- [-] [-] 1.4 Sanitizirati URL `?city=` parametar — **provjereno: ide u textContent, sigurno**
+- [x] [O] 1.5 CSP meta tag — v2.26.29
 - [ ] [S] 1.6 Validirati `vakat[]` array format (svaki `HH:MM`)
 - [ ] [S] 1.7 Sigurniji parsing `?time=` URL parametra
 
 ### PWA
-- [ ] [S] 2.1 Update `manifest.json` — "Moj namaz by Divan"
-- [ ] [S] 2.2 Dodati `lang:'bs'`, `categories`, `screenshots` u manifest
-- [ ] [O] 2.3 Kreirati `service-worker.js` (cache-first stat, network-first API)
-- [ ] [S] 2.4 Registrovati SW u `index.html`
-- [ ] [S] 2.5 `<link rel="apple-touch-icon" href="icon-192.png">`
-- [ ] [S] 2.6 `<meta name="format-detection" content="telephone=no">`
-- [ ] [S] 2.7 `<meta name="color-scheme" content="dark">`
-- [ ] [S] 2.8 `<noscript>` poruka
+- [x] [O] 2.1 Update `manifest.json` — "Moj namaz by Divan" — v2.26.26
+- [x] [O] 2.2 Dodati `lang:'bs'`, `categories`, `screenshots` u manifest — v2.26.26
+- [x] [O] 2.3 Kreirati `service-worker.js` — v2.26.30
+- [x] [O] 2.4 Registrovati SW u `index.html` — v2.26.30
+- [x] [O] 2.5 `<link rel="apple-touch-icon" href="icon-192.png">` — v2.26.27
+- [x] [O] 2.6 `<meta name="format-detection" content="telephone=no">` — v2.26.27
+- [x] [O] 2.7 `<meta name="color-scheme" content="dark">` — v2.26.27
+- [x] [O] 2.8 `<noscript>` poruka — v2.26.27
 - [ ] [-] 2.9 iOS splash screen (Ajdin pravi PNG-ove, ja dodam meta)
-- [ ] [S] 2.10 `theme-color` light/dark variante
+- [x] [O] 2.10 `theme-color` sinhronizovan sa manifest-om — v2.26.27
 
 ### Funkcionalnost
 - [ ] [O] 3.0b Polarni edge case fallback (Skandinavija ljeti)
@@ -167,3 +167,8 @@
 | Datum | Verzija | Tačka | Šta urađeno | Status |
 |-------|---------|-------|-------------|--------|
 | 2026-05-09 | v2.26.25 | -- | Polazno stanje + PLAN.md | ✓ |
+| 2026-05-09 | v2.26.26 | 2.1, 2.2 | manifest.json — "Moj namaz by Divan" | ✓ |
+| 2026-05-09 | v2.26.27 | 2.5–2.10 | PWA meta tagovi + noscript fallback | ✓ |
+| 2026-05-09 | v2.26.28 | 1.1, 1.2 | escapeHTML helper + XSS zaštita gradBA | ✓ |
+| 2026-05-09 | v2.26.29 | 1.5 | Content-Security-Policy meta tag | ✓ |
+| 2026-05-09 | v2.26.30 | 2.3, 2.4 | Service Worker — offline support | ✓ |
