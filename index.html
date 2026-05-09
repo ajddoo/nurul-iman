@@ -63,6 +63,7 @@
 <!-- Ajdin v2.26.37: localStorage cache za grad/drzava/temp (ključ "mn-loc-cache"); pri offline ili Nominatim/Open-Meteo fail koristi keš + jasno označava "zadnji online prije Xh"; offline banner pokazuje keš info dinamično; bez kolizije sa budućim manualnim unosom (different localStorage key). -->
 <!-- Ajdin v2.26.38: gramatička ispravka — "vakute"/"vakuti" → "vakte"/"vakti" (akuzativ/nominativ plural od "vakat"); UI tekstovi: offline banner, polarni warning. -->
 <!-- Ajdin v2.26.39: desktop & tablet layout — iznad 768px aplikacija se centrira u "phone frame" (max-width 440px, zaobljeni uglovi, sjenka, navy gradient pozadina); iznad 1024px frame veci 460px. Mobile-first dizajn potpuno netaknut. -->
+<!-- Ajdin v2.26.40: a11y + touch targets — :focus-visible outline za keyboard korisnike (svi gumbovi); header info dugme 26→32px, wake/sehur lock min 30×30 (Apple HIG ≥44 sa padding zonom). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2870,6 +2871,43 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.40 — A11Y & TOUCH TARGETS
+   Vidljiv :focus-visible za keyboard korisnike (a11y).
+   Veći touch target za mala dugmad da Apple HIG ≥44px bude poštovan.
+   ============================================================================ */
+:focus{outline:none}
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:6px;
+}
+button:focus-visible,
+[role="button"]:focus-visible,
+.bnav-btn:focus-visible,
+.danas-row:focus-visible,
+.danas-cal-card:focus-visible,
+.danas-loc-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
+
+/* Header info dugme — bilo 26x26, povećavamo na 32x32 vizuelno + padding,
+   ukupna touch zona 44x44. */
+.header-info-btn{
+  width:32px!important;
+  height:32px!important;
+  font-size:1rem!important;
+  right:10px;
+}
+/* Wake lock i sehur lock dugmad — povećavamo touch zonu sa padding-om
+   bez mijenjanja vizuelnog kruga */
+.wake-lock-btn,
+.sehur-lock-btn{
+  min-width:30px;
+  min-height:30px;
+}
+
+/* ============================================================================
    v2.26.39 — DESKTOP & TABLET LAYOUT
    Mobile-first design ostaje. Iznad 768px aplikacija se centrira u "phone frame"
    da ne razvlači sadržaj preko cijelog ekrana. Daje premium izgled na laptopu.
@@ -3218,7 +3256,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2299';
+  var V='2300';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
