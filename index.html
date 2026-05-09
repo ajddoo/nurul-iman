@@ -30,6 +30,7 @@
 <!-- Ajdin v2.26.8: live popup dual half padding 20px→16px (dodatnih ~20% privlačenja ka separatoru). -->
 <!-- Ajdin v2.26.9: Predstojeće — CSS ::before 'za' prefix iznad broja dana, vidljiv samo kad postoji .pred-ev-unit (daysLeft≥2); za daysLeft===1 ('sutra') prefiks se ne prikazuje. -->
 <!-- Ajdin v2.26.10: live popup dual — #leTopHalf justify-content:flex-end, #leBotHalf justify-content:flex-start; sadržaj privučen ka centralnom separatoru na svim uređajima. -->
+<!-- Ajdin v2.26.11: live popup razmak dual padding 16px→24px; countdown timer +35%: single clamp(3.8rem,16vw,6.5rem), dual clamp(3.2rem,13vw,5.2rem); ≤390px single clamp(3.2rem,13vw,5.2rem), dual clamp(2.7rem,11.5vw,4.5rem). -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -2795,16 +2796,16 @@ body.live-focus-mode .live-focus-overlay{
   width:min(220px,58vw);height:1px;align-self:center;flex-shrink:0;
   background:linear-gradient(to right,transparent,var(--border-mid) 22%,var(--border-mid) 78%,transparent);
 }
-.live-expand-overlay.le-dual .live-expand-half{padding:16px 32px}
+.live-expand-overlay.le-dual .live-expand-half{padding:24px 32px}
 /* Gornja polovica — sadržaj privučen prema separatoru (dole) */
 .live-expand-overlay.le-dual #leTopHalf{justify-content:flex-end}
 /* Donja polovica — sadržaj privučen prema separatoru (gore) */
 .live-expand-overlay.le-dual #leBotHalf{justify-content:flex-start}
-.live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(2.4rem,10vw,4rem)}
+.live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(3.2rem,13vw,5.2rem)}
 .live-expand-kicker{font-family:var(--font-sans);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px}
 .live-expand-name{font-family:var(--font-display);font-size:1.05rem;font-weight:400;color:var(--text-primary);text-align:center;margin-bottom:8px;line-height:1.35}
 .live-expand-name small{display:block;font-size:0.78rem;color:var(--warm-gray);margin-top:5px;font-family:var(--font-sans);letter-spacing:0.06em}
-.live-expand-timer{font-family:var(--font-display);font-size:clamp(2.8rem,12vw,5rem);font-weight:300;color:var(--accent);letter-spacing:0.04em;line-height:1.3;font-variant-numeric:tabular-nums}
+.live-expand-timer{font-family:var(--font-display);font-size:clamp(3.8rem,16vw,6.5rem);font-weight:300;color:var(--accent);letter-spacing:0.04em;line-height:1.3;font-variant-numeric:tabular-nums}
 .live-expand-logo{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--font-sans);font-size:0.48rem;letter-spacing:0.30em;text-transform:uppercase;color:var(--border-mid);white-space:nowrap;pointer-events:none}
 .live-expand-hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:var(--font-sans);font-size:0.50rem;letter-spacing:0.20em;text-transform:uppercase;color:var(--border-mid);white-space:nowrap;pointer-events:none}
 
@@ -2819,8 +2820,8 @@ body.live-focus-mode .live-focus-overlay{
 #sehurModal.sehur-fullscreen .sehur-modal-sub{font-family:var(--font-sans)!important;font-size:0.62rem!important;letter-spacing:0.16em!important;text-transform:uppercase!important;color:var(--warm-gray)!important;margin-top:4px!important}
 
 @media(max-width:390px){
-  .live-expand-timer{font-size:clamp(2.4rem,10vw,4rem)}
-  .live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(2.0rem,9vw,3.4rem)}
+  .live-expand-timer{font-size:clamp(3.2rem,13vw,5.2rem)}
+  .live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(2.7rem,11.5vw,4.5rem)}
   #sehurModal.sehur-fullscreen .sehur-modal-timer{font-size:clamp(2.8rem,12vw,5rem)!important}
 }
 
@@ -3039,7 +3040,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2270';
+  var V='2271';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
