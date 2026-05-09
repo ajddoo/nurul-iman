@@ -114,11 +114,11 @@
 
 ## SPRINT 3 — RUČNI UNOS LOKACIJE
 
-- [ ] [O] 13.1a Database lokacija (~280 gradova, JSON)
-- [ ] [O] 13.1b UI modal "Odaberi lokaciju"
-- [ ] [O] 13.1c Logika fallback (URL → manual → GPS → fallback ekran)
-- [ ] [O] 13.1d Persistencija u localStorage
-- [ ] [O] 13.1e Indikator "ručno postavljeno" + reset
+- [x] [O] 13.1a Database lokacija (~280 gradova, 22 države) — v2.26.45
+- [x] [O] 13.1b UI modal "Lokacija" (search + akordeon) — v2.26.46
+- [x] [O] 13.1c Hijerarhija URL → manual → GPS → keš — v2.26.46
+- [x] [O] 13.1d Persistencija u localStorage 'mn-manual-loc' — v2.26.46
+- [x] [O] 13.1e Indikator "ručno postavljeno" + reset (X dugme) — v2.26.46
 
 ### Tekstovi (paralelno)
 - [ ] [S] 10.1 Proširiti info modal
@@ -186,3 +186,6 @@
 | 2026-05-09 | v2.26.41 | 8.1, 8.4, 8.6 | Tab fade + timer pulse + haptic feedback | ✓ |
 | 2026-05-09 | v2.26.42 | 7.2, 7.3 | Hover + disabled states | ✓ |
 | 2026-05-09 | v2.26.43 | 7.4, 7.5 | Loading skeleton shimmer | ✓ |
+| 2026-05-09 | v2.26.44 | -- | Desktop bg fix (badge vidljivost) | ✓ |
+| 2026-05-09 | v2.26.45 | 13.1a | LOKACIJE database (~280 gradova) | ✓ |
+| 2026-05-09 | v2.26.46 | 13.1b–e | Location modal + persistencija + reset | ✓ |
