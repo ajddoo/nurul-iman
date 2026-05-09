@@ -21,7 +21,9 @@
 <!-- Ajdin v2.25.1: lokalna džamijska strana (tekstovi "lokalni ezan", "Prati lokalni ezan džamije" i vremena) — boja promjenjena iz --warm-gray u --accent-light (#DDB96A, gold-300) za neaktivno stanje; aktivno stanje (--accent-dim) ostaje netaknuto. Izmjena provedena na 6 mjesta: bazno pravilo, v2.1 override, sabah-note pravilo, locking blok i neaktivni state selector. -->
 <!-- Ajdin v2.26.0: usklađeni nazivi i vidljivost u live-expand popupu, dotjeran razmak u dual prikazu, prikazane oznake metode u fazi 8, te dopunjene ISNA/Ummul-kura napomene za BiH/Sandžak, Hidžaz i korisnike izvan BiH. -->
 <!-- Ajdin v2.26.1: popravljene 4 donje sekundarne kartice; ujednačena visina, poravnanje naslova, vremena/countdowna i dodatnih tekstova, te spriječeno sječenje countdowna u kartici "kraj sehura". -->
-<!-- Ajdin v2.26.2: popravljen dual live prozor — globalni timer stil nepromijenjen; oba timera u dual-modu dobijaju line-height:1.8 i padding:0.3em 0 (CSS + JS inline fallback) za puno prikazivanje Cormorant Garamond glifa bez sječenja; halves sada justify-content:center. -->
+<!-- Ajdin v2.26.2: dual live prozor prebačen na vertikalni split (flex-direction:row) kao i ostali live prozori — separator postaje vertikalna linija, oba countdowna stoje jedan pored drugog, što eliminira problem sječenja glifa. -->
+<!-- Ajdin v2.26.3: PRAVI fix u danasCountdownLive widgetu — overflow:hidden→visible na .cd-single, line-height:1→1.3 + padding:0.08em 0 na .danas-timer (sječenje Cormorant trojke); Faza 9 layout:'iftar'→'horizontal' (vertikalni split kao ostale faze); Faza 10 eskalira desnu stranu na jaciju ISNA umjesto right:null. -->
+<!-- Ajdin v2.26.4: live overlay popup za sve faze dana — vertikalni split (lijevo=lijevo, desno=desno), separator 140px centriran samo između sadržaja, dual timer font skaliran za polu-širinu ekrana; uklonjeni redundantni JS inline stilovi iz syncLiveExpandTimers. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -391,7 +393,7 @@ main{flex:1;overflow:hidden;position:relative}
   flex-shrink:0;
   display:flex;gap:0;
 }
-.cd-single{flex:1;min-width:0;overflow:hidden;text-align:center;padding:4px 6px;display:flex;flex-direction:column;align-items:center}
+.cd-single{flex:1;min-width:0;overflow:visible;text-align:center;padding:4px 6px;display:flex;flex-direction:column;align-items:center}
 .cd-single+.cd-single{border-left:1px solid var(--border-soft)}
 .cd-single.hidden{display:none}
 
@@ -416,9 +418,10 @@ main{flex:1;overflow:hidden;position:relative}
 .danas-timer{
   font-size:clamp(1.4rem,5.5vw,2.1rem);font-weight:300;
   color:var(--accent);
-  line-height:1;letter-spacing:0.04em;
+  line-height:1.3;letter-spacing:0.04em;
   font-variant-numeric:tabular-nums;
   margin-top:auto;
+  padding:0.08em 0;
 }
 
 /* Status traka ispod countera — koristi se za "zabranjeno za namaz" u fazama 4 i 6.
@@ -2755,15 +2758,15 @@ body.live-focus-mode .live-focus-overlay{
 
 .live-expand-half{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;position:relative;overflow:visible}
 .live-expand-sep{width:100%;height:1px;background:var(--border-soft);flex-shrink:0}
-/* Dual mode: sadržaj centriran unutar svake polovice */
-.live-expand-overlay.le-dual #leTopHalf{justify-content:center;padding-top:32px;padding-bottom:32px}
-.live-expand-overlay.le-dual #leBotHalf{justify-content:center;padding-top:32px;padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
-/* Dual timeri: oboje dobijaju više prostora za Cormorant Garamond glife */
-.live-expand-overlay.le-dual .live-expand-timer{line-height:1.8;padding:0.3em 0}
-.live-expand-kicker{font-family:var(--font-sans);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:12px}
-.live-expand-name{font-family:var(--font-display);font-size:1.05rem;font-weight:400;color:var(--text-primary);text-align:center;margin-bottom:16px;line-height:1.35}
+/* Dual mode: vertikalni split — lijevo=lijevo, desno=desno, separator samo između sadržaja */
+.live-expand-overlay.le-dual{flex-direction:row}
+.live-expand-overlay.le-dual .live-expand-sep{width:1px;height:140px;align-self:center;flex-shrink:0}
+.live-expand-overlay.le-dual .live-expand-half{padding:32px 16px}
+.live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(1.5rem,7.5vw,2.2rem)}
+.live-expand-kicker{font-family:var(--font-sans);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px}
+.live-expand-name{font-family:var(--font-display);font-size:1.05rem;font-weight:400;color:var(--text-primary);text-align:center;margin-bottom:8px;line-height:1.35}
 .live-expand-name small{display:block;font-size:0.78rem;color:var(--warm-gray);margin-top:5px;font-family:var(--font-sans);letter-spacing:0.06em}
-.live-expand-timer{font-family:var(--font-display);font-size:clamp(2.8rem,12vw,5rem);font-weight:300;color:var(--accent);letter-spacing:0.04em;line-height:1.3;padding:0.12em 0;font-variant-numeric:tabular-nums}
+.live-expand-timer{font-family:var(--font-display);font-size:clamp(2.8rem,12vw,5rem);font-weight:300;color:var(--accent);letter-spacing:0.04em;line-height:1.3;font-variant-numeric:tabular-nums}
 .live-expand-logo{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--font-sans);font-size:0.48rem;letter-spacing:0.30em;text-transform:uppercase;color:var(--border-mid);white-space:nowrap;pointer-events:none}
 .live-expand-hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:var(--font-sans);font-size:0.50rem;letter-spacing:0.20em;text-transform:uppercase;color:var(--border-mid);white-space:nowrap;pointer-events:none}
 
@@ -2779,7 +2782,7 @@ body.live-focus-mode .live-focus-overlay{
 
 @media(max-width:390px){
   .live-expand-timer{font-size:clamp(2.4rem,10vw,4rem)}
-  .live-expand-overlay.le-dual .live-expand-timer{line-height:1.8;padding:0.3em 0}
+  .live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(1.4rem,7vw,2.0rem)}
   #sehurModal.sehur-fullscreen .sehur-modal-timer{font-size:clamp(2.8rem,12vw,5rem)!important}
 }
 
@@ -2996,6 +2999,17 @@ body.live-focus-mode .live-focus-overlay{
 <div class="live-expand-overlay" id="sehurExpandOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Sehur odbrojavač"></div>
 
 <script>
+// ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
+(function(){
+  var V='2262';
+  try{
+    if(localStorage.getItem('nid-v')!==V){
+      localStorage.setItem('nid-v',V);
+      var u=location.href.split('?')[0]+'?v='+V;
+      if(location.href!==u) location.replace(u);
+    }
+  }catch(e){}
+})();
 
 // ── TEST MODE ────────────────────────────────────────────────────────────────
 // Normalno koristiš enabled:false. Za testiranje promijeni na true i unesi lokaciju/vrijeme.
@@ -3905,7 +3919,7 @@ function getCountdownPhase(t,nowH){
     return {
       left: {label:'do akšama',          sub:'ISNA · iftar',     diff:safeDiff(t.aksam)},
       right:{label:'do ezana u džamiji', sub:'akšam · lokalno', diff:safeDiff(t.aksamBA)},
-      layout:'iftar'
+      layout:'horizontal'
     };
   }
 
@@ -3920,13 +3934,13 @@ function getCountdownPhase(t,nowH){
     };
   }
 
-  // ── Faza 10 (BiH): akšam ISNA → lokalni akšam ───────────────────────
-  if(hasBA&&has(t.aksam)&&has(t.aksamBA)
+  // ── Faza 10 (BiH): akšam ISNA → lokalni akšam (+ eskalacija na jaciju) ──
+  if(hasBA&&has(t.aksam)&&has(t.aksamBA)&&has(t.jacija)
      &&t.aksamBA>t.aksam
      &&isTimeInRange(nowH,t.aksam,t.aksamBA)){
     return {
       left: {label:'do ezana u džamiji', sub:'akšam · lokalno', diff:safeDiff(t.aksamBA)},
-      right:null,
+      right:{label:'do jacije',           sub:'ISNA',            diff:safeDiff(t.jacija)},
       layout:'horizontal'
     };
   }
@@ -5577,21 +5591,19 @@ function buildLiveExpandOnce(){
   const hasRight  = rightEl && !rightEl.classList.contains('hidden');
 
   // Uvijek gradimo obje polovice; syncLiveExpandTimers upravlja vidljivo\u0161\u0107u
-  // Dual timeri dobijaju inline stil kao fallback uz CSS \u2014 spre\u010dava sje\u010denje Cormorant Garamond glifa
-  const dualTimerStyle = hasRight ? ' style="line-height:1.8;padding:0.3em 0"' : '';
   ov.innerHTML =
     '<div class="live-expand-logo">Nurul-iman by Divan</div>' +
     '<div class="live-expand-half" id="leTopHalf">' +
       '<div class="live-expand-kicker">Preostalo</div>' +
       '<div class="live-expand-name" id="leNameTop">' + (leftName ? leftName.innerHTML : '\u2013') + '</div>' +
-      '<div class="live-expand-timer" id="leTimerTop"' + dualTimerStyle + '>\u2013</div>' +
+      '<div class="live-expand-timer" id="leTimerTop">\u2013</div>' +
       '<div class="live-expand-status" id="leStatus"></div>' +
     '</div>' +
     '<div class="live-expand-sep" id="leSep"' + (hasRight ? '' : ' hidden') + '></div>' +
     '<div class="live-expand-half" id="leBotHalf"' + (hasRight ? '' : ' hidden') + '>' +
       '<div class="live-expand-kicker">Preostalo</div>' +
       '<div class="live-expand-name" id="leNameBot">' + (rightName ? rightName.innerHTML : '\u2013') + '</div>' +
-      '<div class="live-expand-timer" id="leTimerBot"' + dualTimerStyle + '>\u2013</div>' +
+      '<div class="live-expand-timer" id="leTimerBot">\u2013</div>' +
     '</div>' +
     '<div class="live-expand-hint">Tapni za izlaz</div>';
 
@@ -5624,6 +5636,7 @@ function syncLiveExpandTimers(){
   if(leSep)     leSep.hidden     = !isDual;
   if(leBotHalf) leBotHalf.hidden = !isDual;
   if(ov)        ov.classList.toggle('le-dual', isDual);
+
 
   // Zabranjeno vrijeme — warning stanje
   const cdContainer = document.getElementById('danasCountdownLive');
