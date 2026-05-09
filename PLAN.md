@@ -48,7 +48,7 @@
 - [ ] [O] 3.0b Polarni edge case fallback (Skandinavija ljeti)
 - [ ] [O] 3.1 Refaktorisanje 11 monkey-patched funkcija
 - [ ] [O] 3.2 Konsolidacija 5 setInterval timera u jedan master tick
-- [ ] [O] 3.3 Sehur countdown koristi zoraBA za BiH (linija 5805)
+- [x] [O] 3.3 Sehur countdown koristi zoraBA za BiH (3-min nula faza) — v2.26.31
 - [ ] [S] 3.4 Pull-to-refresh na svim panelima
 - [ ] [S] 3.5 GPS `enableHighAccuracy:true` na prvom loadu
 - [ ] [O] 3.6 Globalni error boundary (`window.onerror`, `unhandledrejection`)
@@ -172,3 +172,4 @@
 | 2026-05-09 | v2.26.28 | 1.1, 1.2 | escapeHTML helper + XSS zaštita gradBA | ✓ |
 | 2026-05-09 | v2.26.29 | 1.5 | Content-Security-Policy meta tag | ✓ |
 | 2026-05-09 | v2.26.30 | 2.3, 2.4 | Service Worker — offline support | ✓ |
+| 2026-05-09 | v2.26.31 | 3.3 | Bug fix — 3-min nula faza sehura koristi zoraBA za BiH | ✓ |
