@@ -32,6 +32,7 @@
 <!-- Ajdin v2.26.10: live popup dual — #leTopHalf justify-content:flex-end, #leBotHalf justify-content:flex-start; sadržaj privučen ka centralnom separatoru na svim uređajima. -->
 <!-- Ajdin v2.26.11: live popup razmak dual padding 16px→24px; countdown timer +35%: single clamp(3.8rem,16vw,6.5rem), dual clamp(3.2rem,13vw,5.2rem); ≤390px single clamp(3.2rem,13vw,5.2rem), dual clamp(2.7rem,11.5vw,4.5rem). -->
 <!-- Ajdin v2.26.12: sehur fullscreen timer izjednačen s live popup single: clamp(3.8rem,16vw,6.5rem) / ≤390px clamp(3.2rem,13vw,5.2rem). -->
+<!-- Ajdin v2.26.13: bug fix — "Ummul-kura" sub labela na kartici "Kraj sehura" bila skrivena (visibility:hidden) u aktivnom stanju; uklonjena zabrana, boja --warm-charcoal na --warm-ivory ostaje čitljiva. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -749,10 +750,7 @@ main{flex:1;overflow:hidden;position:relative}
   white-space:nowrap;
   overflow:visible;
 }
-/* Sakrij sub label kad je countdown aktivan — čuva prostor za poravnanje vremena */
-#dcard-sehurKraj.sehur-counting .danas-extra-sub{
-  visibility:hidden;
-}
+/* Sub label "Ummul-kura" ostaje vidljiv i u aktivnom stanju kartice */
 
 /* sehur split layout (jelo / countdown) — fallback */
 .sehur-normal.hidden,.sehur-split.hidden{display:none}
@@ -3041,7 +3039,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2272';
+  var V='2273';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
