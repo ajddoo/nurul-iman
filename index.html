@@ -34,6 +34,7 @@
 <!-- Ajdin v2.26.12: sehur fullscreen timer izjednačen s live popup single: clamp(3.8rem,16vw,6.5rem) / ≤390px clamp(3.2rem,13vw,5.2rem). -->
 <!-- Ajdin v2.26.13: bug fix — "Ummul-kura" sub labela na kartici "Kraj sehura" bila skrivena (visibility:hidden) u aktivnom stanju; uklonjena zabrana, boja --warm-charcoal na --warm-ivory ostaje čitljiva. -->
 <!-- Ajdin v2.26.14: revert v2.26.13 — sub labela "Ummul-kura" opet skrivena (visibility:hidden) u aktivnom sehur stanju; --warm-charcoal color rule uklonjen iz grupe. -->
+<!-- Ajdin v2.26.15: Hejaz — kartica "Kraj sehura" zamijenjena sa "Sabah po ISNI" (#dcard-sabahISNA); prikazuje times.sabahISNA, countdown krece od jacije; CSS sehur-counting prosiren na novi ID. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -711,7 +712,8 @@ main{flex:1;overflow:hidden;position:relative}
 /* aktivna kartica (npr. dok teče sehur) */
 .danas-extra-card.active-extra-time,
 .danas-extra-card-v9.active-extra-time,
-#dcard-sehurKraj.sehur-counting{
+#dcard-sehurKraj.sehur-counting,
+#dcard-sabahISNA.sehur-counting{
   background:var(--warm-ivory);
   border-color:var(--accent-dim);
   box-shadow:inset 3px 0 0 var(--accent);
@@ -719,9 +721,11 @@ main{flex:1;overflow:hidden;position:relative}
 .danas-extra-card.active-extra-time .danas-extra-label,
 .danas-extra-card-v9.active-extra-time .danas-extra-label,
 #dcard-sehurKraj.sehur-counting .danas-extra-label,
+#dcard-sabahISNA.sehur-counting .danas-extra-label,
 .danas-extra-card.active-extra-time .danas-extra-time,
 .danas-extra-card-v9.active-extra-time .danas-extra-time,
-#dcard-sehurKraj.sehur-counting .danas-extra-time{
+#dcard-sehurKraj.sehur-counting .danas-extra-time,
+#dcard-sabahISNA.sehur-counting .danas-extra-time{
   color:var(--accent-dim);
 }
 .danas-extra-card.active-extra-time .danas-extra-sub,
@@ -750,7 +754,8 @@ main{flex:1;overflow:hidden;position:relative}
   white-space:nowrap;
   overflow:visible;
 }
-#dcard-sehurKraj.sehur-counting .danas-extra-sub{ visibility:hidden; }
+#dcard-sehurKraj.sehur-counting .danas-extra-sub,
+#dcard-sabahISNA.sehur-counting .danas-extra-sub{ visibility:hidden; }
 
 /* sehur split layout (jelo / countdown) — fallback */
 .sehur-normal.hidden,.sehur-split.hidden{display:none}
@@ -3039,7 +3044,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2274';
+  var V='2275';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4216,6 +4221,28 @@ function updateDanasCountdown(){
     }
   }
 
+  // Sabah po ISNI — Hejaz kartica: countdown od jacije do sabaha po ISNI
+  const isnaCard=document.getElementById('dcard-sabahISNA');
+  const isnaCountdownLine=document.getElementById('isnaCountdownLine');
+  const isnaCountdown=document.getElementById('isnaCountdown');
+  if(isnaCard&&isnaCountdownLine&&isnaCountdown&&prayerTimesDanas.sabahISNA!==null&&prayerTimesDanas.jacija!==null){
+    const isnaTarget=prayerTimesDanas.sabahISNA;
+    const jacStart=prayerTimesDanas.jacija;
+    const inNightToISNA=jacStart<=isnaTarget
+      ?(nowH>=jacStart&&nowH<isnaTarget)
+      :(nowH>=jacStart||nowH<isnaTarget);
+    if(inNightToISNA){
+      let diff=isnaTarget-nowH;
+      if(diff<0)diff+=24;
+      isnaCountdown.textContent=fmtCountdown(diff);
+      isnaCard.classList.add('sehur-counting');
+      isnaCountdownLine.classList.remove('hidden');
+    }else{
+      isnaCard.classList.remove('sehur-counting');
+      isnaCountdownLine.classList.add('hidden');
+    }
+  }
+
   // Izlazak sunca – sija od sabaha do izlaska sunca.
   const izlazakCard=document.getElementById('dcard-izlazak');
   if(izlazakCard&&prayerTimesDanas.sabah!==null&&prayerTimesDanas.izlazak!==null){
@@ -4418,6 +4445,15 @@ function renderDanasVaktu(times,opts={}){
       <div class="danas-extra-time">${fmtTime(times.zadnjaTrecina)}</div>
       <div class="danas-extra-sub"></div>
     </div>
+    ${isHejaz?`
+    <div class="danas-extra-card danas-extra-card-v9" id="dcard-sabahISNA">
+      <div class="danas-extra-label one-line">Sabah po ISNI</div>
+      <div class="danas-extra-time">${fmtTime(times.sabahISNA)}</div>
+      <div class="danas-extra-sub">ISNA</div>
+      <div class="sehur-countdown-line hidden" id="isnaCountdownLine">
+        <strong id="isnaCountdown">--:--:--</strong>
+      </div>
+    </div>`:`
     <div class="danas-extra-card danas-extra-card-v9" id="dcard-sehurKraj">
       <div class="danas-extra-label one-line">Kraj sehura</div>
       <div class="danas-extra-time">${fmtTime(times.sehurKraj)}</div>
@@ -4425,7 +4461,7 @@ function renderDanasVaktu(times,opts={}){
       <div class="sehur-countdown-line hidden" id="sehurCountdownLine">
         <strong id="sehurCountdown">--:--:--</strong>
       </div>
-    </div>
+    </div>`}
     <div class="danas-extra-card danas-extra-card-v9" id="dcard-izlazak">
       <div class="danas-extra-label one-line">Izlazak sunca</div>
       <div class="danas-extra-time">${fmtTime(times.izlazak)}</div>
