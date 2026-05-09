@@ -83,6 +83,7 @@
 <!-- Ajdin v2.26.57: GPS error sub tekst — "Pokušaj ponovo ili odaberi grad ručno" → "Pokušaj ponovo ili ručno" (kraće da stane); plus .danas-city-sub white-space:normal (dozvoljava wrap u 2 reda umjesto ellipsis). -->
 <!-- Ajdin v2.26.58: CSS cleanup — border-radius tokeni: dodano --r-xs:6px, --r-pill:999px, --r-circle:50%; sve hardcoded 999px (6 mjesta) i 50% (10 mjesta) zamijenjene sa CSS varijablama. Vizuelno isto, kod čistiji za buduće globalne promjene. -->
 <!-- Ajdin v2.26.59: CSS cleanup — RGB tripleti tokeni za rgba alpha varijante (--accent-rgb, --warm-ivory-rgb, --bg-surface-rgb, --bg-deep-rgb, --status-warn-rgb, --status-ok-rgb, --accent-dim-rgb, --warm-gray-rgb). Zamijenjeno ~95 hardcoded rgba(R,G,B,...) sa rgba(var(--xx-rgb),...). Crna/bijela/highlights ostaju (standardne za sjenke). -->
+<!-- Ajdin v2.26.60: tipografija + spacing tokeni dodani u :root — letter-spacing skala (--ls-tight do --ls-widest), line-height skala (--lh-tight do --lh-loose), 4/8 spacing grid (--s-1 do --s-10). Postojeće vrijednosti ostaju netaknute (auto-replace bi mogao promijeniti dizajn); tokeni su za buduce stilove i postupnu konsolidaciju. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -168,6 +169,30 @@
   --status-ok-rgb:122,174,126;   /* sage (#7AAE7E) */
   --accent-dim-rgb:138,109,36;   /* gold-700 (#8A6D24) */
   --warm-gray-rgb:154,149,144;   /* warm gray (#9A9590) */
+
+  /* Tipografija — letter-spacing skala (za nove stilove i postupnu konsolidaciju) */
+  --ls-tight:0.02em;     /* tabular numbers, vrijeme */
+  --ls-normal:0.04em;    /* body tekst */
+  --ls-wide:0.08em;      /* labels, sekundarni tekst */
+  --ls-wider:0.16em;     /* eyebrow labels, sub kicker */
+  --ls-widest:0.22em;    /* modal titles, headers */
+
+  /* Line-height skala (za nove stilove i postupnu konsolidaciju) */
+  --lh-tight:1.1;        /* veliki tekst (timer, headers) */
+  --lh-snug:1.25;        /* labels, srednji tekst */
+  --lh-normal:1.45;      /* body tekst, opisi */
+  --lh-loose:1.6;        /* veci paragraf tekst */
+
+  /* Spacing skala (4/8 grid sistem) */
+  --s-1:4px;
+  --s-2:8px;
+  --s-3:12px;
+  --s-4:16px;
+  --s-5:20px;
+  --s-6:24px;
+  --s-8:32px;
+  --s-10:40px;
+
   --nav-h:62px;
 
   --font-display:'Cormorant Garamond',Georgia,serif;
@@ -3848,7 +3873,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2319';
+  var V='2320';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
