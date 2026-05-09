@@ -80,6 +80,7 @@
 <!-- Ajdin v2.26.54: zoom blokada — viewport "maximum-scale=1.0, user-scalable=no" + search input font-size 16px (sprječava iOS auto-zoom na fokus); aplikacija se vise ne zumira pri unosu u search ili kad se otvori location modal. -->
 <!-- Ajdin v2.26.55: emoji → SVG za UI ikone — UI_SVG konstanta sa gps, search, pin, warning ikonama u stroke 1.8 stilu; zamijenjen 🛰 (GPS dugme), 🔍 (search ikona), 📍 (loc-pin u vaktija badge); sve currentColor (boja se nasljeđuje od parent stila); zastave država (🇧🇦 itd.) ostaju Unicode jer su funkcionalan dio teksta. -->
 <!-- Ajdin v2.26.56: ime grada veci font — 0.85rem → 1.05rem (čitljivije, prominentnije), letter-spacing 0.03→0.02em (kompaktnije za duže gradove), line-height 1.3→1.2. -->
+<!-- Ajdin v2.26.57: GPS error sub tekst — "Pokušaj ponovo ili odaberi grad ručno" → "Pokušaj ponovo ili ručno" (kraće da stane); plus .danas-city-sub white-space:normal (dozvoljava wrap u 2 reda umjesto ellipsis). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -1480,9 +1481,11 @@ header{position:relative}
   text-overflow:ellipsis;
 }
 .danas-city-sub{
-  white-space:nowrap;
+  /* white-space:normal da se duži tekstovi (npr. "Pokušaj ponovo ili ručno") wrap-uju u 2 reda
+     umjesto da budu skraćeni. Manual loc i auto sadrže kratke stringove pa to nije problem. */
+  white-space:normal;
   overflow:hidden;
-  text-overflow:ellipsis;
+  line-height:1.3;
 }
 .danas-weather-metric-row{
   display:flex;
@@ -3828,7 +3831,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2316';
+  var V='2317';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5766,7 +5769,7 @@ function requestAndLoadDanasLocation(){
       btn.textContent='Pokušaj ponovo';
       btn.disabled=false;
       document.getElementById('danasGrad').textContent='Lokacija nije potvrđena';
-      document.getElementById('danasGradSub').textContent='Pokušaj ponovo ili odaberi grad ručno';
+      document.getElementById('danasGradSub').textContent='Pokušaj ponovo ili ručno';
       setDanasLocationStatus('warn',msgs[err.code]||'Greška pri dohvatanju lokacije.');
       // Skini skeleton — GPS faila, korisnik vidi error state
       document.body.classList.remove('app-loading');
