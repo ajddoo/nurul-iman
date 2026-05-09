@@ -78,6 +78,7 @@
 <!-- Ajdin v2.26.52: SVG weather ikone — 9 minimalnih stroke ikona (sun, sunCloud, cloudSun, cloud, fog, rain, drizzle, snow, thunder) + thermo fallback; sve u brand gold (currentColor sa --accent na .danas-weather-icon); WEATHER_CODES tekst očišćen od emoji (sad samo "Vedro", "Oblačno" itd.); konzistentan vizualni jezik sa bottom nav i expand SVG ikonama. -->
 <!-- Ajdin v2.26.53: GPS fail fallback — kad GPS odbijen ili nedostupan, pored "Pokušaj ponovo" pokazuje se i "Odaberi grad ručno" dugme (dashed border, gold-light). Sub tekst "Pokušaj ponovo ili odaberi grad ručno" daje jasan put. Ovo je naročito važno za korisnike na uređajima gdje je GPS dozvola odbijena ili nije dostupna. -->
 <!-- Ajdin v2.26.54: zoom blokada — viewport "maximum-scale=1.0, user-scalable=no" + search input font-size 16px (sprječava iOS auto-zoom na fokus); aplikacija se vise ne zumira pri unosu u search ili kad se otvori location modal. -->
+<!-- Ajdin v2.26.55: emoji → SVG za UI ikone — UI_SVG konstanta sa gps, search, pin, warning ikonama u stroke 1.8 stilu; zamijenjen 🛰 (GPS dugme), 🔍 (search ikona), 📍 (loc-pin u vaktija badge); sve currentColor (boja se nasljeđuje od parent stila); zastave država (🇧🇦 itd.) ostaju Unicode jer su funkcionalan dio teksta. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -1070,9 +1071,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   text-align:right;
 }
 .danas-local-source-badge .loc-pin{
-  font-size:0.78rem;line-height:1;opacity:0.88;
-  transform:translateY(-0.5px);
+  width:11px;height:11px;
+  display:inline-flex;align-items:center;justify-content:center;
+  opacity:0.85;
+  flex-shrink:0;
 }
+.danas-local-source-badge .loc-pin svg{width:100%;height:100%;display:block}
 .danas-local-source-badge strong{
   font-weight:400;color:rgba(245,237,214,0.92);
 }
@@ -3073,7 +3077,15 @@ body.live-focus-mode .live-focus-overlay{
   padding:10px;cursor:pointer;
   margin-bottom:14px;
   transition:border-color 0.2s,background 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
+.location-gps-icon{
+  width:18px;height:18px;
+  color:currentColor;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.location-gps-icon svg{width:100%;height:100%;display:block}
 .location-gps-btn:hover,
 .location-gps-btn:active{
   border-color:var(--accent);
@@ -3105,13 +3117,16 @@ body.live-focus-mode .live-focus-overlay{
 }
 .location-search:focus{border-color:var(--accent-dim)}
 .location-search::placeholder{color:var(--warm-gray);opacity:0.7}
-.location-search-wrap::after{
-  content:'🔍';
+/* Search ikona — SVG umjesto emoji za konzistentnost sa weather/nav ikonama */
+.location-search-icon{
   position:absolute;
-  right:13px;top:11px;
-  font-size:0.85rem;opacity:0.45;
+  right:13px;top:13px;
+  width:16px;height:16px;
+  color:var(--warm-gray);
   pointer-events:none;
+  opacity:0.6;
 }
+.location-search-icon svg{width:100%;height:100%;display:block}
 
 /* Lista država — bez border-a, samo subtilni separator linije */
 .location-results{
@@ -3690,9 +3705,10 @@ body.is-offline .danas-status-dot{
       <div class="location-current-name" id="locationCurrentName">–</div>
       <div class="location-current-source" id="locationCurrentSource">–</div>
     </div>
-    <button class="location-gps-btn hidden" type="button" id="locationGpsBtn">🛰 Vrati na automatsku (GPS)</button>
+    <button class="location-gps-btn hidden" type="button" id="locationGpsBtn"><span class="location-gps-icon" aria-hidden="true"></span>Vrati na automatsku (GPS)</button>
     <div class="location-search-wrap">
       <input type="search" class="location-search" id="locationSearch" placeholder="Pretraži grad ili državu..." autocomplete="off" aria-label="Pretraži lokaciju">
+      <span class="location-search-icon" aria-hidden="true"></span>
     </div>
     <div class="location-results" id="locationResults"></div>
   </div>
@@ -3810,7 +3826,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2314';
+  var V='2315';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -4785,6 +4801,19 @@ async function fetchVaktijaBA(gradId){
 }
 // ── KRAJ DETEKCIJA ───────────────────────────────────────────────────────────
 // ══════════════ DANAS ══════════════
+// UI SVG ikone — koriste currentColor (boja se nasljeđuje od parent stila).
+// Sve u istom stroke stilu (1.8px, round caps) za konzistentnost sa weather i nav ikonama.
+const UI_SVG={
+  // GPS / lokacija (kompas iglica + krug)
+  gps:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>',
+  // Lupa za search
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>',
+  // Pin za lokaciju
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.35 11.76a1 1 0 0 0 1.3 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>',
+  // Trougao upozorenja
+  warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+};
+
 // SVG weather ikone — minimalistički stroke stil u brand gold-u (--accent).
 // Stroke 1.7px za vidljivost u maloj veličini. Zamjenjuju emoji koje su djelovale
 // inkonzistentno (raznobojne, raznorodni stilovi). Sad sve u istom vizuelnom jeziku.
@@ -5370,7 +5399,7 @@ function renderDanasVaktu(times,opts={}){
     if(localUnavailable){
       html+=`<div class="danas-local-source-badge warn">Za ovu lokaciju nije pronađena lokalna vaktija.</div>`;
     }else if(gradBA){
-      html+=`<div class="danas-local-source-badge" aria-label="Lokalna vaktija: ${escapeHTML(gradBA)}"><span class="loc-pin" aria-hidden="true">📍</span><strong>${escapeHTML(gradBA)}</strong></div>`;
+      html+=`<div class="danas-local-source-badge" aria-label="Lokalna vaktija: ${escapeHTML(gradBA)}"><span class="loc-pin" aria-hidden="true">${UI_SVG.pin}</span><strong>${escapeHTML(gradBA)}</strong></div>`;
     }
   }
 
@@ -6097,6 +6126,11 @@ function openLocationModal(){
   // Reset search input pri svakom otvaranju
   const search=document.getElementById('locationSearch');
   if(search)search.value='';
+  // Inject SVG ikone (GPS dugme + search)
+  const gpsIconEl=document.querySelector('.location-gps-icon');
+  if(gpsIconEl&&!gpsIconEl.querySelector('svg'))gpsIconEl.innerHTML=UI_SVG.gps;
+  const searchIconEl=document.querySelector('.location-search-icon');
+  if(searchIconEl&&!searchIconEl.querySelector('svg'))searchIconEl.innerHTML=UI_SVG.search;
   hapticTap(8);
 }
 function closeLocationModal(){
