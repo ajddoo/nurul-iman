@@ -71,13 +71,13 @@
 - [ ] [S] 4.8 Konzistentne warn poruke
 
 ### Responsive & Desktop
-- [ ] [O] 5.1 Desktop wrapper `max-width:480px` iznad 768px
-- [ ] [O] 5.2 Desktop background art
+- [x] [O] 5.1 Desktop "phone frame" iznad 768px + 1024px — v2.26.39
+- [x] [O] 5.2 Desktop background gradient (navy) — v2.26.39
 - [ ] [S] 5.3 iPhone SE 320px sječenje test
-- [ ] [O] 5.4 iPad portrait layout
+- [x] [O] 5.4 iPad portrait layout (440px frame) — v2.26.39
 - [ ] [S] 5.5 Landscape orientation handling
-- [ ] [S] 5.6 Touch target 44×44 (info dugme)
-- [ ] [S] 5.7 Wake lock dugme touch target
+- [x] [O] 5.6 Touch target — header info 32×32 — v2.26.40
+- [x] [O] 5.7 Wake lock dugme touch target 30×30 — v2.26.40
 
 ### Tipografija & Spacing
 - [ ] [O] 6.1 Letter-spacing skala (4 tokena)
@@ -87,7 +87,7 @@
 - [ ] [S] 6.5 Font preload
 
 ### Komponente & Stanja
-- [ ] [S] 7.1 `:focus-visible` stilovi za sve dugmiće
+- [x] [O] 7.1 `:focus-visible` stilovi za sve dugmiće — v2.26.40
 - [ ] [S] 7.2 `:hover` desktop stanja
 - [ ] [S] 7.3 `:disabled` state stilovi
 - [ ] [O] 7.4 Loading skeleton — countdown
@@ -96,12 +96,12 @@
 - [ ] [O] 7.7 Error toast/snackbar
 
 ### Micro-interactions
-- [ ] [O] 8.1 Tab transition animacija
+- [x] [O] 8.1 Tab transition animacija (fade-in 0.28s) — v2.26.41
 - [ ] [S] 8.2 Aktivacija ripple efekta
-- [ ] [S] 8.3 Backdrop blur na modalima
-- [ ] [S] 8.4 Pulsacija live timera (zadnja sekunda)
+- [-] [-] 8.3 Backdrop blur — **već postoji u kodu**
+- [x] [O] 8.4 Pulsacija live timera (zadnja minuta) — v2.26.41
 - [ ] [O] 8.5 Smooth update kalendara u podne
-- [ ] [S] 8.6 Haptic feedback
+- [x] [O] 8.6 Haptic feedback (vibro na tab klik) — v2.26.41
 
 ### Branding (Ajdin radi assets, ja dodajem)
 - [ ] [-] 9.1 Novi logo (Ajdin dizajnira)
@@ -179,3 +179,8 @@
 | 2026-05-09 | v2.26.34 | 3.8 | Dead code cleanup (ni_last_location, sabahMainTime) | ✓ |
 | 2026-05-09 | v2.26.35 | 3.5, 1.6, 1.7 | GPS high accuracy + strict parsers | ✓ |
 | 2026-05-09 | v2.26.36 | 3.6, 3.0b | Error boundary + polarni warning | ✓ |
+| 2026-05-09 | v2.26.37 | -- | localStorage cache + dinamični offline banner | ✓ |
+| 2026-05-09 | v2.26.38 | -- | Gramatička ispravka: vakte/vakti | ✓ |
+| 2026-05-09 | v2.26.39 | 5.1, 5.2, 5.4 | Desktop "phone frame" iznad 768px | ✓ |
+| 2026-05-09 | v2.26.40 | 5.6, 5.7, 7.1 | A11y :focus-visible + touch targets | ✓ |
+| 2026-05-09 | v2.26.41 | 8.1, 8.4, 8.6 | Tab fade + timer pulse + haptic feedback | ✓ |
