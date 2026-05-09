@@ -35,6 +35,7 @@
 <!-- Ajdin v2.26.13: bug fix — "Ummul-kura" sub labela na kartici "Kraj sehura" bila skrivena (visibility:hidden) u aktivnom stanju; uklonjena zabrana, boja --warm-charcoal na --warm-ivory ostaje čitljiva. -->
 <!-- Ajdin v2.26.14: revert v2.26.13 — sub labela "Ummul-kura" opet skrivena (visibility:hidden) u aktivnom sehur stanju; --warm-charcoal color rule uklonjen iz grupe. -->
 <!-- Ajdin v2.26.15: Hejaz — kartica "Kraj sehura" zamijenjena sa "Sabah po ISNI" (#dcard-sabahISNA); prikazuje times.sabahISNA, countdown krece od jacije; CSS sehur-counting prosiren na novi ID. -->
+<!-- Ajdin v2.26.16: BiH/Sandžak — kartica "Kraj sehura" prikazuje zoraBA (vakat[0] iz vaktija.ba) s labelom "Lokalno"; fallback na sehurKraj+Ummul-kura ako API nije dostupan; countdown takodje koristi zoraBA kad postoji. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -3044,7 +3045,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2275';
+  var V='2276';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -3753,6 +3754,7 @@ async function fetchVaktijaBA(gradId){
       const parse=s=>{const[h,m]=String(s).split(':').map(Number);return h+m/60;};
       console.log(`[vaktija.ba ${src.label}] OK`,d.lokacija||gradId);
       return {
+        zoraBA:parse(d.vakat[0]),
         podneBA:parse(d.vakat[2]),
         ikindijaBA:parse(d.vakat[3]),
         aksamBA:parse(d.vakat[4]),
@@ -4197,13 +4199,16 @@ function updateDanasCountdown(){
     row.classList.toggle('active-duet', !!row.querySelector('.danas-duet-half.active-namaz'));
   });
 
-  // Kraj sehura — od akšama do kraja sehura prikazuje dodatni countdown,
-  // ali glavno vrijeme ostaje u istoj liniji kao kod ostalih kartica.
+  // Kraj sehura — od akšama do kraja sehura prikazuje dodatni countdown.
+  // Za BiH/Sandžak koristimo zoraBA (lokalna zora) ako je dostupna, inače sehurKraj (Ummul-kura).
   const sehurCard=document.getElementById('dcard-sehurKraj');
   const sehurCountdownLine=document.getElementById('sehurCountdownLine');
   const sehurCountdown=document.getElementById('sehurCountdown');
-  if(sehurCard&&sehurCountdownLine&&sehurCountdown&&prayerTimesDanas.sehurKraj!==null&&prayerTimesDanas.aksam!==null){
-    const sehurTarget=prayerTimesDanas.sehurKraj;
+  const sehurTargetRaw=(prayerTimesDanas.isBiHSandzak&&prayerTimesDanas.zoraBA!==null)
+    ?prayerTimesDanas.zoraBA
+    :prayerTimesDanas.sehurKraj;
+  if(sehurCard&&sehurCountdownLine&&sehurCountdown&&sehurTargetRaw!==null&&prayerTimesDanas.aksam!==null){
+    const sehurTarget=sehurTargetRaw;
     const aksamStart=prayerTimesDanas.aksam;
     const inNightToSehur = aksamStart<=sehurTarget
       ? (nowH>=aksamStart&&nowH<sehurTarget)
@@ -4301,9 +4306,10 @@ function makeHejazTimes(raw){
 }
 
 function renderDanasVaktu(times,opts={}){
-  const {podneBA,ikindijaBA,aksamBA,jacijaBA,gradBA,isHejaz,isBiHSandzak,localFallback,localUnavailable}=opts;
+  const {zoraBA,podneBA,ikindijaBA,aksamBA,jacijaBA,gradBA,isHejaz,isBiHSandzak,localFallback,localUnavailable}=opts;
   // Proširi prayerTimesDanas sa lokalnim BA vaktima da countdown logika može da ih koristi
   prayerTimesDanas={...times,
+    zoraBA: zoraBA!==undefined?zoraBA:null,
     podneBA: podneBA!==undefined?podneBA:null,
     ikindijaBA: ikindijaBA!==undefined?ikindijaBA:null,
     aksamBA: aksamBA!==undefined?aksamBA:null,
@@ -4456,8 +4462,8 @@ function renderDanasVaktu(times,opts={}){
     </div>`:`
     <div class="danas-extra-card danas-extra-card-v9" id="dcard-sehurKraj">
       <div class="danas-extra-label one-line">Kraj sehura</div>
-      <div class="danas-extra-time">${fmtTime(times.sehurKraj)}</div>
-      <div class="danas-extra-sub">Ummul-kura</div>
+      <div class="danas-extra-time">${fmtTime(isBiHSandzak&&zoraBA!=null?zoraBA:times.sehurKraj)}</div>
+      <div class="danas-extra-sub">${isBiHSandzak&&zoraBA!=null?'Lokalno':'Ummul-kura'}</div>
       <div class="sehur-countdown-line hidden" id="sehurCountdownLine">
         <strong id="sehurCountdown">--:--:--</strong>
       </div>
@@ -4549,6 +4555,7 @@ async function loadDanas(lat,lng){
     if(grad){
       const vba=await fetchVaktijaBA(grad.id);
       if(vba){
+        opts.zoraBA=vba.zoraBA;
         opts.podneBA=fixedLocalPodneBiHSandzak(appNow());
         opts.ikindijaBA=vba.ikindijaBA;
         opts.aksamBA=vba.aksamBA;
