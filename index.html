@@ -31,6 +31,7 @@
 <!-- Ajdin v2.26.9: Predstojeće — CSS ::before 'za' prefix iznad broja dana, vidljiv samo kad postoji .pred-ev-unit (daysLeft≥2); za daysLeft===1 ('sutra') prefiks se ne prikazuje. -->
 <!-- Ajdin v2.26.10: live popup dual — #leTopHalf justify-content:flex-end, #leBotHalf justify-content:flex-start; sadržaj privučen ka centralnom separatoru na svim uređajima. -->
 <!-- Ajdin v2.26.11: live popup razmak dual padding 16px→24px; countdown timer +35%: single clamp(3.8rem,16vw,6.5rem), dual clamp(3.2rem,13vw,5.2rem); ≤390px single clamp(3.2rem,13vw,5.2rem), dual clamp(2.7rem,11.5vw,4.5rem). -->
+<!-- Ajdin v2.26.12: sehur fullscreen timer izjednačen s live popup single: clamp(3.8rem,16vw,6.5rem) / ≤390px clamp(3.2rem,13vw,5.2rem). -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -2816,13 +2817,13 @@ body.live-focus-mode .live-focus-overlay{
 #sehurModal.sehur-fullscreen .info-modal-title{font-family:var(--font-sans)!important;font-size:0.56rem!important;letter-spacing:0.26em!important;text-transform:uppercase!important;color:var(--warm-gray)!important;margin-bottom:24px!important}
 #sehurModal.sehur-fullscreen .sehur-modal-card{background:none!important;border:none!important;box-shadow:none!important;padding:0!important;display:flex;flex-direction:column;align-items:center;gap:10px}
 #sehurModal.sehur-fullscreen .sehur-modal-label{display:none!important}
-#sehurModal.sehur-fullscreen .sehur-modal-timer{font-size:clamp(3.2rem,14vw,6.5rem)!important;color:var(--accent)!important;font-weight:300!important;letter-spacing:0.04em!important;font-variant-numeric:tabular-nums!important}
+#sehurModal.sehur-fullscreen .sehur-modal-timer{font-size:clamp(3.8rem,16vw,6.5rem)!important;color:var(--accent)!important;font-weight:300!important;letter-spacing:0.04em!important;font-variant-numeric:tabular-nums!important}
 #sehurModal.sehur-fullscreen .sehur-modal-sub{font-family:var(--font-sans)!important;font-size:0.62rem!important;letter-spacing:0.16em!important;text-transform:uppercase!important;color:var(--warm-gray)!important;margin-top:4px!important}
 
 @media(max-width:390px){
   .live-expand-timer{font-size:clamp(3.2rem,13vw,5.2rem)}
   .live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(2.7rem,11.5vw,4.5rem)}
-  #sehurModal.sehur-fullscreen .sehur-modal-timer{font-size:clamp(2.8rem,12vw,5rem)!important}
+  #sehurModal.sehur-fullscreen .sehur-modal-timer{font-size:clamp(3.2rem,13vw,5.2rem)!important}
 }
 
 /* Zabranjeno vrijeme — warning stanje u live expand overlayu */
@@ -3040,7 +3041,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2271';
+  var V='2272';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
