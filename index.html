@@ -54,6 +54,7 @@
 <!-- Ajdin v2.26.28: sigurnost — escapeHTML helper + sanitizacija gradBA na liniji 4330 (XSS zaštita ako vaktija.ba/allorigins.win odgovor sadrži maliciozni HTML). -->
 <!-- Ajdin v2.26.29: Content-Security-Policy meta tag — dozvoljava self, fonts.google, vaktija.ba, allorigins.win, open-meteo, nominatim; blokira sve nepoznate izvore; defense-in-depth uz escapeHTML. -->
 <!-- Ajdin v2.26.30: Service Worker (sw.js) — network-first za app shell (HTML, manifest, ikone), cache-first za statiku (fonts), network-only za API (vakuti uvijek svježi); aplikacija sada radi offline ako je već učitana barem jednom. -->
+<!-- Ajdin v2.26.31: bug fix — 3-minutna "nula faza" sehura sada koristi zoraBA (vaktija.ba) za BiH/Sandžak ako API radi (prije: uvijek UK sehurKraj, što je aktiviralo nula fazu prerano u BiH). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3082,7 +3083,7 @@ function escapeHTML(s){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2290';
+  var V='2291';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5833,10 +5834,15 @@ updateDanasCountdown = function(){
   niV222OrigUpdateDanas();
 
   // 1) Sehur: 3-minutna nula faza nakon isteka
-  if(prayerTimesDanas && prayerTimesDanas.sehurKraj !== null && prayerTimesDanas.aksam !== null){
+  // BiH/Sandžak: koristi zoraBA (vaktija.ba lokalno) ako API radi; ako API padne fallback na UK.
+  // Saudija i ostali: uvijek UK (sehurKraj). Pravilo po šejhu UG Divan.
+  const sehurTarget = (prayerTimesDanas && prayerTimesDanas.isBiHSandzak && prayerTimesDanas.zoraBA !== null)
+    ? prayerTimesDanas.zoraBA
+    : (prayerTimesDanas ? prayerTimesDanas.sehurKraj : null);
+  if(prayerTimesDanas && sehurTarget !== null && prayerTimesDanas.aksam !== null){
     const now = appNow();
     const nowH = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
-    let diff = prayerTimesDanas.sehurKraj - nowH;
+    let diff = sehurTarget - nowH;
     if(diff < -12) diff += 24;
     if(diff > 12) diff -= 24;
     if(diff < 0 && diff >= -(3/60)){
