@@ -36,6 +36,7 @@
 <!-- Ajdin v2.26.14: revert v2.26.13 — sub labela "Ummul-kura" opet skrivena (visibility:hidden) u aktivnom sehur stanju; --warm-charcoal color rule uklonjen iz grupe. -->
 <!-- Ajdin v2.26.15: Hejaz — kartica "Kraj sehura" zamijenjena sa "Sabah po ISNI" (#dcard-sabahISNA); prikazuje times.sabahISNA, countdown krece od jacije; CSS sehur-counting prosiren na novi ID. -->
 <!-- Ajdin v2.26.16: BiH/Sandžak — kartica "Kraj sehura" prikazuje zoraBA (vakat[0] iz vaktija.ba) s labelom "Lokalno"; fallback na sehurKraj+Ummul-kura ako API nije dostupan; countdown takodje koristi zoraBA kad postoji. -->
+<!-- Ajdin v2.26.17: bug fix — #dcard-sabahISNA dobio position:relative; sehur-countdown-line (position:absolute) više ne ispliva izvan kartice u Hejaz modu. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -1549,8 +1550,9 @@ header{position:relative}
   line-height:1.45;
 }
 
-/* Sehur modal */
-#dcard-sehurKraj{
+/* Sehur modal + Hejaz ISNA sabah kartica — position:relative potreban za apsolutno pozicioniranu countdown liniju */
+#dcard-sehurKraj,
+#dcard-sabahISNA{
   position:relative;
 }
 #dcard-sehurKraj.sehur-counting{
@@ -3045,7 +3047,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2276';
+  var V='2277';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
