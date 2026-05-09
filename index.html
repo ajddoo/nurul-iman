@@ -26,6 +26,7 @@
 <!-- Ajdin v2.26.4: live overlay popup za sve faze dana — vertikalni split (lijevo=lijevo, desno=desno), separator 140px centriran samo između sadržaja, dual timer font skaliran za polu-širinu ekrana; uklonjeni redundantni JS inline stilovi iz syncLiveExpandTimers. -->
 <!-- Ajdin v2.26.5: horizontalni separator u listi namaza (≤390px) — border-image gradient separator s razmakom od ivica (transparent 12px), ::after vertical line sakriven u column modu; donja polovica opacity:0.88 da vizualno ne "izbija" kao zasebna kartica. -->
 <!-- Ajdin v2.26.6: live overlay popup vraćen na horizontalni split (gore=lijevo, dole=desno); separator centriran gradient linija min(220px,58vw) s fade efektom s obje strane; padding 28px 32px po polovici; timer dual clamp(2.4rem,10vw,4rem). -->
+<!-- Ajdin v2.26.7: faze 4+5 sub:'ISNA'/'Ummul-kura' (ranije prazno); faza 7 desna sub:'ISNA'; popup dual padding 28px→20px (~30% manji razmak). Widget i popup automatski sinkronizirani. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
 <meta property="og:title" content="Nurul-iman by Divan"/>
 <meta property="og:description" content="Tvoj džepni pomoćnik"/>
@@ -2781,7 +2782,7 @@ body.live-focus-mode .live-focus-overlay{
   width:min(220px,58vw);height:1px;align-self:center;flex-shrink:0;
   background:linear-gradient(to right,transparent,var(--border-mid) 22%,var(--border-mid) 78%,transparent);
 }
-.live-expand-overlay.le-dual .live-expand-half{padding:28px 32px}
+.live-expand-overlay.le-dual .live-expand-half{padding:20px 32px}
 .live-expand-overlay.le-dual .live-expand-timer{font-size:clamp(2.4rem,10vw,4rem)}
 .live-expand-kicker{font-family:var(--font-sans);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px}
 .live-expand-name{font-family:var(--font-display);font-size:1.05rem;font-weight:400;color:var(--text-primary);text-align:center;margin-bottom:8px;line-height:1.35}
@@ -3021,7 +3022,7 @@ body.live-focus-mode .live-focus-overlay{
 <script>
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2266';
+  var V='2267';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -3877,8 +3878,8 @@ function getCountdownPhase(t,nowH){
   if(has(t.izlazak)&&has(t.duha)&&has(t.podne)
      &&isTimeInRange(nowH,t.izlazak,t.duha)){
     return {
-      left: {label:'do duha-namaza', sub:'', diff:safeDiff(t.duha)},
-      right:{label:'do podne',       sub:'', diff:safeDiff(t.podne)},
+      left: {label:'do duha-namaza', sub:isHejaz?'Ummul-kura':'ISNA', diff:safeDiff(t.duha)},
+      right:{label:'do podne',       sub:isHejaz?'Ummul-kura':'ISNA', diff:safeDiff(t.podne)},
       layout:'horizontal',
       warning:true,
       status:'Zabranjeno vrijeme za namaz'
@@ -3889,8 +3890,8 @@ function getCountdownPhase(t,nowH){
   if(has(t.duha)&&has(t.krajDuhe)&&has(t.podne)
      &&isTimeInRange(nowH,t.duha,t.krajDuhe)){
     return {
-      left: {label:'do isteka duha-namaza', sub:'',  diff:safeDiff(t.krajDuhe)},
-      right:{label:'do podne',              sub:'',  diff:safeDiff(t.podne)},
+      left: {label:'do isteka duha-namaza', sub:isHejaz?'Ummul-kura':'ISNA', diff:safeDiff(t.krajDuhe)},
+      right:{label:'do podne',              sub:isHejaz?'Ummul-kura':'ISNA', diff:safeDiff(t.podne)},
       layout:'horizontal'
     };
   }
@@ -3914,7 +3915,7 @@ function getCountdownPhase(t,nowH){
      &&isTimeInRange(nowH,t.podne,t.podneBA)){
     return {
       left: {label:'do ezana u džamiji', sub:'lokalno podne', diff:safeDiff(t.podneBA)},
-      right:{label:'do ikindije',        sub:'',              diff:safeDiff(t.ikindija)},
+      right:{label:'do ikindije',        sub:'ISNA',          diff:safeDiff(t.ikindija)},
       layout:'horizontal'
     };
   }
