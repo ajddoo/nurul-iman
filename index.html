@@ -74,6 +74,7 @@
 <!-- Ajdin v2.26.48: KRITIČNI FIX — sehur countdown za BiH/Sandžak sada koristi zoraBA (vaktija.ba) umjesto Ummul-kura u fazi 1 i 2; ranije se uvijek prikazivalo "do kraja sehura · Ummul-kura" čak i kad je vaktija.ba dostupna (u BiH/Sandžaku to je pogrešno, lokalna vaktija ima prednost). Plus pull-to-refresh provjerava manual loc prije GPS-a (ranije: refresh sa GPS koordinatama iako je manual aktivan). Plus UI cleanup: skinuta strelica, dashed border-bottom kao klik hint, skraćeni country (Bosna i Hercegovina → BiH), redizajn "Ručno" oznake (gold pill chip + flag + skraćeni naziv + X). -->
 <!-- Ajdin v2.26.49: sehur sub tekst "vaktija.ba" → "lokalno" (kraći i intuitivniji za korisnika; izvor već piše u source-note ispod liste vakata). -->
 <!-- Ajdin v2.26.50: MAX_LOCAL_VAKTIJA_DISTANCE_KM 35 → 50 (širi domet vaktija.ba — manji gradovi koji nisu u listi dobijaju vaktiju iz najbližeg pokrivenog grada do 50km). -->
+<!-- Ajdin v2.26.51: location modal redizajn — top-aligned (umjesto centriranog) da ne bježi sa input-a kad tastatura iskoči, sticky search bar, list-style umjesto "kartica u kartici" (subtilni separator linije, indentirani gradovi sa lijevim border accent), max-height = 100vh - top inset za stabilan layout sa virtuelnom tastaturom. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2969,34 +2970,51 @@ body.live-focus-mode .live-focus-overlay{
 }
 
 /* ============================================================================
-   v2.26.46 — LOCATION MODAL (RUČNI UNOS)
-   Korisnik može ručno odabrati grad iz liste ~280 gradova u 22 države.
-   Hijerarhija: URL → manual (localStorage) → GPS → keš.
+   v2.26.51 — LOCATION MODAL (REDIZAJN: bottom-sheet, list-style)
+   Top-aligned umjesto centriranog (tastatura na mobilnom ne bježi sa input-a).
+   List-style umjesto "kartica u kartici" — minimalniji, više sadržaja u manje
+   prostora, fokus na tipografiji i separatorima.
    ============================================================================ */
-.location-current{
-  background:var(--bg-elevated);
-  border:1px solid var(--border-soft);
-  border-radius:var(--r-md);
-  padding:14px 16px;
-  margin-bottom:14px;
+
+/* Override centiranja samo za location modal — top-aligned, sticky search */
+#locationModal{
+  align-items:flex-start!important;
+  padding-top:max(20px,env(safe-area-inset-top,0px))!important;
+  padding-bottom:0!important;
+}
+#locationModal .info-modal-sheet{
+  max-height:calc(100vh - 40px)!important;
+  height:auto;
+  display:flex;flex-direction:column;
+  padding:18px 18px 8px!important;
+  border-radius:var(--r-xl)!important;
+}
+
+/* Trenutni status kao mali inline tekst, bez "kartica" */
+.location-current-inline{
   text-align:center;
+  padding:0 0 14px;
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:14px;
 }
 .location-current-label{
   font-family:var(--font-sans);
-  font-size:0.56rem;letter-spacing:0.20em;text-transform:uppercase;
-  color:var(--warm-gray);
+  font-size:0.50rem;letter-spacing:0.20em;text-transform:uppercase;
+  color:var(--warm-gray);margin-bottom:6px;
 }
 .location-current-name{
   font-family:var(--font-display);
-  font-size:1.4rem;color:var(--accent);
-  margin:4px 0 2px;
+  font-size:1.5rem;color:var(--accent);
+  font-weight:400;line-height:1.1;
 }
 .location-current-source{
   font-family:var(--font-sans);
-  font-size:0.66rem;letter-spacing:0.08em;
-  color:var(--text-primary);opacity:0.78;
+  font-size:0.66rem;letter-spacing:0.06em;
+  color:var(--warm-gray);
+  margin-top:4px;
 }
 .location-current-source.manual{color:var(--accent-light)}
+
 .location-gps-btn{
   width:100%;
   background:transparent;
@@ -3005,7 +3023,7 @@ body.live-focus-mode .live-focus-overlay{
   color:var(--accent);
   font-family:var(--font-display);
   font-size:0.92rem;letter-spacing:0.04em;
-  padding:11px;cursor:pointer;
+  padding:10px;cursor:pointer;
   margin-bottom:14px;
   transition:border-color 0.2s,background 0.2s;
 }
@@ -3015,9 +3033,15 @@ body.live-focus-mode .live-focus-overlay{
   background:rgba(201,168,76,0.08);
 }
 .location-gps-btn.hidden{display:none}
+
+/* Search bar — sticky na vrhu liste, ne bježi pri scroll-u */
 .location-search-wrap{
-  position:relative;
-  margin-bottom:10px;
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:var(--bg-surface);
+  padding:0 0 10px;
+  margin:0;
 }
 .location-search{
   width:100%;
@@ -3030,117 +3054,132 @@ body.live-focus-mode .live-focus-overlay{
   padding:11px 36px 11px 14px;
   outline:none;
 }
-.location-search:focus{
-  border-color:var(--accent-dim);
-}
+.location-search:focus{border-color:var(--accent-dim)}
 .location-search::placeholder{color:var(--warm-gray);opacity:0.7}
-.location-search-wrap::before{
+.location-search-wrap::after{
   content:'🔍';
   position:absolute;
-  right:13px;top:50%;
-  transform:translateY(-50%);
+  right:13px;top:11px;
   font-size:0.85rem;opacity:0.45;
   pointer-events:none;
 }
+
+/* Lista država — bez border-a, samo subtilni separator linije */
 .location-results{
-  max-height:48vh;
+  flex:1;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  margin:0 -4px;padding:0 4px;
+  overscroll-behavior:contain;
+  padding-bottom:env(safe-area-inset-bottom,12px);
 }
 .location-country-group{
-  margin-bottom:6px;
-  border:1px solid var(--border-soft);
-  border-radius:var(--r-md);
-  overflow:hidden;
+  border-top:1px solid var(--border-soft);
 }
+.location-country-group:first-child{border-top:none}
 .location-country-header{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;
+  display:flex;align-items:center;gap:12px;
+  padding:13px 4px;
   cursor:pointer;
-  background:var(--bg-elevated);
-  font-family:var(--font-sans);
-  font-size:0.84rem;letter-spacing:0.04em;
+  font-family:var(--font-display);
+  font-size:0.98rem;
   color:var(--text-primary);
-  transition:background 0.15s;
+  transition:color 0.15s;
 }
 .location-country-header:hover,
-.location-country-header:active{
-  background:rgba(201,168,76,0.06);
-}
-.location-country-flag{font-size:1.2rem;line-height:1}
-.location-country-name{flex:1}
+.location-country-header:active{color:var(--accent)}
+.location-country-flag{font-size:1.3rem;line-height:1;flex-shrink:0}
+.location-country-name{flex:1;line-height:1.1}
 .location-country-count{
+  font-family:var(--font-sans);
   font-size:0.62rem;letter-spacing:0.08em;
   color:var(--warm-gray);
 }
 .location-country-arrow{
-  font-size:0.7rem;color:var(--warm-gray);
+  font-size:0.85rem;color:var(--warm-gray);
   transition:transform 0.2s;
+  width:14px;text-align:center;
 }
 .location-country-group.open .location-country-arrow{
   transform:rotate(90deg);
+  color:var(--accent);
 }
+
+/* Gradovi — kompaktna lista bez border-a, indentirana */
 .location-cities{
   display:none;
-  background:var(--bg-surface);
-  padding:4px 0;
-  border-top:1px solid var(--border-soft);
+  padding-bottom:8px;
 }
 .location-country-group.open .location-cities{display:block}
 .location-city{
-  padding:8px 18px 8px 38px;
+  padding:9px 4px 9px 32px;
   cursor:pointer;
   font-family:var(--font-display);
-  font-size:0.92rem;
+  font-size:0.95rem;
   color:var(--text-primary);
-  transition:background 0.15s;
+  border-left:2px solid transparent;
+  transition:background 0.15s,border-color 0.15s,color 0.15s;
 }
 .location-city:hover,
 .location-city:active{
-  background:rgba(201,168,76,0.08);
+  background:rgba(201,168,76,0.06);
+  border-left-color:var(--accent-dim);
   color:var(--accent);
 }
 .location-city.active{
-  background:rgba(201,168,76,0.12);
+  border-left-color:var(--accent);
   color:var(--accent);
   font-weight:500;
 }
-/* Search rezultati — flat lista bez akordeona */
+
+/* Search rezultati — flat lista, separator linije umjesto kartica */
 .location-search-result{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;
-  border:1px solid var(--border-soft);
-  border-radius:var(--r-md);
-  margin-bottom:5px;
+  display:flex;align-items:center;gap:12px;
+  padding:11px 4px;
   cursor:pointer;
-  background:var(--bg-elevated);
-  transition:border-color 0.15s,background 0.15s;
+  border-top:1px solid var(--border-soft);
+  transition:background 0.15s,color 0.15s;
 }
+.location-search-result:first-child{border-top:none}
 .location-search-result:hover,
 .location-search-result:active{
-  border-color:var(--accent-dim);
   background:rgba(201,168,76,0.06);
+  color:var(--accent);
 }
-.location-search-result-flag{font-size:1.2rem}
+.location-search-result-flag{font-size:1.3rem;flex-shrink:0}
 .location-search-result-info{flex:1;min-width:0}
 .location-search-result-city{
   font-family:var(--font-display);
-  font-size:0.96rem;
+  font-size:0.98rem;
   color:var(--text-primary);
+  line-height:1.15;
+}
+.location-search-result:hover .location-search-result-city,
+.location-search-result:active .location-search-result-city{
+  color:var(--accent);
 }
 .location-search-result-country{
   font-family:var(--font-sans);
-  font-size:0.66rem;letter-spacing:0.06em;
+  font-size:0.62rem;letter-spacing:0.06em;
   color:var(--warm-gray);
   margin-top:2px;
 }
 .location-no-results{
   text-align:center;
-  padding:20px;
+  padding:30px 20px;
   font-family:var(--font-sans);
-  font-size:0.78rem;
+  font-size:0.82rem;
   color:var(--warm-gray);
+  line-height:1.6;
+}
+
+/* Mali ekrani: smanji padding modala */
+@media(max-width:390px){
+  #locationModal{padding-top:12px!important}
+  #locationModal .info-modal-sheet{
+    padding:14px 14px 6px!important;
+    max-height:calc(100vh - 24px)!important;
+  }
+  .location-current-name{font-size:1.3rem}
 }
 /* Manual location indikator u weather kartici */
 .danas-loc-source{
@@ -3590,11 +3629,11 @@ body.is-offline .danas-status-dot{
 
 
 <!-- LOCATION MODAL (Sprint 3) -->
-<div class="info-modal-backdrop center-modal" id="locationModal">
+<div class="info-modal-backdrop" id="locationModal">
   <div class="info-modal-sheet location-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
     <button class="modal-close-btn" type="button" id="closeLocationModalBtn" aria-label="Zatvori">×</button>
     <div class="info-modal-title" id="locationModalTitle">Lokacija</div>
-    <div class="location-current">
+    <div class="location-current-inline">
       <div class="location-current-label">Trenutno</div>
       <div class="location-current-name" id="locationCurrentName">–</div>
       <div class="location-current-source" id="locationCurrentSource">–</div>
@@ -3719,7 +3758,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2310';
+  var V='2311';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
