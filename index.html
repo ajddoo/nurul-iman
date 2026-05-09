@@ -64,6 +64,7 @@
 <!-- Ajdin v2.26.38: gramatička ispravka — "vakute"/"vakuti" → "vakte"/"vakti" (akuzativ/nominativ plural od "vakat"); UI tekstovi: offline banner, polarni warning. -->
 <!-- Ajdin v2.26.39: desktop & tablet layout — iznad 768px aplikacija se centrira u "phone frame" (max-width 440px, zaobljeni uglovi, sjenka, navy gradient pozadina); iznad 1024px frame veci 460px. Mobile-first dizajn potpuno netaknut. -->
 <!-- Ajdin v2.26.40: a11y + touch targets — :focus-visible outline za keyboard korisnike (svi gumbovi); header info dugme 26→32px, wake/sehur lock min 30×30 (Apple HIG ≥44 sa padding zonom). -->
+<!-- Ajdin v2.26.41: polish animacije — tab fade-in (0.28s) + suptilan timer-pulse u zadnjoj minuti (gold glow); haptic vibration na tab klik (navigator.vibrate, samo mobilni); guard za tab koji je već aktivan. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -2871,6 +2872,29 @@ body.live-focus-mode .live-focus-overlay{
 .live-expand-status:empty{display:none}
 
 /* ============================================================================
+   v2.26.41 — POLISH ANIMACIJE
+   Tab transition (fade-in), pulse na zadnjoj sekundi timera.
+   Suptilno, nenaprezavajuće — fokus ostaje na sadržaju.
+   ============================================================================ */
+.tab-panel{
+  animation:tabFadeIn 0.28s ease-out;
+}
+@keyframes tabFadeIn{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Pulsiranje timera u zadnjoj sekundi (kad timer pokazuje ?:??:0X). Suptilno
+   povećanje + zlatni glow — privlači pažnju da nastupa novi vakat. */
+.danas-timer.timer-pulse{
+  animation:timerPulse 1s ease-in-out infinite;
+}
+@keyframes timerPulse{
+  0%,100%{transform:scale(1);text-shadow:0 0 0 rgba(201,168,76,0)}
+  50%{transform:scale(1.05);text-shadow:0 0 12px rgba(201,168,76,0.45)}
+}
+
+/* ============================================================================
    v2.26.40 — A11Y & TOUCH TARGETS
    Vidljiv :focus-visible za keyboard korisnike (a11y).
    Veći touch target za mala dugmad da Apple HIG ≥44px bude poštovan.
@@ -3256,7 +3280,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2300';
+  var V='2301';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -3550,14 +3574,26 @@ document.getElementById('btnKibla').addEventListener('click',()=>{
 });
 
 // NAV
+// ── Haptic feedback helper ──────────────────────────────────────────────────
+// Korisnik osjeća laki "tap" na bitnim klikovima (mobile). Tihi fallback ako
+// browser ne podržava Vibration API.
+function hapticTap(duration){
+  try{
+    if('vibrate' in navigator) navigator.vibrate(duration||10);
+  }catch(e){}
+}
+
 function activateTab(tabName){
   const targetBtn=document.querySelector(`.bnav-btn[data-tab="${tabName}"]`);
   const targetPanel=document.getElementById('panel-'+tabName);
   if(!targetBtn||!targetPanel)return;
+  // Ako je već aktivan, ne radi ništa (sprječava nepotrebnu animaciju)
+  if(targetPanel.classList.contains('active'))return;
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   targetBtn.classList.add('active');
   targetPanel.classList.add('active');
+  hapticTap(8);  // suptilan vibro feedback
   if(tabName==='predstojece') buildPredstojece();
 }
 
@@ -4292,6 +4328,8 @@ function renderCountdownPhase(phase){
     ?`${phase.left.label}<small>${phase.left.sub}</small>`
     :phase.left.label;
   cdLeftTimer.textContent=fmtCountdown(phase.left.diff);
+  // Pulse u zadnjoj minuti (≤60 sekundi do nastupa vakta)
+  cdLeftTimer.classList.toggle('timer-pulse',phase.left.diff>0&&phase.left.diff*3600<=60);
 
   // Desno
   if(phase.right){
@@ -4300,8 +4338,10 @@ function renderCountdownPhase(phase){
       ?`${phase.right.label}<small>${phase.right.sub}</small>`
       :phase.right.label;
     cdRightTimer.textContent=fmtCountdown(phase.right.diff);
+    cdRightTimer.classList.toggle('timer-pulse',phase.right.diff>0&&phase.right.diff*3600<=60);
   } else {
     cdRight.classList.add('hidden');
+    cdRightTimer.classList.remove('timer-pulse');
   }
 
   // Status traka (npr. "Zabranjeno vrijeme za namaz") ispod countera.
