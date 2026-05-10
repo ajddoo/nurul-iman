@@ -5669,7 +5669,7 @@ async function loadDanas(lat,lng){
     }else if(manual){
       // Manual loc — već postavljen iznad, ne zovemo Nominatim
     }else{
-      const geo=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+      const geo=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=bs,en`);
       if(!geo.ok)throw new Error('Lokacija nije dostupna');
       const geoData=await geo.json();
       const grad=geoData.address?.city||geoData.address?.town||geoData.address?.village||geoData.address?.municipality||'–';
