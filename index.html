@@ -85,6 +85,7 @@
 <!-- Ajdin v2.26.59: CSS cleanup — RGB tripleti tokeni za rgba alpha varijante (--accent-rgb, --warm-ivory-rgb, --bg-surface-rgb, --bg-deep-rgb, --status-warn-rgb, --status-ok-rgb, --accent-dim-rgb, --warm-gray-rgb). Zamijenjeno ~95 hardcoded rgba(R,G,B,...) sa rgba(var(--xx-rgb),...). Crna/bijela/highlights ostaju (standardne za sjenke). -->
 <!-- Ajdin v2.26.60: tipografija + spacing tokeni dodani u :root — letter-spacing skala (--ls-tight do --ls-widest), line-height skala (--lh-tight do --lh-loose), 4/8 spacing grid (--s-1 do --s-10). Postojeće vrijednosti ostaju netaknute (auto-replace bi mogao promijeniti dizajn); tokeni su za buduce stilove i postupnu konsolidaciju. -->
 <!-- Ajdin v2.26.61: XSS defense-in-depth — escapeHTML aplikovan na country.flag u data-flag atributu (linije 6214, 6222). Trenutno LOKACIJE.flag su Unicode emoji (sigurni), ali ako se kasnije izmijeni LOKACIJE niz, atribut bi bio injectovan. -->
+<!-- Ajdin v2.26.62: Lighthouse Performance fix — uklonjen location.replace() iz cache-bust mehanizma (Service Worker već radi network-first); Google Fonts asinhrono učitavanje (rel=preload + media=print → onload media=all trick) — fontovi ne blokiraju render. Ciljano FCP/LCP poboljšanje (sa 3.3s/3.6s na <2s). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -97,7 +98,10 @@
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<!-- Async load Google Fonts CSS — ne blokira render. Onload prebacuje na "all" media query da se primjeni. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" media="print" onload="this.media='all';this.onload=null"/>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet"/></noscript>
 <style>
 /* ============================================================================
    MOJ NAMAZ — kompletan CSS sistem
@@ -3872,14 +3876,18 @@ function relTimeBs(ts){
   return `prije ${d} ${d===1?'dan':'dana'}`;
 }
 
-// ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
+// ── Cache bust: SAMO update lokalne verzije (bez redirect-a) ────────────────
+// Service Worker (sw.js) već radi network-first za HTML pa korisnik uvijek
+// dobija svježu verziju kad je online. Stari mehanizam sa location.replace()
+// je pravio dodatni round-trip koji je dizao FCP/LCP u Lighthouse-u.
 (function(){
-  var V='2321';
+  var V='2323';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
-      var u=location.href.split('?')[0]+'?v='+V;
-      if(location.href!==u) location.replace(u);
+      // Bez redirect-a — SW već garantuje svježu verziju.
+      // Ako iz nekog razloga keš ne radi (npr. SW nije registrovan), korisnik
+      // će vidjeti staru verziju samo do sledećeg load-a.
     }
   }catch(e){}
 })();
