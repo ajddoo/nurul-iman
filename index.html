@@ -4789,16 +4789,15 @@ function najblizijGrad(lat,lng){
   return best?{...best,distanceKm:bestD,matchType:'nearest'}:null;
 }
 
-// Glavni izbor: prvo po imenu iz reverse geocodinga, zatim najbliži grad.
-// Lokalni ezan prikazujemo samo ako je grad u razumnom dometu, da korisnik
-// ne dobije lokalnu vaktiju za mjesto koje očito nije pokriveno.
+// v2.26.69: Uvijek vraća fizički najbliži grad u VAKTIJA_GRADOVI listi unutar 50km radius-a.
+// Prije: prvo se pokušao match po imenu iz Nominatim odgovora, što je moglo izabrati
+// grad koji je dalji od najbližeg pokrivenog (npr. korisnik u Ilijašu, Nominatim vraća
+// "Sarajevo Canton" → birao Sarajevo umjesto bližeg Visokog).
+// GPS sa enableHighAccuracy:true je tačan na 5-10m → koordinate su pouzdaniji izvor
+// istine od Nominatim naziva regije/kantona.
 function odrediGrad(lat,lng,reverseGeoName){
-  const byName=withDistance(gradPoImenu(reverseGeoName),lat,lng,'name');
-  if(byName&&byName.distanceKm<=MAX_LOCAL_VAKTIJA_DISTANCE_KM)return byName;
-
   const nearest=najblizijGrad(lat,lng);
   if(nearest&&nearest.distanceKm<=MAX_LOCAL_VAKTIJA_DISTANCE_KM)return nearest;
-
   return null;
 }
 
