@@ -87,6 +87,7 @@
 <!-- Ajdin v2.26.61: XSS defense-in-depth — escapeHTML aplikovan na country.flag u data-flag atributu (linije 6214, 6222). Trenutno LOKACIJE.flag su Unicode emoji (sigurni), ali ako se kasnije izmijeni LOKACIJE niz, atribut bi bio injectovan. -->
 <!-- Ajdin v2.26.62: Lighthouse Performance fix — uklonjen location.replace() iz cache-bust mehanizma (Service Worker već radi network-first); Google Fonts asinhrono učitavanje (rel=preload + media=print → onload media=all trick) — fontovi ne blokiraju render. Ciljano FCP/LCP poboljšanje (sa 3.3s/3.6s na <2s). -->
 <!-- Ajdin v2.26.63: Lighthouse Accessibility fix — viewport user-scalable=no → maximum-scale=5.0 (dozvoljen zoom za korisnike sa lošim vidom, a11y obavezan); ARIA fix: <div aria-label> bez role-a → dodano role="timer" (clock) i role="status" (vaktija badge) — Lighthouse "prohibited ARIA attributes" warning otklonjen. -->
+<!-- Ajdin v2.26.64: Lighthouse Accessibility 96 → 100 — span#danasStatusDot dobio role="status" + aria-label="Status konekcije" (dynamic aria-label se setuje kroz setDanasConnectionStatus JS). -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3647,7 +3648,7 @@ body.is-offline .danas-status-dot{
             <div class="danas-city" id="danasGrad">–</div>
             <div class="danas-city-sub" id="danasGradSub"></div>
           </div>
-          <span class="danas-status-dot" id="danasStatusDot" title="Lokacija još nije potvrđena"></span>
+          <span class="danas-status-dot" id="danasStatusDot" role="status" aria-label="Status konekcije" title="Lokacija još nije potvrđena"></span>
         </div>
         <div class="danas-weather-metric-row">
           <div class="danas-temp" id="danasTemp"></div>
@@ -3882,7 +3883,7 @@ function relTimeBs(ts){
 // dobija svježu verziju kad je online. Stari mehanizam sa location.replace()
 // je pravio dodatni round-trip koji je dizao FCP/LCP u Lighthouse-u.
 (function(){
-  var V='2324';
+  var V='2325';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
