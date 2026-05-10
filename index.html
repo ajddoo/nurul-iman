@@ -84,6 +84,7 @@
 <!-- Ajdin v2.26.58: CSS cleanup — border-radius tokeni: dodano --r-xs:6px, --r-pill:999px, --r-circle:50%; sve hardcoded 999px (6 mjesta) i 50% (10 mjesta) zamijenjene sa CSS varijablama. Vizuelno isto, kod čistiji za buduće globalne promjene. -->
 <!-- Ajdin v2.26.59: CSS cleanup — RGB tripleti tokeni za rgba alpha varijante (--accent-rgb, --warm-ivory-rgb, --bg-surface-rgb, --bg-deep-rgb, --status-warn-rgb, --status-ok-rgb, --accent-dim-rgb, --warm-gray-rgb). Zamijenjeno ~95 hardcoded rgba(R,G,B,...) sa rgba(var(--xx-rgb),...). Crna/bijela/highlights ostaju (standardne za sjenke). -->
 <!-- Ajdin v2.26.60: tipografija + spacing tokeni dodani u :root — letter-spacing skala (--ls-tight do --ls-widest), line-height skala (--lh-tight do --lh-loose), 4/8 spacing grid (--s-1 do --s-10). Postojeće vrijednosti ostaju netaknute (auto-replace bi mogao promijeniti dizajn); tokeni su za buduce stilove i postupnu konsolidaciju. -->
+<!-- Ajdin v2.26.61: XSS defense-in-depth — escapeHTML aplikovan na country.flag u data-flag atributu (linije 6214, 6222). Trenutno LOKACIJE.flag su Unicode emoji (sigurni), ali ako se kasnije izmijeni LOKACIJE niz, atribut bi bio injectovan. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3873,7 +3874,7 @@ function relTimeBs(ts){
 
 // ── Cache bust: forsira reload kada postoji nova verzija ─────────────────────
 (function(){
-  var V='2320';
+  var V='2321';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -6219,7 +6220,7 @@ function renderLocationCountries(){
         <span class="location-country-arrow">›</span>
       </div>
       <div class="location-cities">
-        ${country.cities.map(c=>`<div class="location-city${activeCity===c.n?' active':''}" data-city="${escapeHTML(c.n)}" data-country="${escapeHTML(country.name)}" data-flag="${country.flag}" data-lat="${c.lat}" data-lng="${c.lng}">${escapeHTML(c.n)}</div>`).join('')}
+        ${country.cities.map(c=>`<div class="location-city${activeCity===c.n?' active':''}" data-city="${escapeHTML(c.n)}" data-country="${escapeHTML(country.name)}" data-flag="${escapeHTML(country.flag)}" data-lat="${c.lat}" data-lng="${c.lng}">${escapeHTML(c.n)}</div>`).join('')}
       </div>
     </div>`;
   });
@@ -6244,7 +6245,7 @@ function renderLocationSearch(query){
   // Limit na 30 rezultata da modal bude lagan
   const shown=results.slice(0,30);
   container.innerHTML=shown.map(({city,country})=>
-    `<div class="location-search-result" data-city="${escapeHTML(city.n)}" data-country="${escapeHTML(country.name)}" data-flag="${country.flag}" data-lat="${city.lat}" data-lng="${city.lng}">
+    `<div class="location-search-result" data-city="${escapeHTML(city.n)}" data-country="${escapeHTML(country.name)}" data-flag="${escapeHTML(country.flag)}" data-lat="${city.lat}" data-lng="${city.lng}">
       <span class="location-search-result-flag" aria-hidden="true">${country.flag}</span>
       <div class="location-search-result-info">
         <div class="location-search-result-city">${escapeHTML(city.n)}</div>
