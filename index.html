@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -86,6 +86,7 @@
 <!-- Ajdin v2.26.60: tipografija + spacing tokeni dodani u :root — letter-spacing skala (--ls-tight do --ls-widest), line-height skala (--lh-tight do --lh-loose), 4/8 spacing grid (--s-1 do --s-10). Postojeće vrijednosti ostaju netaknute (auto-replace bi mogao promijeniti dizajn); tokeni su za buduce stilove i postupnu konsolidaciju. -->
 <!-- Ajdin v2.26.61: XSS defense-in-depth — escapeHTML aplikovan na country.flag u data-flag atributu (linije 6214, 6222). Trenutno LOKACIJE.flag su Unicode emoji (sigurni), ali ako se kasnije izmijeni LOKACIJE niz, atribut bi bio injectovan. -->
 <!-- Ajdin v2.26.62: Lighthouse Performance fix — uklonjen location.replace() iz cache-bust mehanizma (Service Worker već radi network-first); Google Fonts asinhrono učitavanje (rel=preload + media=print → onload media=all trick) — fontovi ne blokiraju render. Ciljano FCP/LCP poboljšanje (sa 3.3s/3.6s na <2s). -->
+<!-- Ajdin v2.26.63: Lighthouse Accessibility fix — viewport user-scalable=no → maximum-scale=5.0 (dozvoljen zoom za korisnike sa lošim vidom, a11y obavezan); ARIA fix: <div aria-label> bez role-a → dodano role="timer" (clock) i role="status" (vaktija badge) — Lighthouse "prohibited ARIA attributes" warning otklonjen. -->
 <!-- Ajdin v2.26.22: BiH/Sandžak source note — API radi: "ISNA · Lokalno – vaktija.ba"; API pao: "ISNA · Kraj sehura po Ummul-kura". -->
 <!-- Ajdin v2.26.23: polaNoci/zadnjaTrecina nazad na ISNA za sve non-Hejaz; uklonjen BiH zoraBA override; nightEnd=sabah(ISNA) non-Hejaz; kartica sabahISNA uklonjena, svi imaju dcard-sehurKraj; CSS/JS cleanup. -->
 <meta name="description" content="Tvoj džepni pomoćnik"/>
@@ -3650,7 +3651,7 @@ body.is-offline .danas-status-dot{
         </div>
         <div class="danas-weather-metric-row">
           <div class="danas-temp" id="danasTemp"></div>
-          <div class="danas-weather-clock" id="danasWeatherClock" aria-label="Trenutno vrijeme">--<span class="clock-colon">:</span>--</div>
+          <div class="danas-weather-clock" id="danasWeatherClock" role="timer" aria-label="Trenutno vrijeme">--<span class="clock-colon">:</span>--</div>
         </div>
         <div class="danas-weather-icon" id="danasIcon"></div>
         <div class="danas-cond" id="danasCond"></div>
@@ -3881,7 +3882,7 @@ function relTimeBs(ts){
 // dobija svježu verziju kad je online. Stari mehanizam sa location.replace()
 // je pravio dodatni round-trip koji je dizao FCP/LCP u Lighthouse-u.
 (function(){
-  var V='2323';
+  var V='2324';
   try{
     if(localStorage.getItem('nid-v')!==V){
       localStorage.setItem('nid-v',V);
@@ -5455,7 +5456,7 @@ function renderDanasVaktu(times,opts={}){
     if(localUnavailable){
       html+=`<div class="danas-local-source-badge warn">Za ovu lokaciju nije pronađena lokalna vaktija.</div>`;
     }else if(gradBA){
-      html+=`<div class="danas-local-source-badge" aria-label="Lokalna vaktija: ${escapeHTML(gradBA)}"><span class="loc-pin" aria-hidden="true">${UI_SVG.pin}</span><strong>${escapeHTML(gradBA)}</strong></div>`;
+      html+=`<div class="danas-local-source-badge" role="status" aria-label="Lokalna vaktija: ${escapeHTML(gradBA)}"><span class="loc-pin" aria-hidden="true">${UI_SVG.pin}</span><strong>${escapeHTML(gradBA)}</strong></div>`;
     }
   }
 
