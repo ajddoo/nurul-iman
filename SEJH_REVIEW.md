@@ -88,18 +88,8 @@
 ## 5. Ikindija (Asr)
 
 ### Logika
-- **Univerzalno:** ISNA standard (sjena = 1× visina objekta + dužina sjene u podne)
-- **Ne** koristimo Hanefijski (sjena = 2× visina) iako su Bosanci Hanefije
-- Po odluci developera/šejha — ISNA standard za sve
-
-### Razlika sa vaktija.ba
-- ISNA Asr = ranije od Hanefijskog
-- Razlika može biti 30-45 min ljeti
-- BiH korisnik vidi vaktija.ba ikindiju kao "lokalni ezan" (Hanefijski) i ISNA ikindiju paralelno
-
-### ❓ Pitanja
-1. Da li je prihvatljivo prikazivati ISNA Asr (Šafijski faktor 1) kao primarni za Bosance koji su Hanefije?
-2. Ili treba prebaciti na Hanefijski Asr (faktor 2) za BiH/Sandžak/Tursku?
+- **Univerzalno:** ISNA standard
+- ISNA Asr odgovara vaktija.ba Asr za BiH — nema razlike u praksi
 
 ---
 
