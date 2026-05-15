@@ -177,6 +177,28 @@
   --accent-dim-rgb:138,109,36;   /* gold-700 (#8A6D24) */
   --warm-gray-rgb:154,149,144;   /* warm gray (#9A9590) */
 
+  /* Tipografija — font-size skala (v2.27.0 — modularna, base 16px)
+     Filozofija: čitljivost > elegancija. App se koristi 5+ puta dnevno,
+     često u slabom osvjetljenju, demografija uključuje korisnike 50+.
+     Minimum 12px za sub-labele, 13px za nav, 16px za body. */
+  --fs-micro:    0.75rem;    /* 12px — uppercase tags only, must be bold */
+  --fs-xs:       0.8125rem;  /* 13px — sub-labels MINIMUM, source notes */
+  --fs-sm:       0.875rem;   /* 14px — secondary text, nav, kicker */
+  --fs-base:     1rem;       /* 16px — body, vakat list */
+  --fs-md:       1.125rem;   /* 18px — istaknute labele, vremena u listi */
+  --fs-lg:       1.25rem;    /* 20px — naslovi sekcija */
+  --fs-xl:       1.5rem;     /* 24px — info modal Hijri mjesec */
+  --fs-2xl:      2rem;       /* 32px — temp, weather */
+  --fs-3xl:      2.5rem;     /* 40px — kalendar dan, kibla deg */
+  --fs-4xl:      3rem;       /* 48px — sehur expanded timer */
+  --fs-display:  clamp(2.25rem,9vw,4rem);  /* responsive countdown */
+
+  /* Font-weight skala (v2.27.0) */
+  --fw-light:    300;        /* Display brojevi (countdown, temp, datum) */
+  --fw-regular:  400;        /* Body text, lista */
+  --fw-medium:   500;        /* Labele, vremena */
+  --fw-semibold: 600;        /* Naslovi modala, istaknuti elementi */
+
   /* Tipografija — letter-spacing skala (za nove stilove i postupnu konsolidaciju) */
   --ls-tight:0.02em;     /* tabular numbers, vrijeme */
   --ls-normal:0.04em;    /* body tekst */
