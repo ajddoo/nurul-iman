@@ -299,7 +299,7 @@ main{flex:1;overflow:hidden;position:relative}
   stroke:currentColor;fill:none;
   stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
 }
-.bnav-label{font-size:0.56rem;letter-spacing:0.08em;text-transform:uppercase}
+.bnav-label{font-size:var(--fs-sm);letter-spacing:0.08em;text-transform:uppercase}
 
 /* ── RIPPLE ───────────────────────────────────────────────────────────────── */
 .ripple{
@@ -482,10 +482,10 @@ main{flex:1;overflow:hidden;position:relative}
   letter-spacing:0.02em;line-height:1.2;
   font-weight:400;
 }
-.danas-city-sub{font-size:0.68rem;color:var(--warm-gray);margin-top:1px}
+.danas-city-sub{font-size:var(--fs-xs);color:var(--warm-gray);margin-top:1px}
 .danas-weather-icon{font-size:1.8rem;line-height:1;margin-top:auto}
 .danas-temp{font-size:1.6rem;font-weight:300;color:var(--text-primary);line-height:1}
-.danas-cond{font-size:0.7rem;color:var(--warm-gray);margin-top:2px}
+.danas-cond{font-size:var(--fs-xs);color:var(--warm-gray);margin-top:2px}
 
 .danas-cal-card{
   flex:1;
@@ -502,7 +502,7 @@ main{flex:1;overflow:hidden;position:relative}
   font-family:var(--font-arabic);font-size:1rem;
   color:var(--text-primary);text-align:center;
 }
-.danas-cal-year{font-size:0.68rem;color:var(--warm-gray);letter-spacing:0.1em}
+.danas-cal-year{font-size:var(--fs-xs);color:var(--warm-gray);letter-spacing:0.1em}
 .danas-cal-divider{
   width:28px;height:1px;
   background:var(--border-soft);
@@ -667,25 +667,25 @@ main{flex:1;overflow:hidden;position:relative}
 }
 
 .danas-row-name{
-  font-size:0.95rem;color:var(--text-primary);
+  font-size:var(--fs-base);color:var(--text-primary);
   min-width:0;
 }
 .danas-row-name small{
   display:block;
-  font-size:0.62rem;
+  font-size:var(--fs-xs);
   color:var(--warm-gray);
   letter-spacing:0.1em;
   text-transform:uppercase;
   margin-top:2px;
   font-family:var(--font-sans);
-  font-weight:500;
+  font-weight:var(--fw-medium);
 }
 .danas-row-name.active-namaz{color:var(--accent)}
 
 /* Desna polovica duet reda kad je samo "lokalni ezan" bez naziva namaza.
    Treba istu visinu i baseline kao lijeva strana koja ima naziv + small subtitle. */
 .danas-row-name.danas-row-local{
-  font-size:0.72rem;
+  font-size:var(--fs-xs);
   color:var(--accent-light);
   letter-spacing:0.10em;
   text-transform:uppercase;
@@ -1119,7 +1119,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 }
 
 /* v2.1 — izvor lokalne vaktije prikazuje se samo jednom; redovi ostaju čisti. */
-.danas-source-note span{color:var(--warm-gray);font-size:0.62rem;letter-spacing:0.04em}
+.danas-source-note span{color:var(--warm-gray);font-size:var(--fs-xs);letter-spacing:0.04em}
 .danas-source-note.danas-source-warn{color:var(--status-warn);border-top:1px solid rgba(var(--status-warn-rgb),0.22);padding-top:6px}
 .danas-row-name.danas-row-local{font-size:0.66rem;letter-spacing:0.06em;color:var(--accent-light);text-transform:none}
 .danas-local-time-wrap{align-items:flex-end;min-width:max-content}
