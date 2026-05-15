@@ -694,8 +694,13 @@ main{flex:1;overflow:hidden;position:relative}
   display:flex;align-items:center;
   min-height:34px;
 }
+/* v2.27.9 — namaska vremena, jasno hijerarhičan sistem (Major Third ratio):
+   Bottom 4 kartice  → 36px (display, najveće)
+   ISNA vakat        → 28px (primarni, 1.75rem)
+   Lokalni ezan      → 24px (sekundarni, 86% naspram ISNA)
+   Vakat naziv       → 16px (body) */
 .danas-row-time{
-  font-size:var(--fs-xl);color:var(--text-primary);
+  font-size:1.75rem;color:var(--text-primary);
   letter-spacing:0.04em;white-space:nowrap;
   font-variant-numeric:tabular-nums;
   min-width:0;
@@ -703,14 +708,14 @@ main{flex:1;overflow:hidden;position:relative}
 }
 .danas-row-time.active-namaz{color:var(--accent)}
 
-/* lokalni ezan – grad ispod vremena (manje od primarnog ISNA vakta — secondary) */
+/* lokalni ezan – grad ispod vremena (manje od primarnog ISNA, 14% redukcija) */
 .danas-local-time-wrap{
   display:flex;flex-direction:column;
   align-items:flex-end;justify-content:center;
   min-width:0;
 }
 .danas-local-time-wrap .danas-row-time{
-  font-size:var(--fs-md);
+  font-size:1.5rem;
   font-weight:var(--fw-regular);
 }
 .danas-local-city{
@@ -811,7 +816,7 @@ main{flex:1;overflow:hidden;position:relative}
   align-self:end;
 }
 .danas-extra-time{
-  font-size:var(--fs-2xl);
+  font-size:2.25rem;  /* 36px — display, najveći prayer time element */
   color:var(--accent);
   font-weight:var(--fw-light);
   line-height:1.1;letter-spacing:0.02em;
@@ -1086,7 +1091,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     min-height:100px;
   }
   .danas-extra-label{font-size:var(--fs-xs)}
-  .danas-extra-time{font-size:var(--fs-xl)}
+  .danas-extra-time{font-size:2rem}  /* 32px — mobile bottom 4 */
   .danas-extra-sub{font-size:var(--fs-micro)}
 }
 
@@ -1096,7 +1101,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .danas-row{padding:8px 10px}
   .danas-row-name{font-size:var(--fs-sm)}
   .danas-row-name small{font-size:0.56rem}
-  .danas-row-time{font-size:var(--fs-lg)}
+  .danas-row-time{font-size:1.5rem}  /* 24px — mobile ISNA */
 
   .danas-note-time{font-size:var(--fs-xs)}
   .danas-sabah-note{font-size:var(--fs-sm)}
@@ -1106,7 +1111,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     min-height:96px;
   }
   .danas-extra-label{font-size:var(--fs-xs);letter-spacing:0.05em}
-  .danas-extra-time{font-size:var(--fs-lg)}
+  .danas-extra-time{font-size:1.75rem}  /* 28px — mobile 360px bottom 4 */
   .danas-extra-sub{font-size:var(--fs-micro)}
 
   .danas-countdown{padding:8px 10px}
@@ -1132,7 +1137,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(max-width:390px){
   .danas-duet-half{padding:8px 9px}
   .danas-row-name.danas-row-local{font-size:0.6rem;letter-spacing:0.04em}
-  .danas-row-time{font-size:var(--fs-lg)}
+  .danas-row-time{font-size:1.5rem}  /* 24px — mobile 390px ISNA */
+  .danas-local-time-wrap .danas-row-time{font-size:1.25rem}  /* 20px — mobile lokalni */
 }
 
 
