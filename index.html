@@ -21,7 +21,6 @@
 <!-- Ajdin v2.16: Cormorant Garamond zamijenjen fontom Lora radi bolje čitljivosti uz navy/gold branding; labele ostaju sans-serif -->
 <!-- Ajdin v2.17: viewport-fit=cover; env(safe-area-inset-top) samo na headeru — logo ostaje, shell se ne dira -->
 <!-- Ajdin v2.20: Cormorant Garamond vraćen; cd-single min-width+overflow fix; danas-timer clamp(); danas-next-name word-break -->
-<!-- Ajdin v2.23: danas-row-dzamija .danas-row-time — font-size 0.92rem!important, color --warm-gray; uklonjen iz 1.10rem i 0.98rem override selektora -->
 <!-- Ajdin v2.24: danas-row-local i danas-sabah-note — color --warm-gray na svim mjestima (4 tačke); opacity uklonjen -->
 <!-- Ajdin v2.18: Takvim modal dobio kompletan hidžretski kalendar sa navigacijom po hidžretskim mjesecima i klikom na dane. -->
 <!-- Ajdin v2.25: Expand mode — live i sehur overlay (crna pozadina, brand stil); holdwake vezan za expand; bug fix capture interceptor; buildOnce+sync tehnika; safe-area-inset-top na logo u live overlayu; cd-single flex kolona za poravnanje timera. -->
@@ -267,11 +266,6 @@ header{
   background:var(--bg-deep);
   flex-shrink:0;
 }
-.logo-latin{
-  font-size:0.66rem;letter-spacing:0.28em;text-transform:uppercase;
-  color:var(--warm-gray);margin-top:2px;
-}
-
 main{flex:1;overflow:hidden;position:relative}
 
 .tab-panel{
@@ -302,16 +296,6 @@ main{flex:1;overflow:hidden;position:relative}
   stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
 }
 .bnav-label{font-size:0.56rem;letter-spacing:0.08em;text-transform:uppercase}
-
-/* ── RIPPLE ───────────────────────────────────────────────────────────────── */
-.ripple{
-  position:fixed;border-radius:var(--r-circle);
-  background:rgba(var(--bg-surface-rgb),0.10);
-  transform:scale(0);
-  animation:rippleAnim 0.55s linear;
-  pointer-events:none;z-index:50;
-}
-@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
 
 /* ============================================================================
    PREDSTOJEĆE
@@ -345,15 +329,6 @@ main{flex:1;overflow:hidden;position:relative}
   display:flex;align-items:center;justify-content:center;
   position:relative;flex-shrink:0;
 }
-.compass-labels span,.compass-labels{
-  position:absolute;
-  font-size:0.72rem;color:var(--warm-gray);letter-spacing:0.06em;
-}
-.cn{top:10px;left:50%;transform:translateX(-50%)}
-.cs{bottom:10px;left:50%;transform:translateX(-50%)}
-.ce{right:10px;top:50%;transform:translateY(-50%)}
-.cw{left:10px;top:50%;transform:translateY(-50%)}
-
 .compass-needle{
   position:absolute;width:3px;height:80px;
   top:50%;left:50%;
@@ -600,7 +575,6 @@ main{flex:1;overflow:hidden;position:relative}
   background:rgba(var(--accent-rgb),0.06);
   box-shadow:inset 3px 0 0 var(--accent);
 }
-.danas-row-dim{opacity:0.7}
 .danas-row-dzamija{border-color:var(--border-soft);background:var(--bg-surface)}
 
 /* duet (ISNA + lokalni ezan) */
@@ -632,7 +606,6 @@ main{flex:1;overflow:hidden;position:relative}
   color:var(--accent-dim);
 }
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-row-name small,
-.danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-local-city,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-sabah-note,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-note-time{
   color:var(--accent-dim);
@@ -694,15 +667,6 @@ main{flex:1;overflow:hidden;position:relative}
   font-size:0.95rem;  /* ~15px lokalni ezan — jasno manje od ISNA 22px */
   font-weight:var(--fw-regular);
 }
-.danas-local-city{
-  margin-top:2px;
-  font-size:0.58rem;line-height:1.05;
-  color:var(--warm-gray);
-  letter-spacing:0.04em;
-  white-space:nowrap;max-width:100%;
-  overflow:hidden;text-overflow:ellipsis;
-}
-
 /* sabah – napomena za džamiju */
 .danas-sabah-note-cell{
   align-items:center;justify-content:center;
@@ -719,30 +683,6 @@ main{flex:1;overflow:hidden;position:relative}
   font-size:0.78rem;line-height:1.2;
   text-align:right;white-space:normal;
   color:var(--text-primary);
-}
-
-/* polovina noći – tiša verzija */
-.danas-midnight-row{
-  padding:7px 12px;
-  border-radius:10px;
-  opacity:0.74;
-  background:rgba(var(--bg-surface-rgb),0.72);
-  border-color:rgba(var(--accent-rgb),0.14);
-}
-.danas-midnight-row.active-namaz{
-  border-color:rgba(var(--accent-rgb),0.24);
-  background:rgba(var(--bg-surface-rgb),0.78);
-}
-.danas-midnight-row .danas-row-name{
-  font-size:0.78rem;
-  color:var(--warm-gray);
-}
-.danas-midnight-row .danas-row-name small{
-  font-size:0.54rem;letter-spacing:0.05em;
-}
-.danas-midnight-row .danas-row-time{
-  font-size:0.92rem;
-  color:var(--accent);
 }
 
 /* izvori – footer napomena */
@@ -858,29 +798,6 @@ main{flex:1;overflow:hidden;position:relative}
 }
 #dcard-sehurKraj.sehur-counting .danas-extra-sub{ visibility:hidden; }
 
-/* sehur split layout (jelo / countdown) — fallback */
-.sehur-normal.hidden,.sehur-split.hidden{display:none}
-.sehur-split{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;margin-top:8px;min-height:44px;position:relative;
-}
-.sehur-split::before{
-  content:'';position:absolute;left:50%;top:6px;bottom:6px;
-  width:1px;background:var(--border-mid);
-  transform:translateX(-50%);
-}
-.sehur-split-half{
-  flex:0 0 50%;max-width:50%;min-width:0;
-  text-align:center;padding:0 6px;
-}
-.sehur-split-label{
-  font-size:0.56rem;line-height:1;letter-spacing:0.13em;
-  text-transform:uppercase;color:var(--warm-gray);
-  margin-bottom:5px;
-}
-.sehur-fixed-time{font-size:1rem;line-height:1;color:var(--accent);white-space:nowrap}
-.sehur-countdown-time{font-size:0.92rem;line-height:1;color:var(--text-primary);white-space:nowrap}
-
 /* ── lokacijski button + status poruke ─────────────────────────────────── */
 .danas-loc-btn{
   width:100%;margin-top:0;
@@ -983,14 +900,6 @@ main{flex:1;overflow:hidden;position:relative}
   border-radius:var(--r-lg);
   padding:20px;text-align:center;
 }
-.info-modal-day{font-size:var(--fs-4xl);font-weight:var(--fw-light);color:var(--accent);line-height:1}
-.info-modal-month{font-family:var(--font-arabic);font-size:var(--fs-xl);color:var(--text-primary);margin-top:6px}
-.info-modal-year,.info-modal-greg{font-size:var(--fs-sm);color:var(--warm-gray);margin-top:5px;line-height:1.45}
-.info-modal-soon{
-  margin-top:16px;padding-top:14px;border-top:1px solid var(--border-soft);
-  font-size:var(--fs-sm);color:var(--warm-gray);letter-spacing:0.08em;
-}
-
 /* ── stabilnost pri većem sistemskom fontu ──────────────────────────────── */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .cd-single{min-width:0;display:grid;grid-template-rows:auto minmax(2.55em,auto) auto;align-items:center;text-align:center}
@@ -1029,14 +938,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-row-name,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-row-time,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-row-name small,
-.danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-local-city,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-sabah-note,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-note-time{
   color:var(--accent-dim);
   opacity:0.95;
 }
-.danas-local-city{color:var(--warm-gray);opacity:0.86}
-
 /* Safari/fallback bez oslanjanja samo na :has(). */
 .danas-duet-row.active-duet{
   border-color:var(--accent);
@@ -1046,7 +952,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-row-name,
 .danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-row-time,
 .danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-row-name small,
-.danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-local-city,
 .danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-sabah-note,
 .danas-duet-row.active-duet .danas-duet-half:not(.active-namaz) .danas-note-time{
   color:var(--accent-dim);
@@ -1102,11 +1007,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   .sehur-countdown-line{height:16px}
   .sehur-countdown-line strong{font-size:var(--fs-xs)}
-
-  .danas-midnight-row{padding:6px 10px}
-  .danas-midnight-row .danas-row-name{font-size:var(--fs-sm)}
-  .danas-midnight-row .danas-row-name small{font-size:0.52rem}
-  .danas-midnight-row .danas-row-time{font-size:0.84rem}
 }
 
 /* v2.1 — izvor lokalne vaktije prikazuje se samo jednom; redovi ostaju čisti. */
@@ -1318,13 +1218,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   color:var(--accent-light)!important;
 }
 
-/* Oznake strana svijeta u kompasu su statične i uvijek na bosanskom: S, J, I, Z. */
-.compass-labels{
-  pointer-events:none;
-  user-select:none;
-  z-index:2;
-  transform-origin:center center;
-}
 .compass-needle,.kaaba-dot{z-index:3}
 .compass-center{z-index:4}
 
@@ -1383,12 +1276,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   max-width:92vw;
   display:block;
   pointer-events:none;
-}
-
-/* Kompas više nema slova strana svijeta; fokus ostaje na igli, tački i strelici. */
-.compass-labels,
-.cn,.cs,.ce,.cw{
-  display:none!important;
 }
 
 /* Donje četiri kartice su bile previsoke; smanjujemo visinu bez vraćanja na presitan font. */
@@ -1611,12 +1498,6 @@ header{position:relative}
 .modal-close-btn:active{
   color:var(--accent);
   border-color:var(--border-mid);
-}
-.app-info-text{
-  font-size:0.92rem;
-  line-height:1.65;
-  color:var(--text-primary);
-  text-align:center;
 }
 .app-info-row{
   display:flex;
@@ -2772,14 +2653,6 @@ body.live-focus-mode .live-focus-overlay{
   color:var(--accent);
   line-height:1.1;
 }
-.pred-pg-sub{
-  font-family:var(--font-sans);
-  font-size:0.62rem;
-  letter-spacing:0.10em;
-  text-transform:uppercase;
-  color:var(--warm-gray);
-  margin-top:4px;
-}
 .pred-list{
   padding:14px 16px 32px;
   display:flex;
@@ -3358,18 +3231,6 @@ body.live-focus-mode .live-focus-overlay{
   0%{background-position:200% 0}
   100%{background-position:-200% 0}
 }
-.skeleton-line{
-  background:linear-gradient(90deg,
-    rgba(var(--warm-ivory-rgb),0.04) 0%,
-    rgba(var(--warm-ivory-rgb),0.14) 50%,
-    rgba(var(--warm-ivory-rgb),0.04) 100%);
-  background-size:200% 100%;
-  animation:skeletonShimmer 1.5s linear infinite;
-  border-radius:6px;
-  display:inline-block;
-  color:transparent;
-  user-select:none;
-}
 /* Tokom učitavanja, glavni placeholderi dobijaju shimmer. */
 body.app-loading .danas-next-name,
 body.app-loading .danas-timer{
@@ -3395,37 +3256,6 @@ body.app-loading .danas-cal-day{
   border-radius:5px;
   color:transparent;
   min-width:60%;
-}
-
-/* Empty state — kad app nema lokaciju ni keš (prvi load + offline + GPS odbijen) */
-.danas-empty-state{
-  display:none;
-  text-align:center;
-  padding:24px 16px;
-  margin:8px 0;
-  background:var(--bg-surface);
-  border:1px dashed var(--border-mid);
-  border-radius:var(--r-lg);
-}
-.danas-empty-state.visible{display:block}
-.danas-empty-state .danas-empty-icon{
-  font-size:2.4rem;
-  margin-bottom:10px;
-  opacity:0.7;
-}
-.danas-empty-state .danas-empty-title{
-  font-family:var(--font-display);
-  font-size:1.05rem;
-  color:var(--accent);
-  margin-bottom:6px;
-  font-weight:500;
-}
-.danas-empty-state .danas-empty-msg{
-  font-family:var(--font-sans);
-  font-size:0.78rem;
-  color:var(--warm-gray);
-  line-height:1.5;
-  margin-bottom:14px;
 }
 
 /* ============================================================================
