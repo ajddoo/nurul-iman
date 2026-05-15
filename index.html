@@ -1238,8 +1238,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   line-height:1.25;
   letter-spacing:0.10em;
 }
-/* v2.27.x: uklonjen override .danas-extra-time (clamp 1.38-1.54rem) —
-   sukobljao sa novim sistemom. Vidi liniju 818 za pravi stil. */
 .danas-extra-sub{
   font-size:clamp(0.58rem,1.85vw,0.64rem);
   line-height:1.25;
@@ -1376,10 +1374,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   gap:6px!important;
 }
 
-/* Brojevi za ISNA i lokalna vremena moraju imati istu veličinu i težinu. */
-/* v2.27.x: uklonjen override .danas-row-time (font-size 1.10rem!important) —
-   sukobljao sa novim sistemom hijerarhije namaskih vremena. Vidi liniju 702. */
-
 /* Sabah napomena ostaje tekstualna informacija; ne glumi vrijeme. */
 .danas-row-dzamija .danas-sabah-note{
   font-size:0.66rem!important;
@@ -1432,9 +1426,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   font-size:clamp(0.62rem,1.95vw,0.68rem)!important;
   line-height:1.2!important;
 }
-
-/* v2.27.x: uklonjeni override-i .danas-extra-time i .danas-extra-sub
-   sa clamp() i !important — sukobljali sa novim sistemom. Vidi liniju 818. */
 
 .sehur-countdown-line{
   bottom:8px!important;
@@ -4810,21 +4801,6 @@ function normCity(s){
     .trim();
 }
 
-function gradPoImenu(name){
-  if(!name)return null;
-  const target=normCity(name);
-  if(!target)return null;
-  // Probaj egzaktno
-  let hit=VAKTIJA_GRADOVI.find(g=>normCity(g.n)===target);
-  if(hit)return hit;
-  // Probaj startsWith / includes (npr. "Tuzla, Bosnia and Herzegovina")
-  hit=VAKTIJA_GRADOVI.find(g=>{
-    const n=normCity(g.n);
-    return target.startsWith(n)||target.includes(n)||n.startsWith(target);
-  });
-  return hit||null;
-}
-
 const MAX_LOCAL_VAKTIJA_DISTANCE_KM=50;
 
 function distKm(lat1,lng1,lat2,lng2){
@@ -4855,7 +4831,7 @@ function najblizijGrad(lat,lng){
 // "Sarajevo Canton" → birao Sarajevo umjesto bližeg Visokog).
 // GPS sa enableHighAccuracy:true je tačan na 5-10m → koordinate su pouzdaniji izvor
 // istine od Nominatim naziva regije/kantona.
-function odrediGrad(lat,lng,reverseGeoName){
+function odrediGrad(lat,lng){
   const nearest=najblizijGrad(lat,lng);
   if(nearest&&nearest.distanceKm<=MAX_LOCAL_VAKTIJA_DISTANCE_KM)return nearest;
   return null;
