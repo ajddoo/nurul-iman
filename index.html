@@ -100,9 +100,13 @@
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<!-- Async load Google Fonts CSS — ne blokira render. Onload prebacuje na "all" media query da se primjeni. -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" media="print" onload="this.media='all';this.onload=null"/>
+<!-- v2.27.x: Sinkroni load Google Fonts CSS — sprječava FOUT (flash of unstyled text).
+     Prije: async load preko media="print" trika je uzrokovao vidljivu zamjenu fonta
+     ~500ms nakon render-a (sistem Georgia → Cormorant Garamond), korisnik je vidio
+     da "vrijeme i lokacija prvih par ms bude veće pa se smanji".
+     Sad: blokira render dok se font ne učita, ali Google Fonts servira sa CDN sa
+     dobrom keš strategijom (svaki vrati 200 OK iz keša nakon prvog load-a). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet"/></noscript>
 <style>
 /* ============================================================================
@@ -3013,8 +3017,7 @@ body.live-focus-mode .live-focus-overlay{
 .danas-place-hint{
   position:absolute;
   top:calc(100% + 8px);
-  left:50%;
-  transform:translateX(-50%) translateY(-4px);
+  left:0;
   background:rgba(var(--accent-rgb),0.96);
   color:var(--navy-900);
   padding:6px 12px;
@@ -3027,21 +3030,22 @@ body.live-focus-mode .live-focus-overlay{
   z-index:50;
   pointer-events:none;
   opacity:0;
+  transform:translateY(-4px);
   transition:opacity 0.35s ease,transform 0.35s ease;
 }
 .danas-place-hint::before{
   content:'';
   position:absolute;
   top:-5px;
-  left:50%;
-  transform:translateX(-50%) rotate(45deg);
+  left:20px;
+  transform:rotate(45deg);
   width:10px;height:10px;
   background:rgba(var(--accent-rgb),0.96);
   border-radius:1px;
 }
 .danas-place-hint.visible{
   opacity:1;
-  transform:translateX(-50%) translateY(0);
+  transform:translateY(0);
 }
 
 /* Sub tekst u weather kartici — pokazuje državu (auto/manual).
@@ -3713,7 +3717,7 @@ body.is-offline .danas-status-dot{
           <div class="danas-place-wrap">
             <div class="danas-city" id="danasGrad">–</div>
             <div class="danas-city-sub" id="danasGradSub"></div>
-            <div class="danas-place-hint" id="placeHint" role="tooltip">Tapni za promjenu lokacije</div>
+            <div class="danas-place-hint" id="placeHint" role="tooltip">Tapni za promjenu</div>
           </div>
           <span class="danas-status-dot" id="danasStatusDot" role="status" aria-label="Status konekcije" title="Lokacija još nije potvrđena"></span>
         </div>
