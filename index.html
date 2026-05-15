@@ -100,13 +100,11 @@
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<!-- v2.27.x: Sinkroni load Google Fonts CSS — sprječava FOUT (flash of unstyled text).
-     Prije: async load preko media="print" trika je uzrokovao vidljivu zamjenu fonta
-     ~500ms nakon render-a (sistem Georgia → Cormorant Garamond), korisnik je vidio
-     da "vrijeme i lokacija prvih par ms bude veće pa se smanji".
-     Sad: blokira render dok se font ne učita, ali Google Fonts servira sa CDN sa
-     dobrom keš strategijom (svaki vrati 200 OK iz keša nakon prvog load-a). -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap"/>
+<!-- v2.27.x: display=block (umjesto swap) — drži tekst nevidljiv ~100ms dok font load.
+     Sa swap-om: render odmah sa fallback (Georgia) → swap kad Cormorant load → vidljivi skok.
+     Sa block-om: 100ms block period (nevidljiv tekst) → ako font ready, render bez swap.
+     Trade-off: kratak invisible flash umjesto vidljivog "skoka" veličine. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=block"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet"/></noscript>
 <style>
 /* ============================================================================
