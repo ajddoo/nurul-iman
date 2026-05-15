@@ -100,11 +100,12 @@
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<!-- v2.27.x: display=block (umjesto swap) — drži tekst nevidljiv ~100ms dok font load.
-     Sa swap-om: render odmah sa fallback (Georgia) → swap kad Cormorant load → vidljivi skok.
-     Sa block-om: 100ms block period (nevidljiv tekst) → ako font ready, render bez swap.
-     Trade-off: kratak invisible flash umjesto vidljivog "skoka" veličine. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=block"/>
+<!-- v2.27.x: display=optional — najbolja PWA strategija.
+     100ms block period (invisible) → ako font ready: koristi ga. Ako ne: Georgia
+     fallback ZAUVIJEK za tu sesiju (bez swap-a). Pri sljedećoj sesiji font se
+     keširao pa će uvijek raditi. Nema 3-sekundni blank kad je Google Fonts spor
+     ili blokiran. App radi pouzdano u svim mrežnim uslovima. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=optional"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet"/></noscript>
 <style>
 /* ============================================================================
