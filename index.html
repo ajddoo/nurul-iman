@@ -694,13 +694,13 @@ main{flex:1;overflow:hidden;position:relative}
   display:flex;align-items:center;
   min-height:34px;
 }
-/* v2.27.9 — namaska vremena, jasno hijerarhičan sistem (Major Third ratio):
-   Bottom 4 kartice  → 36px (display, najveće)
-   ISNA vakat        → 28px (primarni, 1.75rem)
-   Lokalni ezan      → 24px (sekundarni, 86% naspram ISNA)
-   Vakat naziv       → 16px (body) */
+/* v2.27.11 — namaska vremena:
+   ISNA vakat (single + duet)  → 36px (2.25rem) ← user request
+   Lokalni ezan                → 24px (1.5rem, 67% od ISNA)
+   Bottom 4 kartice            → 36px (2.25rem, display)
+   Vakat naziv                 → 16px (body) */
 .danas-row-time{
-  font-size:1.75rem;color:var(--text-primary);
+  font-size:2.25rem;color:var(--text-primary);
   letter-spacing:0.04em;white-space:nowrap;
   font-variant-numeric:tabular-nums;
   min-width:0;
@@ -1105,7 +1105,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .danas-row{padding:8px 10px}
   .danas-row-name{font-size:var(--fs-sm)}
   .danas-row-name small{font-size:0.56rem}
-  .danas-row-time{font-size:1.5rem}  /* 24px — mobile ISNA */
+  .danas-row-time{font-size:1.875rem}  /* 30px — mobile 360px ISNA */
 
   .danas-note-time{font-size:var(--fs-xs)}
   .danas-sabah-note{font-size:var(--fs-sm)}
@@ -1141,8 +1141,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(max-width:390px){
   .danas-duet-half{padding:8px 9px}
   .danas-row-name.danas-row-local{font-size:0.6rem;letter-spacing:0.04em}
-  .danas-row-time{font-size:1.5rem}  /* 24px — mobile 390px ISNA */
-  .danas-local-time-wrap .danas-row-time{font-size:1.25rem}  /* 20px — mobile lokalni */
+  .danas-row-time{font-size:2rem}  /* 32px — mobile 390px ISNA */
+  .danas-local-time-wrap .danas-row-time,
+  .danas-row-dzamija .danas-row-time{font-size:1.25rem}  /* 20px — mobile lokalni */
 }
 
 
