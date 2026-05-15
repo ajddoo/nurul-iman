@@ -3255,7 +3255,14 @@ body.app-loading .danas-cal-day{
   animation:skeletonShimmer 1.5s linear infinite;
   border-radius:5px;
   color:transparent;
-  min-width:60%;
+}
+/* Kratki elementi (temp "21°", cal-day "28") ne trebaju min-width — prirodna
+   širina teksta drži placeholder uz svoj prostor. Duži tekstualni elementi
+   (city, cond) dobijaju modest min-width da se shimmer vidi i kad je tekst
+   još kratak. */
+body.app-loading .danas-city,
+body.app-loading .danas-cond{
+  min-width:50%;
 }
 
 /* ============================================================================
