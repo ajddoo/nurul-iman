@@ -320,35 +320,10 @@ main{flex:1;overflow:hidden;position:relative}
   padding:18px;gap:14px;
   align-items:stretch;justify-content:flex-start;
 }
-.pred-card{
-  background:var(--bg-surface);
-  border:1px solid var(--border-soft);
-  border-radius:var(--r-lg);
-  padding:22px 18px;
-  min-height:180px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;gap:10px;
-}
-.pred-kicker{
-  font-size:0.68rem;letter-spacing:0.22em;text-transform:uppercase;
-  color:var(--warm-gray);
-}
-.pred-title{
-  font-size:1.55rem;font-weight:400;color:var(--accent);
-  line-height:1.15;
-}
-.pred-text{
-  font-size:0.9rem;line-height:1.55;color:var(--text-primary);
-  max-width:320px;
-}
-.pred-soon{
-  margin-top:6px;
-  border:1px solid var(--border-mid);
-  border-radius:var(--r-pill);
-  padding:6px 15px;
-  font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;
-  color:var(--warm-gray);
-}
+/* v2.27.26 — uklonjen mrtvi CSS (.pred-card/-kicker/-title/-text/-soon).
+   Standalone .pred-soon je naslijeđivao text-transform:uppercase na sve
+   .pred-ev-card.pred-soon kartice (Dan Arafata, Kurban Bajram), pa se sav
+   sadržaj renderirao caps-om. Novi markup koristi .pred-ev-* klase. */
 
 /* ============================================================================
    KIBLA
@@ -674,7 +649,7 @@ main{flex:1;overflow:hidden;position:relative}
 }
 .danas-row-name small{
   display:block;
-  font-size:0.75rem;
+  font-size:0.6rem;
   color:var(--warm-gray);
   letter-spacing:0.02em;
   margin-top:2px;
@@ -1104,7 +1079,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   .danas-row{padding:8px 10px}
   .danas-row-name{font-size:var(--fs-sm)}
-  .danas-row-name small{font-size:0.56rem}
+  .danas-row-name small{font-size:0.54rem}
   .danas-row-time{font-size:1.125rem}  /* 18px — mobile 360px ISNA */
 
   .danas-note-time{font-size:var(--fs-xs)}
@@ -1266,7 +1241,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     content:'';position:absolute;left:12px;right:12px;top:-1px;height:1px;
     background:var(--border-soft);
   }
-  .danas-sabah-note{font-size:0.62rem!important}
+  .danas-sabah-note{font-size:0.54rem!important}
   .danas-extra-card,.danas-extra-card-v9{min-height:106px;padding:9px 7px 8px}
   .danas-extra-label{font-size:0.66rem;letter-spacing:0.04em}
   .danas-extra-time{font-size:1.5rem}  /* 24px — mobile 390px */
@@ -1336,7 +1311,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Tekstovi u lokalnoj koloni ostaju prateća informacija, ali moraju ostati čitljivi. */
 .danas-row-dzamija .danas-row-local,
 .danas-row-dzamija .danas-sabah-note{
-  font-size:0.66rem!important;
+  font-size:0.6rem!important;
   line-height:1.16!important;
   color:var(--accent-light)!important;
 }
@@ -1376,7 +1351,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* Sabah napomena ostaje tekstualna informacija; ne glumi vrijeme. */
 .danas-row-dzamija .danas-sabah-note{
-  font-size:0.66rem!important;
+  font-size:0.6rem!important;
 }
 
 @media(max-width:390px){
@@ -3592,16 +3567,40 @@ button:focus-visible,
   #liveFocusOverlay{
     border-radius:0;
   }
-  /* Modali ostaju centrirani na cijelom ekranu, ne unutar app okvira. */
+  /* v2.27.26 — Modali su DOM siblings od #app, ali na desktopu ih
+     vizualno zatvaramo unutar istih dimenzija kao phone-frame da se
+     city lista i ostalo ne prosipa van rama. */
   .info-modal-backdrop{
-    border-radius:0;
+    inset:auto!important;
+    top:50%!important;left:50%!important;
+    transform:translate(-50%,-50%);
+    width:100%!important;max-width:440px!important;
+    height:min(880px,calc(100vh - 48px))!important;
+    max-height:880px!important;
+    border-radius:32px!important;
+    overflow:hidden!important;
   }
+  .info-modal-sheet{
+    width:100%!important;max-width:100%!important;
+    max-height:100%!important;
+    border-radius:32px!important;
+  }
+  #locationModal .info-modal-sheet{
+    max-height:100%!important;
+  }
+  /* Zaključaj scroll tijela da se phone-frame ne može pomijerati. */
+  html,body{overflow:hidden!important;height:100vh!important;}
 }
 @media(min-width:1024px){
   #app{
     max-width:460px;
     height:min(900px,calc(100vh - 64px));
     max-height:900px;
+  }
+  .info-modal-backdrop{
+    max-width:460px!important;
+    height:min(900px,calc(100vh - 64px))!important;
+    max-height:900px!important;
   }
 }
 
@@ -4261,9 +4260,9 @@ const PRED_EVENTI=[
   {
     id:'deset_zul_hidze',
     match:h=>h.month===12&&h.day===1,
-    cat:'Zul-hidžže',
-    name:'Prvih deset dana Zul-hidžže',
-    desc:'Najpohvalnije slobodne noći i dani kod Allaha. Pohvaljeno je što više ibadeta – posta, tekbira, zikra i sadake. Naročito je pohvaljen post prvih devet dana.'
+    cat:'Hidždže',
+    name:'Prvih deset dana Hidždže',
+    desc:'Najvredniji dani kod Allaha. Pohvalan je što više ibadeta – posta, tekbira, zikra i sadake. Naročito je pohvalan post prvih devet dana.'
   },
   {
     id:'arafat',
@@ -4281,10 +4280,13 @@ const PRED_EVENTI=[
   },
   {
     id:'bijeli',
-    match:h=>h.day===13,
+    // U zul-hidždžetu 11.–13. su dani tešrika (zabranjeno postiti), pa bijeli
+    // dani počinju 14. umjesto 13. U ostalim mjesecima standardno 13.–15.
+    match:h=>(h.month===12?h.day===14:h.day===13),
     cat:'Post – sunet',
     name:'Bijeli dani (Ejjamul-bid)',
-    desc:'Post 13., 14. i 15. hidžretskog mjeseca je potvrđeni sunet Poslanika, sallallahu alejhi ve sellem.'
+    desc:'Post 13., 14. i 15. hidžretskog mjeseca je potvrđeni sunet Poslanika, sallallahu alejhi ve sellem.',
+    descZulHidzze:'U hidždžetu su 11., 12. i 13. dani tešrika (post zabranjen), pa se bijeli dani poste 14., 15. i 16. – ili 14. i 15. uz jedan dopunski dan u drugom mjesecu, da bi se ispostila tri dana.'
   },
   {
     id:'asura',
@@ -4348,7 +4350,8 @@ function buildPredstojece(){
 
     let hijriTxt;
     if(ev.id==='bijeli'){
-      hijriTxt='13.–15. '+HIJRI_MONTHS[h.month-1]+' '+h.year+'. h.g.';
+      const range=h.month===12?'14.–16.':'13.–15.';
+      hijriTxt=range+' '+HIJRI_MONTHS[h.month-1]+' '+h.year+'. h.g.';
     } else if(ev.id==='asura'){
       hijriTxt='9.–10. '+HIJRI_MONTHS[h.month-1]+' '+h.year+'. h.g.';
     } else {
@@ -4368,7 +4371,9 @@ function buildPredstojece(){
         '<div class="pred-ev-cat">'+ev.cat+'</div>'+
         '<div class="pred-ev-name">'+ev.name+'</div>'+
         '<div class="pred-ev-date">'+hijriTxt+'<br>'+gregTxt+'</div>'+
-        (ev.desc?'<div class="pred-ev-desc">'+ev.desc+'</div>':'')+
+        ((ev.id==='bijeli'&&h.month===12&&ev.descZulHidzze)
+          ? '<div class="pred-ev-desc">'+ev.descZulHidzze+'</div>'
+          : (ev.desc?'<div class="pred-ev-desc">'+ev.desc+'</div>':''))+
       '</div>';
 
     panel.appendChild(card);
