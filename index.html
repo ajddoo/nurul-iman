@@ -2979,11 +2979,13 @@ body.live-focus-mode .live-focus-overlay{
   margin:-2px -4px;
   transition:background 0.15s;
 }
-/* Subtilna ivica ispod imena grada — vizuelni hint da je klikabilan (kao link).
-   Bez emoji ikone i bez dodatne strelice, čišći izgled. */
+/* v2.27.5: Pojačan dashed border — primjetniji signal da je grad klikabilan.
+   Prije: 1px dashed 25% opacity ivory — premokao za nove korisnike.
+   Sada: 1.5px dashed 45% opacity accent boja — vidljivo bez bučnosti.
+   Bez ikone/strelice (poštuje v2.26.48 estetsku odluku). */
 .danas-place-wrap .danas-city{
-  border-bottom:1px dashed rgba(var(--warm-ivory-rgb),0.25);
-  padding-bottom:1px;
+  border-bottom:1.5px dashed rgba(var(--accent-rgb),0.45);
+  padding-bottom:2px;
   display:inline-block;
   max-width:100%;
 }
@@ -3000,6 +3002,42 @@ body.live-focus-mode .live-focus-overlay{
   .danas-place-wrap:hover .danas-city{
     border-bottom-color:var(--accent-light);
   }
+}
+
+/* v2.27.5: First-run tooltip — pokazuje se SAMO prvi put da korisnik shvati
+   da može mijenjati grad. Spremljeno u localStorage da se ne pojavljuje opet. */
+.danas-place-hint{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%) translateY(-4px);
+  background:rgba(var(--accent-rgb),0.96);
+  color:var(--navy-900);
+  padding:6px 12px;
+  border-radius:var(--r-md);
+  font-size:var(--fs-xs);
+  font-weight:var(--fw-semibold);
+  letter-spacing:0.02em;
+  white-space:nowrap;
+  box-shadow:0 8px 22px rgba(0,0,0,0.45),0 2px 6px rgba(0,0,0,0.25);
+  z-index:50;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.35s ease,transform 0.35s ease;
+}
+.danas-place-hint::before{
+  content:'';
+  position:absolute;
+  top:-5px;
+  left:50%;
+  transform:translateX(-50%) rotate(45deg);
+  width:10px;height:10px;
+  background:rgba(var(--accent-rgb),0.96);
+  border-radius:1px;
+}
+.danas-place-hint.visible{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
 }
 
 /* Sub tekst u weather kartici — pokazuje državu (auto/manual).
@@ -3671,6 +3709,7 @@ body.is-offline .danas-status-dot{
           <div class="danas-place-wrap">
             <div class="danas-city" id="danasGrad">–</div>
             <div class="danas-city-sub" id="danasGradSub"></div>
+            <div class="danas-place-hint" id="placeHint" role="tooltip">Tapni za promjenu lokacije</div>
           </div>
           <span class="danas-status-dot" id="danasStatusDot" role="status" aria-label="Status konekcije" title="Lokacija još nije potvrđena"></span>
         </div>
@@ -6367,8 +6406,36 @@ if(placeWrap){
       useGPSAgain();
       return;
     }
+    dismissPlaceHint();
     openLocationModal();
   });
+}
+
+// v2.27.5: First-run tooltip — pokazuje se SAMO prvi put kad korisnik otvori app.
+// Edukacija novih korisnika o mogućnosti promjene grada bez dodavanja trajne UI gluhote.
+function dismissPlaceHint(){
+  const hint=document.getElementById('placeHint');
+  if(!hint)return;
+  hint.classList.remove('visible');
+  try{localStorage.setItem('mn-place-hint-seen','1');}catch(e){}
+}
+function maybeShowPlaceHint(){
+  try{
+    if(localStorage.getItem('mn-place-hint-seen')==='1')return;
+  }catch(e){return;}
+  const hint=document.getElementById('placeHint');
+  if(!hint)return;
+  // Sačekaj 1.5s da se app smjesti pa pokaži tooltip, sakrij nakon 7s
+  setTimeout(()=>{
+    hint.classList.add('visible');
+    setTimeout(dismissPlaceHint,7000);
+  },1500);
+}
+// Pokreni nakon DOMContentLoaded — ali samo kada smo na panelu "danas"
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',maybeShowPlaceHint);
+}else{
+  maybeShowPlaceHint();
 }
 
 // Sehur modal
