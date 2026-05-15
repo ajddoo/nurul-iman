@@ -1033,9 +1033,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .danas-row-time{flex:0 0 auto;align-self:center;white-space:nowrap}
 .danas-note-time{line-height:1.18}
 
-/* Lokalni ezan u tabeli je prateća informacija, ne glavni akcenat. */
+/* Lokalni ezan u tabeli — labela "lokalni ezan" (gold pratece). */
 .danas-row-name.danas-row-local{
-  font-size:0.66rem;
+  font-size:0.72rem;
   color:var(--accent-light);
   letter-spacing:0.05em;
   text-transform:none;
@@ -1043,9 +1043,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   min-height:auto;
   line-height:1.15;
 }
+/* v2.27.10: Lokalni ezan VRIJEME — koeficijent 86% naspram ISNA (24px vs 28px).
+   Prije v2.27.x ovo je bilo 0.92rem (14.7px) !important — nečitljivo.
+   Sada 1.5rem (24px) bez !important — koristi accent-light boju da bude
+   vizuelno sekundarno naspram ISNA bijelog texta. */
 .danas-row-dzamija .danas-row-time{
   color:var(--accent-light);
-  font-size:0.92rem!important;
+  font-size:1.5rem;
 }
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-row-name,
 .danas-duet-row:has(.active-namaz) .danas-duet-half:not(:has(.active-namaz)) .danas-row-time,
