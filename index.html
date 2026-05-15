@@ -299,7 +299,7 @@ main{flex:1;overflow:hidden;position:relative}
   stroke:currentColor;fill:none;
   stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
 }
-.bnav-label{font-size:var(--fs-sm);letter-spacing:0.08em;text-transform:uppercase}
+.bnav-label{font-size:var(--fs-micro);letter-spacing:0.08em;text-transform:uppercase;font-weight:var(--fw-semibold)}
 
 /* ── RIPPLE ───────────────────────────────────────────────────────────────── */
 .ripple{
@@ -672,7 +672,7 @@ main{flex:1;overflow:hidden;position:relative}
 }
 .danas-row-name small{
   display:block;
-  font-size:var(--fs-xs);
+  font-size:var(--fs-micro);
   color:var(--warm-gray);
   letter-spacing:0.1em;
   text-transform:uppercase;
@@ -695,10 +695,11 @@ main{flex:1;overflow:hidden;position:relative}
   min-height:34px;
 }
 .danas-row-time{
-  font-size:1.1rem;color:var(--text-primary);
+  font-size:var(--fs-lg);color:var(--text-primary);
   letter-spacing:0.04em;white-space:nowrap;
   font-variant-numeric:tabular-nums;
   min-width:0;
+  font-weight:var(--fw-medium);
 }
 .danas-row-time.active-namaz{color:var(--accent)}
 
@@ -806,9 +807,9 @@ main{flex:1;overflow:hidden;position:relative}
   align-self:end;
 }
 .danas-extra-time{
-  font-size:1.38rem;
+  font-size:var(--fs-xl);
   color:var(--accent);
-  font-weight:300;
+  font-weight:var(--fw-light);
   line-height:1.1;letter-spacing:0.02em;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
@@ -1081,7 +1082,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     min-height:100px;
   }
   .danas-extra-label{font-size:var(--fs-xs)}
-  .danas-extra-time{font-size:var(--fs-md)}
+  .danas-extra-time{font-size:var(--fs-lg)}
   .danas-extra-sub{font-size:var(--fs-micro)}
 }
 
@@ -1101,7 +1102,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     min-height:96px;
   }
   .danas-extra-label{font-size:var(--fs-xs);letter-spacing:0.05em}
-  .danas-extra-time{font-size:var(--fs-base)}
+  .danas-extra-time{font-size:var(--fs-md)}
   .danas-extra-sub{font-size:var(--fs-micro)}
 
   .danas-countdown{padding:8px 10px}
@@ -2832,10 +2833,11 @@ body.live-focus-mode .live-focus-overlay{
   border-left-color:var(--accent);
 }
 .pred-ev-card.pred-very-soon{
-  background:rgba(var(--accent-rgb),0.07);
+  background:var(--bg-surface);
   border-color:var(--accent);
   border-left-width:3px;
   border-left-color:var(--accent);
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),0.30),0 4px 14px rgba(var(--accent-rgb),0.18);
 }
 .pred-ev-days{
   flex:0 0 54px;
