@@ -990,8 +990,8 @@ main{flex:1;overflow:hidden;position:relative}
   background:var(--border-mid);margin:0 auto 16px;
 }
 .info-modal-title{
-  font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;
-  color:var(--warm-gray);text-align:center;margin-bottom:14px;
+  font-size:var(--fs-micro);letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--warm-gray);text-align:center;margin-bottom:14px;font-weight:var(--fw-semibold);
 }
 .info-modal-card{
   background:var(--bg-elevated);
@@ -999,12 +999,12 @@ main{flex:1;overflow:hidden;position:relative}
   border-radius:var(--r-lg);
   padding:20px;text-align:center;
 }
-.info-modal-day{font-size:3.2rem;font-weight:300;color:var(--accent);line-height:1}
-.info-modal-month{font-family:var(--font-arabic);font-size:1.35rem;color:var(--text-primary);margin-top:6px}
-.info-modal-year,.info-modal-greg{font-size:0.82rem;color:var(--warm-gray);margin-top:5px;line-height:1.45}
+.info-modal-day{font-size:var(--fs-4xl);font-weight:var(--fw-light);color:var(--accent);line-height:1}
+.info-modal-month{font-family:var(--font-arabic);font-size:var(--fs-xl);color:var(--text-primary);margin-top:6px}
+.info-modal-year,.info-modal-greg{font-size:var(--fs-sm);color:var(--warm-gray);margin-top:5px;line-height:1.45}
 .info-modal-soon{
   margin-top:16px;padding-top:14px;border-top:1px solid var(--border-soft);
-  font-size:0.82rem;color:var(--warm-gray);letter-spacing:0.08em;
+  font-size:var(--fs-sm);color:var(--warm-gray);letter-spacing:0.08em;
 }
 
 /* ── stabilnost pri većem sistemskom fontu ──────────────────────────────── */
@@ -1657,15 +1657,15 @@ header{position:relative}
 .app-info-row:last-child{border-bottom:none}
 .app-info-term{
   font-family:var(--font-sans);
-  font-size:0.7rem;
+  font-size:var(--fs-micro);
   letter-spacing:0.10em;
   text-transform:uppercase;
   color:var(--accent-light);
-  font-weight:500;
+  font-weight:var(--fw-semibold);
   margin-bottom:3px;
 }
 .app-info-def{
-  font-size:0.92rem;
+  font-size:var(--fs-sm);
   color:var(--text-primary);
   line-height:1.45;
 }
@@ -2854,18 +2854,19 @@ body.live-focus-mode .live-focus-overlay{
 }
 .pred-ev-num{
   font-family:var(--font-display);
-  font-size:2.2rem;
-  font-weight:300;
+  font-size:var(--fs-2xl);
+  font-weight:var(--fw-light);
   color:var(--accent);
   line-height:1;
 }
 .pred-ev-unit{
   font-family:var(--font-sans);
-  font-size:0.54rem;
+  font-size:var(--fs-micro);
   letter-spacing:0.14em;
   text-transform:uppercase;
   color:var(--warm-gray);
   margin-top:2px;
+  font-weight:var(--fw-semibold);
 }
 .pred-ev-body{
   flex:1;
@@ -2873,28 +2874,29 @@ body.live-focus-mode .live-focus-overlay{
 }
 .pred-ev-cat{
   font-family:var(--font-sans);
-  font-size:0.58rem;
+  font-size:var(--fs-micro);
   letter-spacing:0.14em;
   text-transform:uppercase;
   color:var(--accent-light);
   margin-bottom:3px;
+  font-weight:var(--fw-semibold);
 }
 .pred-ev-name{
   font-family:var(--font-display);
-  font-size:1.06rem;
+  font-size:var(--fs-md);
   color:var(--text-primary);
-  font-weight:400;
+  font-weight:var(--fw-regular);
   line-height:1.2;
 }
 .pred-ev-date{
   font-family:var(--font-sans);
-  font-size:0.64rem;
+  font-size:var(--fs-xs);
   color:var(--warm-gray);
   margin-top:5px;
   line-height:1.45;
 }
 .pred-ev-desc{
-  font-size:0.78rem;
+  font-size:var(--fs-sm);
   color:rgba(var(--warm-ivory-rgb),0.60);
   margin-top:7px;
   line-height:1.52;
