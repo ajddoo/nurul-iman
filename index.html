@@ -506,6 +506,13 @@ main{flex:1;overflow:hidden;position:relative}
   margin-top:2px;
   padding:0.08em 0;
 }
+/* Dual countdown — kada su oba .cd-single istovremeno vidljiva, svaki ima samo
+   pola širine kartice. Timer mora biti znatno manji da "00:56:00" stane uz
+   suvremenu Samsung sistemsku skalu pisma (display zoom 125–150%). */
+.danas-countdown:has(.cd-single + .cd-single:not(.hidden)) .danas-timer{
+  font-size:clamp(1.3rem,4.2vw,2rem);  /* ~21–32px */
+  letter-spacing:0.02em;
+}
 
 /* Status traka ispod countera — koristi se za "zabranjeno za namaz" u fazama 4 i 6.
    Wrap-uje se ispod oba countera koristeći flex-wrap na parent kartici. */
@@ -1431,6 +1438,8 @@ header{position:relative}
 .danas-weather-clock{
   align-self:flex-start;
   margin-top:2px;
+  padding-left:12px;
+  border-left:1px solid rgba(var(--accent-rgb),0.22);
   font-size:0.78rem;
   line-height:1;
   color:rgba(var(--warm-ivory-rgb),0.72);
