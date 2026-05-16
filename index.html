@@ -4691,16 +4691,17 @@ function odrediGrad(lat,lng){
   return null;
 }
 
+// v2.27.50 — Godišnji cache vaktija.ba podataka.
+// Umjesto da pozivamo API svaki dan (1 dan = 1 zahtjev), pri prvom online
+// pozivu skinemo CIJELU GODINU za korisnikov grad (~21 KB) i spremimo u
+// localStorage. Sljedeći dani — sve do sljedeće godine — su offline-ready,
+// bez ikakvog API poziva, sa TAČNIM Riyaset vaktima identičnim onima sa
+// vaktija.ba sajta.
+//
+// Cache key: mn-vakti-{gradId}-{year}
+// Cleanup: pri svakom pozivu briše entries za godine starije od prošle.
 async function fetchVaktijaBA(gradId){
-  const directUrl=`https://api.vaktija.ba/vaktija/v1/${gradId}`;
-  const proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
-  const sources=[
-    {label:'direct',url:directUrl},
-    {label:'allorigins',url:proxyUrl}
-  ];
-
-  // Strict parse: vraća null ako format nije "HH:MM" sa validnim brojevima 0-23/0-59.
-  // Sprečava da maliciozni odgovor unese NaN ili nešto drugo u kalkulaciju vakata.
+  // Strict parse: vraća null ako format nije "HH:MM" sa validnim brojevima.
   const parse=s=>{
     if(typeof s!=='string')return null;
     const m=s.match(/^(\d{1,2}):(\d{2})$/);
@@ -4709,52 +4710,115 @@ async function fetchVaktijaBA(gradId){
     if(h<0||h>23||mn<0||mn>59)return null;
     return h+mn/60;
   };
+  // Izvuci današnje vakti iz godišnje strukture (data.mjesec[m-1].dan[d-1].vakat[]).
+  const extractToday=(yearData,now)=>{
+    try{
+      const m=now.getMonth(); // 0-based za pristup array-u
+      const d=now.getDate()-1; // 0-based dan
+      const monthData=yearData.mjesec&&yearData.mjesec[m];
+      if(!monthData||!Array.isArray(monthData.dan))return null;
+      const dayData=monthData.dan[d];
+      if(!dayData||!Array.isArray(dayData.vakat)||dayData.vakat.length<6)return null;
+      const v=dayData.vakat;
+      const parsed=[0,2,3,4,5].map(i=>parse(v[i]));
+      if(parsed.some(x=>x===null))return null;
+      return {
+        zoraBA:parse(v[0]),
+        podneBA:parse(v[2]),
+        ikindijaBA:parse(v[3]),
+        aksamBA:parse(v[4]),
+        jacijaBA:parse(v[5]),
+        grad:yearData.lokacija
+      };
+    }catch(e){
+      console.warn('[vaktija cache] extract greška:',e);
+      return null;
+    }
+  };
 
-  // v2.26.68: Svaki izvor pokušava 2 puta sa 1s pauzom između (retry samo na network grešku).
-  // Timeout produžen sa 6s na 12s — pokriva spore mobilne mreže i cold start vaktija.ba servera.
-  // HTTP greška / nevalidna struktura / nevalidan format = persistent greška, ide odmah na sledeći izvor.
+  const now=new Date();
+  const year=now.getFullYear();
+  const cacheKey=`mn-vakti-${gradId}-${year}`;
+
+  // Cleanup starih godina (drži samo tekuću i prethodnu).
+  try{
+    const cutoff=year-1;
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith('mn-vakti-')){
+        const parts=k.split('-');
+        const cachedYear=parseInt(parts[parts.length-1],10);
+        if(!isNaN(cachedYear)&&cachedYear<cutoff){
+          localStorage.removeItem(k);
+          i--; // remove pomijera indekse
+        }
+      }
+    }
+  }catch(e){}
+
+  // 1) Cache hit — instant lookup.
+  try{
+    const cached=localStorage.getItem(cacheKey);
+    if(cached){
+      const yearData=JSON.parse(cached);
+      const result=extractToday(yearData,now);
+      if(result){
+        console.log(`[vaktija cache] HIT ${gradId}-${year}`);
+        return result;
+      }
+      // Nevalidan keš — obriši i nastavi prema API-ju.
+      localStorage.removeItem(cacheKey);
+    }
+  }catch(e){
+    console.warn('[vaktija cache] read greška:',e);
+  }
+
+  // 2) Cache miss — fetch cijelu godinu sa API-ja.
+  const directUrl=`https://api.vaktija.ba/vaktija/v1/${gradId}/${year}`;
+  const proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
+  const sources=[
+    {label:'direct',url:directUrl},
+    {label:'allorigins',url:proxyUrl}
+  ];
+
   for(const src of sources){
     for(let attempt=1;attempt<=2;attempt++){
       try{
         const ctrl=new AbortController();
-        const t=setTimeout(()=>ctrl.abort(),12000); // 12s timeout
+        const t=setTimeout(()=>ctrl.abort(),12000);
         const r=await fetch(src.url,{signal:ctrl.signal,cache:'no-store'});
         clearTimeout(t);
         if(!r.ok){
           console.warn(`[vaktija.ba ${src.label}] HTTP ${r.status}`);
-          break; // Persistent — preskoči retry, idi na sledeći izvor
-        }
-        const d=await r.json();
-        if(!d||typeof d!=='object'||!Array.isArray(d.vakat)||d.vakat.length<6){
-          console.warn(`[vaktija.ba ${src.label}] neočekivana struktura odgovora`,d);
           break;
         }
-        // Provjeri da svih 6 vakata uspješno parse — ako bilo koji vraća null, ovaj izvor je nevažeći.
-        const parsedAll=[0,2,3,4,5].map(i=>parse(d.vakat[i]));
-        if(parsedAll.some(v=>v===null)){
-          console.warn(`[vaktija.ba ${src.label}] vakat array sadrži nevalidan format`,d.vakat);
+        const yearData=await r.json();
+        if(!yearData||!Array.isArray(yearData.mjesec)||yearData.mjesec.length!==12){
+          console.warn(`[vaktija.ba ${src.label}] neočekivana godišnja struktura`,yearData);
           break;
         }
-        if(attempt>1)console.log(`[vaktija.ba ${src.label}] OK (retry ${attempt})`,d.lokacija||gradId);
-        else console.log(`[vaktija.ba ${src.label}] OK`,d.lokacija||gradId);
-        return {
-          zoraBA:parse(d.vakat[0]),
-          podneBA:parse(d.vakat[2]),
-          ikindijaBA:parse(d.vakat[3]),
-          aksamBA:parse(d.vakat[4]),
-          jacijaBA:parse(d.vakat[5]),
-          grad:d.lokacija
-        };
+        const result=extractToday(yearData,now);
+        if(!result){
+          console.warn(`[vaktija.ba ${src.label}] godina downloadovana ali današnji dan nevalidan`);
+          break;
+        }
+        // Spremi cijelu godinu — sve buduće upotrebe ove godine = offline.
+        try{
+          localStorage.setItem(cacheKey,JSON.stringify(yearData));
+          console.log(`[vaktija cache] WROTE ${gradId}-${year} (${JSON.stringify(yearData).length}B)`);
+        }catch(e){
+          console.warn('[vaktija cache] write greška (možda full storage):',e);
+        }
+        if(attempt>1)console.log(`[vaktija.ba ${src.label}] OK (retry ${attempt})`,yearData.lokacija||gradId);
+        else console.log(`[vaktija.ba ${src.label}] OK godina ${year}`,yearData.lokacija||gradId);
+        return result;
       }catch(e){
-        // Network greška (timeout, abort, offline) — pokušaj retry
         console.warn(`[vaktija.ba ${src.label}] pokušaj ${attempt}/2 greška:`,e.message||e);
-        if(attempt<2){
-          await new Promise(r=>setTimeout(r,1000)); // 1s pauza pred retry
-        }
+        if(attempt<2)await new Promise(r=>setTimeout(r,1000));
       }
     }
   }
-  // Svi izvori pali — vraćamo null da pozivajuća logika koristi fallback.
+  // 3) Sve palo, ni keš ni API — vraćamo null.
   return null;
 }
 // ── KRAJ DETEKCIJA ───────────────────────────────────────────────────────────
