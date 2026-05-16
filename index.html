@@ -517,6 +517,17 @@ main{flex:1;overflow:hidden;position:relative}
   font-size:clamp(1.45rem,7.2vw,2.1rem);  /* ~23–33.6px, kao v2.26.69 */
   letter-spacing:0.02em;
 }
+/* v2.27.55: vertikalna razdjelna crta u sredini gap-a (samo dual mode). */
+.danas-countdown:has(.cd-single + .cd-single:not(.hidden))::before{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:10px;bottom:10px;
+  width:1px;
+  background:rgba(var(--accent-rgb),0.18);
+  transform:translateX(-50%);
+  pointer-events:none;
+}
 
 /* Status traka ispod countera — koristi se za "zabranjeno za namaz" u fazama 4 i 6.
    Wrap-uje se ispod oba countera koristeći flex-wrap na parent kartici. */
@@ -875,9 +886,7 @@ main{flex:1;overflow:hidden;position:relative}
   width:32px;height:20px;
   border-radius:0 var(--r-lg) 0 var(--r-md);
   border:none;
-  border-left:1px solid rgba(var(--accent-rgb),0.10);
-  border-bottom:1px solid rgba(var(--accent-rgb),0.10);
-  background:rgba(var(--accent-rgb),0.05);
+  background:rgba(var(--accent-rgb),0.04);
   color:var(--warm-gray);
   font-size:0.78rem;line-height:1;
   display:flex;align-items:center;justify-content:center;
@@ -885,9 +894,7 @@ main{flex:1;overflow:hidden;position:relative}
 }
 .wake-lock-btn.active{
   color:var(--accent);
-  border-left-color:rgba(var(--accent-rgb),0.32);
-  border-bottom-color:rgba(var(--accent-rgb),0.32);
-  background:rgba(var(--accent-rgb),0.10);
+  background:rgba(var(--accent-rgb),0.12);
 }
 
 /* ── modal za pripremljeni takvim ────────────────────────────────────────── */
@@ -1557,9 +1564,7 @@ header{position:relative}
   width:32px;height:20px;
   border-radius:0 var(--r-lg) 0 var(--r-md);
   border:none;
-  border-left:1px solid rgba(var(--accent-dim-rgb),0.14);
-  border-bottom:1px solid rgba(var(--accent-dim-rgb),0.14);
-  background:rgba(var(--accent-dim-rgb),0.06);
+  background:rgba(var(--accent-dim-rgb),0.05);
   color:var(--accent-dim);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
@@ -1574,9 +1579,7 @@ header{position:relative}
   height:20px;
   border-radius:0 0 0 var(--r-md);
   border:none;
-  border-left:1px solid rgba(var(--accent-rgb),0.10);
-  border-bottom:1px solid rgba(var(--accent-rgb),0.10);
-  background:rgba(var(--accent-rgb),0.05);
+  background:rgba(var(--accent-rgb),0.04);
   color:rgba(var(--warm-ivory-rgb),0.78);
   display:flex;
   align-items:center;
