@@ -472,12 +472,16 @@ main{flex:1;overflow:hidden;position:relative}
   border:1px solid var(--border-mid);
   border-left:3px solid var(--accent);
   border-radius:var(--r-lg);
-  padding:10px 14px;
+  /* v2.27.52: padding L/R 14px → 0px + gap:10px (kao .danas-cards-row gore).
+     Tako se centri lijeve/desne polovine dual countdown-a poklope sa centrima
+     weather/kalendar gornje kartice. Vertikalno padding ostaje 10px. */
+  padding:10px 0;
   flex-shrink:0;
-  display:flex;gap:0;
+  display:flex;gap:10px;
 }
 .cd-single{flex:1;min-width:0;overflow:visible;text-align:center;padding:4px 6px;display:flex;flex-direction:column;align-items:center}
-.cd-single+.cd-single{border-left:1px solid var(--border-soft)}
+/* Border-left za drugi cd-single uklonjen: gap:10px sad daje vizuelno
+   razdvajanje, plus tanka linija na sredini gapa nije moguća bez pseudo-elementa. */
 .cd-single.hidden{display:none}
 
 .danas-next-label{
