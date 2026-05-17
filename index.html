@@ -3919,7 +3919,7 @@ function getAppLocation(success,error){
 
 
 // DATA
-const HIJRI_MONTHS=['Muharrem ul-Haram','Safer','Rebiul-evvel','Rebiul-ahir','Džumadel-ula','Džumadel-uhra','Redžeb',"Ša'ban",'Ramazan','Ševval',"Zul-ka'de",'Zul-hidždže'];
+const HIJRI_MONTHS=['muharrem','safer','rebiul-evvel','rebiul-ahir','džumadel-ula','džumadel-uhra','redžeb',"ša'ban",'ramazan','ševval',"zul-ka'de",'zul-hidždže'];
 
 // Ručno formatiranje datuma (izbjegava bs-BA locale probleme)
 const DANI_DUG=['Nedjelja','Ponedjeljak','Utorak','Srijeda','Četvrtak','Petak','Subota'];
@@ -4130,16 +4130,16 @@ const PRED_EVENTI=[
   {
     id:'deset_zul_hidze',
     match:h=>h.month===12&&h.day===1,
-    cat:'Hidždže',
-    name:'Prvih deset dana Hidždže',
-    desc:'Najvredniji dani kod Allaha. Pohvalan je što više ibadeta – posta, tekbira, zikra i sadake. Naročito je pohvalan post prvih devet dana.'
+    cat:'zul-hidždže',
+    name:'Prvih deset dana zul-hidždžeta',
+    desc:'Najvredniji dani kod Allaha. Pohvalno je što više ibadeta – posta, tekbira, zikra i sadake. Naročito je pohvalan post prvih devet dana.'
   },
   {
     id:'arafat',
     match:h=>h.month===12&&h.day===9,
     cat:'Post – sunet',
     name:'Dan Arafata',
-    desc:'Post na dan Arafata briše grijehe prethodne i naredne godine. Za onoga ko nije na hadžu.'
+    desc:'Post na Dan Arafata briše grijehe prethodne i naredne godine. Posti ga onaj ko nije na hadždžu.'
   },
   {
     id:'kurban_bajram',
@@ -4156,14 +4156,14 @@ const PRED_EVENTI=[
     cat:'Post – sunet',
     name:'Bijeli dani (Ejjamul-bid)',
     desc:'Post 13., 14. i 15. hidžretskog mjeseca je potvrđeni sunet Poslanika, sallallahu alejhi ve sellem.',
-    descZulHidzze:'U hidždžetu su 11., 12. i 13. dani tešrika (post zabranjen), pa se bijeli dani poste 14., 15. i 16. – ili 14. i 15. uz jedan dopunski dan u drugom mjesecu, da bi se ispostila tri dana.'
+    descZulHidzze:'U zul-hidždžetu su 11., 12. i 13. dani tešrika (post zabranjen), pa se bijeli dani poste 14., 15. i 16. – ili 14. i 15. uz jedan dopunski dan u ostatku mjeseca, da bi se ispostila tri dana.'
   },
   {
     id:'asura',
     match:h=>h.month===1&&h.day===9,
     cat:'Post – sunet',
     name:'Dan uoči Ašure i Ašura',
-    desc:'Preporučeno je postiti 9. i 10. Muharrema – ili 10. i 11. – kako bi se muslimani razlikovali od Jevreja. Post Ašure briše grijehe prethodne godine.'
+    desc:'Preporučeno je postiti 9. i 10. muharrem, tj. Dan Ašure i dan prije, ili, ko ne uspije dan prije da posti dan poslije kako bi se na taj način razlikovali od Jevreja.'
   },
   {
     id:'ramazan',
@@ -4177,7 +4177,7 @@ const PRED_EVENTI=[
     match:h=>h.month===10&&h.day===1,
     cat:'Bajram',
     name:'Ramazanski Bajram',
-    desc:'Bajram po okončanju ramazana. Post nije dozvoljen. Sunet je klanjati bajram-namaz i podijeliti sadakatul-fitr.'
+    desc:'Bajram po okončanju ramazana. Post nije dozvoljen. Sunet je klanjati bajram i podijeliti sadakatul-fitr prije bajram-namaza.'
   },
   {
     id:'jevval_post',
