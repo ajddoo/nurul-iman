@@ -2713,6 +2713,7 @@ body.live-focus-mode .live-focus-overlay{
 }
 .pred-ev-days{
   flex:0 0 54px;
+  min-width:0;  /* v2.27.63: safety — sprječava flexbox min-content da raste kolonu kada sadržaj prelazi 54px (npr. riječ "sutra" u display fontu). */
   text-align:center;
   padding-top:3px;
 }
@@ -2731,6 +2732,13 @@ body.live-focus-mode .live-focus-overlay{
   font-weight:300;
   color:var(--accent);
   line-height:1;
+}
+/* v2.27.63: kad daysLeft===1, "sutra" zamjenjuje broj — mora stati u 54px kolonu
+   i kompenzovati izostanak "za" ::before labele (centriranje sa naslovom desno). */
+.pred-ev-num--sutra{
+  font-size:1.5rem;
+  line-height:1.2;
+  padding-top:12px;
 }
 .pred-ev-unit{
   font-family:var(--font-sans);
@@ -2774,6 +2782,7 @@ body.live-focus-mode .live-focus-overlay{
 }
 @media(max-width:390px){
   .pred-ev-num{font-size:1.9rem}
+  .pred-ev-num--sutra{font-size:1.35rem;padding-top:10px}  /* v2.27.63 */
   .pred-ev-days{flex:0 0 48px}
   .pred-ev-name{font-size:0.98rem}
   .pred-ev-date{font-size:0.60rem}
@@ -4234,7 +4243,7 @@ function buildPredstojece(){
 
     card.innerHTML=
       '<div class="pred-ev-days">'+
-        '<div class="pred-ev-num">'+numDisplay+'</div>'+
+        '<div class="pred-ev-num'+(daysLeft===1?' pred-ev-num--sutra':'')+'">'+numDisplay+'</div>'+
         (unitDisplay?'<div class="pred-ev-unit">'+unitDisplay+'</div>':'')+
       '</div>'+
       '<div class="pred-ev-body">'+
