@@ -1284,11 +1284,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
 }
 
-@media(max-width:360px){
-  .danas-row-time{
-    font-size:0.98rem!important;
-  }
-}
+/* v2.27.66: uklonjen duplicate override 0.98rem !important koji je činio vrijeme
+   manjim od imena namaza (15.68px < 16px). Kaskada sada vraća 1.125rem (18px)
+   iz linije 1014, što je 2px veće od imena — konzistentno sa svim breakpoint-ima
+   gdje je vrijeme veće od imena (desktop 22>18, ≤390 20>18). */
 
 
 /* ==========================================================================
@@ -1854,10 +1853,12 @@ body.live-focus-mode #danasCountdownLive{
   line-height:1!important;
 }
 .danas-weather-clock{
-  font-size:1.78rem!important;
+  font-size:1.55rem!important;  /* v2.27.66: 1.78 → 1.55rem (~28→25px) zbog iOS Display Zoom korisnika kojima se sat odsijecao desno */
   line-height:1!important;
   transform:translateY(0.08em);
   padding-bottom:0!important;
+  min-width:0!important;  /* v2.27.66: safety da flexbox ne raste karticu */
+  font-variant-numeric:tabular-nums;  /* v2.27.66: iste širine cifara — "1" ne uskoči manje od "3" */
 }
 .clock-colon{
   animation:clockColonPulse 1.8s ease-in-out infinite!important;
@@ -1932,14 +1933,14 @@ body.live-focus-mode .live-focus-overlay{
 
 @media(max-width:390px){
   .danas-weather-clock{
-    font-size:1.9rem!important;
+    font-size:1.5rem!important;  /* v2.27.66: bilo 1.9 (veće od desktop-a — bug); ujednačeno sa desktop 1.55 */
     transform:translateY(0.08em);
   }
   .danas-temp{font-size:2.4rem!important}
   .sehur-modal-timer{font-size:3rem!important}
 }
 @media(max-width:360px){
-  .danas-weather-clock{font-size:1.7rem!important}
+  .danas-weather-clock{font-size:1.35rem!important}  /* v2.27.66: bilo 1.7 */
   .danas-temp{font-size:2.15rem!important}
   .sehur-modal-timer{font-size:2.72rem!important}
 }
