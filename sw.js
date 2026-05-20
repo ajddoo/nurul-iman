@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Moj namaz by Divan — Service Worker
+// Jel' vakat? by Divan — Service Worker
 // ────────────────────────────────────────────────────────────────────────────
 // Strategija:
 //   - App shell (HTML/manifest/ikone): network-first sa fallback na cache
@@ -7,13 +7,13 @@
 //     → ako je offline, app i dalje radi iz keša
 //   - Statički asseti (fonts, ikone): cache-first
 //     → brže učitavanje, manje mreže
-//   - API pozivi (vaktija.ba, allorigins, open-meteo, nominatim): network-only
-//     → uvijek svježi podaci, nikada keš (vakti se mijenjaju svaki dan)
+//   - API pozivi (open-meteo, nominatim): network-only
+//     → uvijek svježi podaci, nikada keš
 //
 // Verzija keša se mijenja sa svakom novom verzijom app-a. Stari keš se briše.
 // ════════════════════════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'mn-v2.27.72';
+const CACHE_VERSION = 'mn-v2.27.73';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -28,8 +28,6 @@ const APP_SHELL = [
 
 // API hostovi koji se NIKADA ne keširaju
 const API_HOSTS = [
-  'api.vaktija.ba',
-  'api.allorigins.win',
   'api.open-meteo.com',
   'nominatim.openstreetmap.org'
 ];
