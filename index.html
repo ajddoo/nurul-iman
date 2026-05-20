@@ -761,6 +761,18 @@ main{flex:1;overflow:hidden;position:relative}
   margin:0;
   align-self:center;
 }
+/* v2.27.69: crveni precautionary tekst umjesto vremena u "Kraj sehura" kartici
+   kad se sehur ne može astronomski izračunati. Sans font radi čitljivosti. */
+.danas-extra-note-red{
+  font-family:var(--font-sans);
+  font-size:0.62rem;
+  line-height:1.3;
+  font-weight:600;
+  color:var(--status-warn);
+  text-align:center;
+  align-self:center;
+  padding:0 2px;
+}
 .danas-extra-sub{
   font-size:0.60rem;
   color:var(--warm-gray);
@@ -1040,7 +1052,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* v2.1 — izvor lokalne vaktije prikazuje se samo jednom; redovi ostaju čisti. */
 .danas-source-note span{color:var(--warm-gray);font-size:var(--fs-xs);letter-spacing:0.04em}
-.danas-source-note.danas-source-warn{color:var(--status-warn);border-top:1px solid rgba(var(--status-warn-rgb),0.22);padding-top:6px}
+.danas-source-note.danas-source-warn{color:var(--status-warn);border-top:1px solid rgba(var(--status-warn-rgb),0.22);padding-top:6px;font-family:var(--font-sans);letter-spacing:0.01em}
 .danas-row-name.danas-row-local{font-size:0.66rem;letter-spacing:0.06em;color:var(--accent-light);text-transform:none}
 .danas-local-time-wrap{align-items:flex-end;min-width:max-content}
 .danas-row-time{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -5651,9 +5663,24 @@ function renderDanasVaktu(times,opts={}){
   const sabahJacijaMissing=times.sabah===null||times.jacija===null;
   const onlySehurMissing=!sabahJacijaMissing&&times.sehurKraj===null;
   if(sabahJacijaMissing){
-    html+=`<div class="danas-source-note danas-source-warn">⚠ Na ovoj geografskoj širini astronomska kalkulacija ne daje sve namaske vakte (sunce ne ide dovoljno ispod horizonta). Konsultuj lokalnu islamsku zajednicu za sabah i jaciju.</div>`;
+    html+=`<div class="danas-source-note danas-source-warn">⚠ Sabah i jacija se ovih dana ne mogu astronomski izračunati (Sunce ljeti ne ide dovoljno ispod horizonta).</div>`;
   }else if(onlySehurMissing){
-    html+=`<div class="danas-source-note danas-source-warn">⚠ Ovih dana Sunce ljeti ne ide dovoljno duboko za astronomski proračun kraja sehura. Sabah i jacija su tačni. Za kraj sehura konsultuj lokalnu islamsku zajednicu.</div>`;
+    html+=`<div class="danas-source-note danas-source-warn">⚠ Ovih dana Sunce ljeti ne ide dovoljno duboko za astronomski proračun kraja sehura. Sabah i jacija su tačni. Iz predostrožnosti zapostiti ranije.</div>`;
+  }
+
+  // "Kraj sehura" kartica — kad se sehur (-18.5°) ne može izračunati prikazuje
+  // se crveni precautionary tekst umjesto vremena (sans font, čitljivije):
+  //  • sehur null ali sabah postoji  → "Iz predostrožnosti zapostiti ranije"
+  //  • ni sabah ni sehur (visoke širine) → "Zapostiti na vrijeme"
+  const sehurVal=(isBiHSandzak&&zoraBA!=null)?zoraBA:times.sehurKraj;
+  let sehurCardInner;
+  if(sehurVal!==null){
+    sehurCardInner=`<div class="danas-extra-time">${fmtTime(sehurVal)}</div>`
+      +`<div class="danas-extra-sub">${isBiHSandzak&&zoraBA!=null?'Lokalno':'Ummul-kura'}</div>`;
+  }else if(times.sabah!==null){
+    sehurCardInner=`<div class="danas-extra-note-red">Iz predostrožnosti zapostiti ranije</div>`;
+  }else{
+    sehurCardInner=`<div class="danas-extra-note-red">Zapostiti na vrijeme</div>`;
   }
 
   html+=`<div class="danas-extra-row danas-extra-row-v9">
@@ -5669,8 +5696,7 @@ function renderDanasVaktu(times,opts={}){
     </div>
     <div class="danas-extra-card danas-extra-card-v9" id="dcard-sehurKraj">
       <div class="danas-extra-label one-line">Kraj sehura</div>
-      <div class="danas-extra-time">${fmtTime(isBiHSandzak&&zoraBA!=null?zoraBA:times.sehurKraj)}</div>
-      <div class="danas-extra-sub">${isBiHSandzak&&zoraBA!=null?'Lokalno':'Ummul-kura'}</div>
+      ${sehurCardInner}
       <div class="sehur-countdown-line hidden" id="sehurCountdownLine">
         <strong id="sehurCountdown">--:--:--</strong>
       </div>
