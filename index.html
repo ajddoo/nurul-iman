@@ -936,6 +936,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   overflow-wrap:break-word;hyphens:auto;
   text-align:center;
 }
+/* v2.27.68: countdown fallback (npr. visoke širine — "do izlaska sunca" kad
+   su sabah/jacija null) nema sub-liniju; ne rezerviši prazan prostor za nju. */
+.danas-next-name:not(:has(small)){min-height:0}
 .danas-timer{white-space:nowrap}
 .danas-countdown.cd-iftar #cdLeftTimer{font-size:clamp(2.1rem,8.5vw,3rem)}
 .danas-row{gap:10px;align-items:center}
