@@ -5069,6 +5069,19 @@ function getCountdownPhase(t,nowH){
     };
   }
 
+  // ── Faza 2-hl: visoke širine — sehurKraj (-18.5°) nedostupan ─────────
+  // Sunce ljeti ne ide do -18.5° (Njemačka maj-juli), ali sabah (-15°)
+  // postoji. Faze 1 i 2 traže sehurEnd → preskaču. Ova faza pokriva rupu:
+  // countdown polaNoći → sabah ISNA. Ne računa nijedan novi vakat.
+  if(!isHejaz&&!has(sehurEnd)&&has(t.polaNoci)&&has(t.sabah)
+     &&isTimeInRange(nowH,t.polaNoci,t.sabah)){
+    return {
+      left: {label:'do sabaha', sub:'ISNA', diff:safeDiff(t.sabah)},
+      right:null,
+      layout:'horizontal'
+    };
+  }
+
   // ── Faza 2b (Saudija): UK sabah → ISNA sabah ─────────────────────────
   // Period između nastupa Ummul-kura sabaha i ISNA sabaha.
   // Lijevo: status "nastupio sabah po Ummul-kura" + countdown do ISNA.
@@ -5632,9 +5645,12 @@ function renderDanasVaktu(times,opts={}){
   // sunce ne ide ispod -15° (sabah) ili -18.5° (sehur). Tipično >66° latitude.
   // Vakuti su null → prikazuje se "--:--" za pogođene namaze. Korisnik mora znati
   // da to nije bug nego astronomsko ograničenje.
-  const polarMissing=times.sabah===null||times.jacija===null||times.sehurKraj===null;
-  if(polarMissing){
+  const sabahJacijaMissing=times.sabah===null||times.jacija===null;
+  const onlySehurMissing=!sabahJacijaMissing&&times.sehurKraj===null;
+  if(sabahJacijaMissing){
     html+=`<div class="danas-source-note danas-source-warn">⚠ Na ovoj geografskoj širini astronomska kalkulacija ne daje sve namaske vakte (sunce ne ide dovoljno ispod horizonta). Konsultuj lokalnu islamsku zajednicu za sabah i jaciju.</div>`;
+  }else if(onlySehurMissing){
+    html+=`<div class="danas-source-note danas-source-warn">⚠ Ovih dana Sunce ljeti ne ide dovoljno duboko za astronomski proračun kraja sehura. Sabah i jacija su tačni. Za kraj sehura konsultuj lokalnu islamsku zajednicu.</div>`;
   }
 
   html+=`<div class="danas-extra-row danas-extra-row-v9">
