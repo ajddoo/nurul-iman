@@ -413,7 +413,7 @@ main{flex:1;overflow:hidden;position:relative}
    DANAS — glavni ekran
    ============================================================================ */
 #panel-danas{
-  padding:22px 14px 14px;gap:8px;  /* v2.27.70: gornji padding 10→22px — zrak između headera i vaktije */
+  padding:22px 14px 14px;gap:8px;  /* v2.27.70/71: gornji 22px zrak; donji 14px — perka ne preblizu menubara */
   overflow-y:auto;
 }
 
@@ -889,6 +889,18 @@ main{flex:1;overflow:hidden;position:relative}
 
 /* ── wake lock za live odbrojavanje ──────────────────────────────────────── */
 .danas-countdown{position:relative;overflow:hidden}
+/* v2.27.71: diskretan Divan watermark u donjem desnom uglu countdown kartice —
+   blijed (6%), djelimično van ivice (overflow:hidden ga kropuje), iza sadržaja. */
+.danas-cd-watermark{
+  position:absolute;right:-16px;bottom:-3px;  /* v2.27.71: na pola između prve (-12) i podignute (6) verzije */
+  width:99px;height:99px;  /* v2.27.71: -5% */
+  background:url("data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjE1My4zIDExMi41IDI5My41IDM3NC45Ij48ZGVmcz48c3R5bGU+IC5jbHMtMSB7IGZpbGw6ICNmZmY7IHN0cm9rZS13aWR0aDogMHB4OyB9IDwvc3R5bGU+PC9kZWZzPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0ibTM5OC4wNCwxMzguODdjLTIuMDQtMS40MS00LjUyLTIuOTctOS41LTYuMDctNC45OC0zLjEtNy40Ny00LjY0LTkuNjEtNS44My01MC45NC0yOC40NC0xMTQuMzUtMTMuNy0xNDcuNDksMzQuMjgtMS40MSwyLjA0LTIuOTcsNC41Mi02LjA2LDkuNWwtNjAuODksOTcuNzhjLTIuNDYsMy45Ni00LjEsNi41OC01LjMsMTAuMTctMS4wMywzLjEzLTEuNTgsNi40LTEuNjEsOS43NC0uMDMsMy43Mi42Niw2LjY5LDEuNzQsMTEuMzFsMjQuNywxMDYuMjJjMS43NCw3LjUxLDMsMTIuODksNS4zNSwxNy40OGwtMzYuMSw2NC4wMmgzMC44MWwzMS41MS00Ny42OWM1LjE1LjA5LDEwLjU0LTEuMTYsMTguMDYtMi45MWwxMDYuMzYtMjQuNzNjNC41LTEuMDUsNy40Ny0xLjc0LDEwLjc2LTMuMzksMi45OS0xLjUsNS43Mi0zLjQ1LDguMDQtNS43NCwyLjY5LTIuNjMsNC4zMi01LjI2LDYuOC05LjI0bDYwLjg4LTk3Ljc3YzMuMS00Ljk4LDQuNjQtNy40Nyw1Ljg0LTkuNjIsMjguNDQtNTAuOTQsMTMuNjktMTE0LjM0LTM0LjI4LTE0Ny40OVptLTU4LjY2LDIzOC41NWMtMS4xLDEuNzYtMS43MywyLjg5LTIuMTksMy41OC0uOTkuMzYtMi4yNC41OS00LjMxLDEuMDdsLTk1LjE0LDIyLjEyLDI1LjMyLTQwLjY2LDk5LjM1LTIzLjEtMjMuMDIsMzYuOThabTY1Ljk2LTEwNi4xMWMtMS4wNCwxLjg3LTIuMzksNC4wMy01LjA4LDguMzRsLTE0Ljc3LDIzLjcyLTk5LjM1LDIzLjEsNjQuOTktMTA0LjM4LTI2LjIyLTE2LjMzLTExMy4zOSwxODIuMS0yMi4xNS05NS4yN2MtLjQ2LTEuOTYtLjgxLTMuMTktLjk2LTMuOTMuNDUtLjk4LDEuMTgtMi4wNSwyLjMtMy44M2w2MC44OC05Ny43OGMyLjY5LTQuMzEsNC4wMi02LjQ3LDUuMjUtOC4yNCwyNC4wNi0zNC44Myw3MC4wNy00NS41MywxMDcuMDQtMjQuODgsMS41Ni44NywzLjMyLDEuOTUsNi4zNSwzLjg0LjYxLjM4LDEuMjcuNzksMS45OCwxLjI0LDQuMjcsMi42Myw2LjQ4LDQuMDEsOC4yNiw1LjI2LDM0LjgyLDI0LjA2LDQ1LjUyLDcwLjA2LDI0Ljg3LDEwNy4wM1oiLz48L3N2Zz4=") no-repeat center/contain;
+  opacity:0.06;
+  pointer-events:none;
+  z-index:0;
+}
+.danas-countdown .cd-single,
+.danas-countdown .cd-status{position:relative;z-index:1}
 /* v2.27.53: ugaoni "tab" stil umjesto plivajućeg kruga. Tab je integrisan u
    gornji desni ugao kartice — top-right radius matchuje kartičin r-lg, donji
    lijevi ima manji radius (r-md) za smooth tuck-in. Subtilna gold linija na
@@ -2616,7 +2628,8 @@ body.live-focus-mode .live-focus-overlay{
   user-select:text!important;
   -webkit-user-select:text!important;
 }
-.app-info-row:last-child{
+.app-info-row:last-child,
+.app-info-row:has(+ .app-info-footer){  /* v2.27.71: zadnji red prije footera — bez donje crtice (footer ima svoju gornju) */
   border-bottom:none!important;
 }
 .app-info-term{
@@ -2641,6 +2654,27 @@ body.live-focus-mode .live-focus-overlay{
   padding-top:14px;
   border-top:1px solid rgba(var(--accent-rgb),0.14);
   text-align:center;
+}
+/* v2.27.70: Divan primary logo u footeru info modala (navy podloga — bijeli SVG) */
+.app-info-divan-logo{
+  display:block;
+  height:72px;width:auto;
+  margin:0 auto 8px;
+}
+/* v2.27.70/71: Divan simbol kao diskretan potpis na dnu Danas panela (zlatni SVG).
+   Hairline iznad simbola — da djeluje kao namjeran pečat, ne kao da lebdi. */
+.danas-divan-mark{
+  display:flex;flex-direction:column;align-items:center;
+  padding:14px 0 0;  /* v2.27.71: balansirano — 14px gore, 14px dole (panel-bottom) */
+}
+.danas-divan-mark::before{
+  content:'';
+  width:140px;height:1px;  /* v2.27.71: šira linija sa fade krajevima */
+  background:linear-gradient(90deg,transparent,rgba(var(--accent-rgb),0.34) 50%,transparent);
+  margin-bottom:14px;
+}
+.danas-divan-mark img{
+  height:28px;width:auto;  /* v2.27.71: 32→28px */
 }
 .app-info-footer-org{
   font-family:var(--font-display);
@@ -3612,6 +3646,7 @@ body.is-offline .danas-status-dot{
       </div>
     </div>
     <div class="danas-countdown" id="danasCountdownLive">
+      <div class="danas-cd-watermark" aria-hidden="true"></div>
       <button class="wake-lock-btn" id="wakeLockBtn" type="button" aria-label="Drži ekran budnim" title="Drži ekran budnim">🔓</button>
       <div class="cd-single" id="cdLeft">
         <div class="danas-next-label">Preostalo</div>
@@ -3724,7 +3759,8 @@ body.is-offline .danas-status-dot{
       <div class="app-info-row"><span class="app-info-term">Ummul-kura</span><span class="app-info-def">metod za Saudijsku Arabiju</span></div>
       <div class="app-info-row"><span class="app-info-term">Aktivno</span><span class="app-info-def">namaz se može klanjati</span></div>
       <div class="app-info-footer">
-        <div class="app-info-footer-org">Aplikacija Jel' vakat? by Divan<br>UG Divan – Tuzla</div>
+        <img class="app-info-divan-logo" src="data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjEwNS45IDczLjQgMzg4LjIgNDUzLjEiPjxkZWZzPjxzdHlsZT4gLnN0MCB7IGZpbGw6ICNmNWVkZDY7IH0gPC9zdHlsZT48L2RlZnM+PHBhdGggY2xhc3M9InN0MCIgZD0iTTIwOS42MSwyOTljLTMuMTQtNy40Ni03LjUzLTEzLjk4LTEzLjE1LTE5LjU1LTUuNjMtNS41Ny0xMi4yNi05Ljg5LTE5LjktMTIuOTdzLTE1Ljk3LTQuNjItMjQuOTctNC42MmgtNDUuNjd2MTIzLjMzaDQ2LjAzYzguODksMCwxNy4xNS0xLjU0LDI0Ljc5LTQuNjIsNy42NC0zLjA4LDE0LjI0LTcuNCwxOS44Mi0xMi45Nyw1LjU3LTUuNTcsOS45Mi0xMi4xMSwxMy4wNi0xOS42NCwzLjE0LTcuNTIsNC43MS0xNS42Nyw0LjcxLTI0LjQzcy0xLjU3LTE3LjA2LTQuNzEtMjQuNTNoLS4wMVpNMTkxLjMxLDM0Ny41MmMtMy44NSw2Ljk5LTkuMjQsMTIuNDctMTYuMTcsMTYuNDRzLTE0LjksNS45NS0yMy45LDUuOTVoLTI4LjYxdi05Mi43N2gyOC42MWM5LDAsMTYuOTQsMS45OSwyMy44MSw1Ljk1LDYuODcsMy45NywxMi4yNiw5LjQyLDE2LjE3LDE2LjM1czUuODYsMTQuOSw1Ljg2LDIzLjktMS45MywxNy4xOC01Ljc3LDI0LjE3aDBaIi8+PHJlY3QgY2xhc3M9InN0MCIgeD0iMjIyLjQxIiB5PSIyOTUuNDkiIHdpZHRoPSIxNi4xNyIgaGVpZ2h0PSI4NC40MSIvPjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMzE2LjUxIDI5NS40OSAyOTAuNCAzNTQuOTggMjY0LjQ0IDI5NS40OSAyNDYuNjcgMjk1LjQ5IDI4NS40MSAzNzkuOSAyOTQuODMgMzc5LjkgMzMzLjU3IDI5NS40OSAzMTYuNTEgMjk1LjQ5Ii8+PHBhdGggY2xhc3M9InN0MCIgZD0iTTM5NC4wNiwzMDAuNzh2MTEuNzhjLTIuOTItMy45My02LjQ4LTcuMjEtMTAuOTMtOS41Ni01LjA0LTIuNjYtMTAuNzUtNC0xNy4xNS00LTcuODIsMC0xNC44NCwxLjk2LTIxLjA2LDUuODdzLTExLjE0LDkuMTgtMTQuNzUsMTUuODItNS40MiwxNC4xLTUuNDIsMjIuMzksMS44MSwxNS43Niw1LjQyLDIyLjM5YzMuNjEsNi42NCw4LjUzLDExLjg4LDE0Ljc1LDE1LjczczEzLjI0LDUuNzcsMjEuMDYsNS43N2M2LjQsMCwxMi4xNC0xLjMzLDE3LjI0LTQsNC40NS0yLjMzLDcuOTctNS42LDEwLjg0LTkuNTJ2MTEuNzRoMTYuMTd2LTg0LjQxaC0xNi4xN1pNMzg3Ljg0LDM2My43OGMtNC44Niw1LjM5LTExLjI2LDguMDgtMTkuMTksOC4wOC01LjMzLDAtMTAuMDctMS4yNC0xNC4yMi0zLjczLTQuMTUtMi40OS03LjM3LTUuODktOS42OC0xMC4yMi0yLjMxLTQuMzItMy40Ni05LjMzLTMuNDYtMTUuMDJzMS4xNS0xMC41MSwzLjQ2LTE0Ljg0LDUuNTEtNy43Myw5LjYtMTAuMjIsOC44LTMuNzMsMTQuMTMtMy43Myw5Ljk4LDEuMjIsMTMuOTUsMy42NGMzLjk3LDIuNDMsNy4wOCw1Ljg0LDkuMzMsMTAuMjIsMi4yNSw0LjM5LDMuMzgsOS40MiwzLjM4LDE1LjExLDAsOC40MS0yLjQzLDE1LjMxLTcuMjksMjAuN2gtLjAxWiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xMjIuMTIsMTcyLjM3YzI3Ljk0LjI2LDU1Ljk0LDMuMDcsODMuMzUsOC40LDEuMDUuMiwyLjA5LjQ4LDMuMTQuN3YtMTYuNTdzLS4wNCwwLS4wNSwwYy0zMS4xLTYuMDQtNjIuOTQtOS4wNC05NC42LTguNjlsLTguMDMuMDd2ODkuNDNoMTYuMTl2LTczLjMzWiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik00ODYsMTU2LjE4aC0uNzFjLTMxLjA1LDAtNjIuMjIsMi45OS05Mi43LDguODR2MTYuNTFjLjY1LS4xMywxLjMtLjMsMS45NS0uNDMsMjcuNC01LjMzLDU1LjQxLTguMjQsODMuMzUtOC42OHYxMTAuNGgxNi4xOXYtMTI2LjYzaC04LjA5LDBaIi8+PHBhdGggY2xhc3M9InN0MCIgZD0iTTQ4OS43NiwzMTYuMzJjLTIuODQtNS4xNS02LjczLTkuMzMtMTEuNjQtMTIuNTMtNC45Mi0zLjItMTAuNTctNC44LTE2Ljk3LTQuOHMtMTIuMTQsMS40NS0xNy4yNCw0LjM2Yy0zLjg0LDIuMTktNy4wNCw0Ljk3LTkuNiw4LjMzdi0xMC45MWgtMTZ2ODQuNDFoMTZ2LTQ5LjIzYzAtNC4yNy45NS04LjA2LDIuODQtMTEuMzgsMS44OS0zLjMxLDQuNS01LjkyLDcuODItNy44MiwzLjMyLTEuODksNy4xMS0yLjg0LDExLjM3LTIuODQsNi40LDAsMTIuMDcsMi4wNywxNi4wNCw2LjIyczUuOTUsOS40Miw1Ljk1LDE1LjgybC0uNDQsNDYuMTZ2OTAuN2MtMjguOTguNDQtNTguMDIsMy40NS04Ni40NCw4Ljk4LTMxLjIsNi4wNy02MS45MiwxNS4yMi05MS4zNiwyNy4yLTI5LjM5LTEyLjU4LTYwLjE2LTIyLjAzLTkxLjU0LTI4LjExLTI4LjQzLTUuNTEtNTcuMzItOC4xNy04Ni40NC04LjIxdi03MS4zMmgtMTYuMTl2ODcuNzZsOC4yNi0uMTdjMzAuNTktLjU5LDYxLjI4LDIuMDIsOTEuMjksNy44MywzMS4zMyw2LjA3LDYyLjA1LDE1LjYzLDkxLjI5LDI4LjQybDMuMTYsMS4zOCwzLjE4LTEuMzJjMjkuNDEtMTIuMjEsNjAuMTgtMjEuNDgsOTEuNDQtMjcuNTcsMjkuODItNS44LDYwLjM1LTguNzQsOTAuNzUtOC43NGg4Ljh2LTEwNi44M2wtLjA2LTQ5LjM2YzAtNS44LTEuNDItMTEuMjktNC4yNi0xNi40NGgwWiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0zNTAuODcsODcuMjNjLTEuMDctLjc0LTIuMzctMS41Ni00Ljk5LTMuMTgtMi42MS0xLjYzLTMuOTItMi40NC01LjA0LTMuMDYtMjYuNzMtMTQuOTItNjAuMDEtNy4xOS03Ny40LDE3Ljk5LS43NCwxLjA3LTEuNTYsMi4zNy0zLjE4LDQuOThsLTMxLjk1LDUxLjMxYy0xLjI5LDIuMDgtMi4xNSwzLjQ1LTIuNzgsNS4zNC0uNTQsMS42NC0uODMsMy4zNi0uODQsNS4xMSwwLDEuOTUuMzQsMy41MS45MSw1LjkzbDEyLjk2LDU1Ljc0Yy45MSwzLjk0LDEuNTcsNi43NywyLjgxLDkuMTdsLTE4Ljk1LDMzLjZoMTYuMTdsMTYuNTMtMjUuMDNjMi43LjA1LDUuNTMtLjYxLDkuNDgtMS41M2w1NS44Mi0xMi45OGMyLjM2LS41NSwzLjkyLS45MSw1LjY0LTEuNzgsMS41Ny0uNzgsMy0xLjgxLDQuMjItMy4wMSwxLjQxLTEuMzgsMi4yNy0yLjc2LDMuNTctNC44NWwzMS45NS01MS4zMWMxLjYzLTIuNjEsMi40NC0zLjkyLDMuMDYtNS4wNSwxNC45Mi0yNi43Myw3LjE5LTYwLTE3Ljk5LTc3LjRoMFpNMzIwLjA5LDIxMi40MmMtLjU4LjkyLS45MSwxLjUyLTEuMTUsMS44OC0uNTIuMTktMS4xNy4zMS0yLjI2LjU2bC00OS45MywxMS42MSwxMy4yOC0yMS4zNCw1Mi4xNC0xMi4xMi0xMi4wOCwxOS40aDBaTTM1NC43LDE1Ni43NGMtLjU1Ljk4LTEuMjYsMi4xMS0yLjY3LDQuMzhsLTcuNzUsMTIuNDUtNTIuMTQsMTIuMTIsMzQuMTEtNTQuNzctMTMuNzYtOC41Ny01OS41MSw5NS41Ni0xMS42Mi00OS45OWMtLjI0LTEuMDMtLjQyLTEuNjctLjUtMi4wNi4yNC0uNTEuNjItMS4wOCwxLjItMi4wMWwzMS45NS01MS4zMWMxLjQxLTIuMjYsMi4xMS0zLjQsMi43Ni00LjMzLDEyLjYzLTE4LjI4LDM2Ljc3LTIzLjg5LDU2LjE3LTEzLjA1LjgyLjQ2LDEuNzQsMS4wMiwzLjMzLDIuMDEuMzIuMi42Ny40MSwxLjA0LjY1LDIuMjQsMS4zOCwzLjQsMi4xMSw0LjMzLDIuNzYsMTguMjcsMTIuNjIsMjMuODksMzYuNzcsMTMuMDUsNTYuMTdoLjAxWiIvPjwvc3ZnPg==" alt="Divan"/>
+        <div class="app-info-footer-org">UG Divan – Tuzla</div>
         <div class="app-info-footer-copy">Sva prava pridržana · UG Divan</div>
       </div>
     </div>
@@ -5707,6 +5743,8 @@ function renderDanasVaktu(times,opts={}){
       <div class="danas-extra-sub">${isHejaz?'Ummul-kura':'ISNA'}</div>
     </div>
   </div>`;
+
+  html+=`<div class="danas-divan-mark"><img src="data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjE1My4zIDExMi41IDI5My41IDM3NC45Ij48ZGVmcz48c3R5bGU+IC5jbHMtMSB7IGZpbGw6ICNjOWE4NGM7IHN0cm9rZS13aWR0aDogMHB4OyB9IDwvc3R5bGU+PC9kZWZzPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0ibTM5OC4wNCwxMzguODdjLTIuMDQtMS40MS00LjUyLTIuOTctOS41LTYuMDctNC45OC0zLjEtNy40Ny00LjY0LTkuNjEtNS44My01MC45NC0yOC40NC0xMTQuMzUtMTMuNy0xNDcuNDksMzQuMjgtMS40MSwyLjA0LTIuOTcsNC41Mi02LjA2LDkuNWwtNjAuODksOTcuNzhjLTIuNDYsMy45Ni00LjEsNi41OC01LjMsMTAuMTctMS4wMywzLjEzLTEuNTgsNi40LTEuNjEsOS43NC0uMDMsMy43Mi42Niw2LjY5LDEuNzQsMTEuMzFsMjQuNywxMDYuMjJjMS43NCw3LjUxLDMsMTIuODksNS4zNSwxNy40OGwtMzYuMSw2NC4wMmgzMC44MWwzMS41MS00Ny42OWM1LjE1LjA5LDEwLjU0LTEuMTYsMTguMDYtMi45MWwxMDYuMzYtMjQuNzNjNC41LTEuMDUsNy40Ny0xLjc0LDEwLjc2LTMuMzksMi45OS0xLjUsNS43Mi0zLjQ1LDguMDQtNS43NCwyLjY5LTIuNjMsNC4zMi01LjI2LDYuOC05LjI0bDYwLjg4LTk3Ljc3YzMuMS00Ljk4LDQuNjQtNy40Nyw1Ljg0LTkuNjIsMjguNDQtNTAuOTQsMTMuNjktMTE0LjM0LTM0LjI4LTE0Ny40OVptLTU4LjY2LDIzOC41NWMtMS4xLDEuNzYtMS43MywyLjg5LTIuMTksMy41OC0uOTkuMzYtMi4yNC41OS00LjMxLDEuMDdsLTk1LjE0LDIyLjEyLDI1LjMyLTQwLjY2LDk5LjM1LTIzLjEtMjMuMDIsMzYuOThabTY1Ljk2LTEwNi4xMWMtMS4wNCwxLjg3LTIuMzksNC4wMy01LjA4LDguMzRsLTE0Ljc3LDIzLjcyLTk5LjM1LDIzLjEsNjQuOTktMTA0LjM4LTI2LjIyLTE2LjMzLTExMy4zOSwxODIuMS0yMi4xNS05NS4yN2MtLjQ2LTEuOTYtLjgxLTMuMTktLjk2LTMuOTMuNDUtLjk4LDEuMTgtMi4wNSwyLjMtMy44M2w2MC44OC05Ny43OGMyLjY5LTQuMzEsNC4wMi02LjQ3LDUuMjUtOC4yNCwyNC4wNi0zNC44Myw3MC4wNy00NS41MywxMDcuMDQtMjQuODgsMS41Ni44NywzLjMyLDEuOTUsNi4zNSwzLjg0LjYxLjM4LDEuMjcuNzksMS45OCwxLjI0LDQuMjcsMi42Myw2LjQ4LDQuMDEsOC4yNiw1LjI2LDM0LjgyLDI0LjA2LDQ1LjUyLDcwLjA2LDI0Ljg3LDEwNy4wM1oiLz48L3N2Zz4=" alt="Divan"/></div>`;
 
   list.innerHTML=html;
   if(danasInterval)clearInterval(danasInterval);
