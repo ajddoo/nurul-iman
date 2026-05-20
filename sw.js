@@ -13,7 +13,7 @@
 // Verzija keša se mijenja sa svakom novom verzijom app-a. Stari keš se briše.
 // ════════════════════════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'mn-v2.27.73';
+const CACHE_VERSION = 'mn-v2.27.74';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -26,6 +26,14 @@ const APP_SHELL = [
   './icon-512.png'
 ];
 
+// Lokalni fontovi — pre-keširaju se pri instalaciji, posluživani cache-first
+const FONT_ASSETS = [
+  './fonts/cormorant-garamond-latin.woff2',
+  './fonts/cormorant-garamond-latin-ext.woff2',
+  './fonts/amiri-400-latin.woff2',
+  './fonts/amiri-400-latin-ext.woff2'
+];
+
 // API hostovi koji se NIKADA ne keširaju
 const API_HOSTS = [
   'api.open-meteo.com',
@@ -35,7 +43,7 @@ const API_HOSTS = [
 // ── INSTALL ─────────────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE).then(cache => cache.addAll(APP_SHELL))
+    caches.open(APP_SHELL_CACHE).then(cache => cache.addAll([...APP_SHELL, ...FONT_ASSETS]))
   );
   // Aktiviraj odmah, ne čekaj na zatvaranje svih tabova
   self.skipWaiting();

@@ -2,7 +2,7 @@
 <html lang="bs" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com https://nominatim.openstreetmap.org; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none';"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com https://nominatim.openstreetmap.org; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none';"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
@@ -26,15 +26,28 @@
 <meta property="og:type" content="website"/>
 <meta name="twitter:card" content="summary"/>
 <link rel="manifest" href="manifest.json"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<!-- v2.27.x: display=block — UVIJEK koristi Cormorant Garamond (brand font).
-     Pri prvom load-u kratak blank period (~100-300ms) dok font se učita.
-     Pri sljedećim sesijama font je keširan i koristi se instant.
-     Trade-off: kratak blank pri prvom load-u umjesto pogrešnog fonta. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=block"/>
-<noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet"/></noscript>
 <style>
+/* Lokalni fontovi (self-hosted WOFF2) — bez vanjskih poziva, radi offline. */
+@font-face{
+  font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;
+  src:url(fonts/cormorant-garamond-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;
+  src:url(fonts/cormorant-garamond-latin-ext.woff2) format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face{
+  font-family:'Amiri';font-style:normal;font-weight:400;font-display:swap;
+  src:url(fonts/amiri-400-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'Amiri';font-style:normal;font-weight:400;font-display:swap;
+  src:url(fonts/amiri-400-latin-ext.woff2) format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
 /* ============================================================================
    Jel' vakat? by Divan — kompletan CSS sistem
    Color tokens · Komponente · Stanja · Responsive
@@ -84,6 +97,7 @@
   --border-strong:rgba(var(--accent-rgb),0.55);
 
   --status-warn:#E07A5F;
+  --status-warn-dark:#A8472A;  /* tamna varijanta — warn tekst na svijetloj (warm-white) podlozi, WCAG AA */
   --status-ok:#7AAE7E;
 
   /* Layout — border-radius skala */
@@ -789,7 +803,7 @@ main{flex:1;overflow:hidden;position:relative}
   padding:6px 12px 0;line-height:1.35;
   letter-spacing:0.02em;
 }
-.danas-accuracy.warn{display:block;color:var(--status-warn)}
+.danas-accuracy.warn{display:block;color:var(--status-warn-dark)}
 .danas-accuracy.ok{display:block;color:var(--warm-gray)}
 
 
@@ -2962,7 +2976,7 @@ body.live-focus-mode .live-focus-overlay{
 .danas-loc-btn-secondary{
   background:transparent;
   border:1px dashed var(--border-mid);
-  color:var(--accent-light);
+  color:var(--text-on-light);
 }
 .danas-loc-btn-secondary:hover,
 .danas-loc-btn-secondary:active{
@@ -3565,7 +3579,7 @@ body.is-offline .danas-status-dot{
         <div class="danas-cond" id="danasCond"></div>
       </div>
       <!-- Desno: kalendar -->
-      <div class="danas-cal-card" id="danasCalCard" role="button" tabindex="0" aria-label="Otvori takvim">
+      <div class="danas-cal-card" id="danasCalCard" role="button" tabindex="0" title="Otvori takvim">
         <div class="danas-cal-day" id="danasCalDay">–</div>
         <div class="danas-cal-month" id="danasCalMonth">–</div>
         <div class="danas-cal-year" id="danasCalYear"></div>
@@ -6242,7 +6256,6 @@ if(locGpsBtn)locGpsBtn.addEventListener('click',useGPSAgain);
 const placeWrap=document.querySelector('.danas-place-wrap');
 if(placeWrap){
   placeWrap.setAttribute('role','button');
-  placeWrap.setAttribute('aria-label','Promijeni lokaciju');
   placeWrap.setAttribute('title','Promijeni lokaciju');
   placeWrap.addEventListener('click',e=>{
     // Ako je klik na X reset dugme — vrati GPS umjesto otvaranja modala
